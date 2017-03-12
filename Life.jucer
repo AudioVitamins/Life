@@ -13,6 +13,8 @@
               companyEmail="info@audiovitamins.com">
   <MAINGROUP id="iF88XL" name="Life">
     <GROUP id="{8A69A9FD-4FF6-82F9-BF93-7A72225A8DC0}" name="Source">
+      <FILE id="hCq58B" name="GUI.cpp" compile="1" resource="0" file="Source/GUI.cpp"/>
+      <FILE id="vuUNa2" name="GUI.h" compile="0" resource="0" file="Source/GUI.h"/>
       <FILE id="JEOXEh" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="euPk1I" name="PluginProcessor.h" compile="0" resource="0"
