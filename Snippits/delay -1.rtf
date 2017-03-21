@@ -1,0 +1,76 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww19480\viewh21240\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\partightenfactor0
+
+\f0\b\fs24 \cf0 Most simple and smooth feedback delay\
+
+\b0 \
+Type : Feedback delay\
+References : Posted by antiprosynthesis[AT]hotmail[DOT]com\
+\
+Notes : \
+fDlyTime = delay time parameter (0-1)\
+\
+i = input index\
+j = delay index\
+\
+Code : \
+if( i >= SampleRate )\
+\'a0\'a0\'a0\'a0i = 0;\
+\
+j = i - (fDlyTime * SampleRate);\
+\
+if( j < 0 )\
+\'a0\'a0\'a0\'a0j += SampleRate;\
+\
+Output = DlyBuffer[ i++ ] = Input + (DlyBuffer[ j ] * fFeedback);\
+\
+
+\b \
+Sine calculation\
+
+\b0 \
+Type : waveform generation, Taylor approximation of sin()\
+References : Posted by Phil Burk\
+\
+Notes : \
+Code from JSyn for a sine wave generator based on a Taylor Expansion. It is not as efficient as the filter methods, but it has linear frequency control and is, therefore, suitable for FM or other time varying applications where accurate frequency is needed. The sine generated is accurate to at least 16 bits.\
+\
+Code : \
+for(i=0; i < nSamples ; i++)\
+\{\
+\'a0\'a0//Generate sawtooth phasor to provide phase for sine generation\
+\'a0\'a0IncrementWrapPhase(phase, freqPtr[i]);\
+\'a0\'a0//Wrap phase back into region where results are more accurate\
+\
+\'a0\'a0if(phase > 0.5)\
+\'a0\'a0\'a0\'a0yp = 1.0 - phase;\
+\'a0\'a0else\
+\'a0\'a0\{\
+\'a0\'a0\'a0\'a0if(phase < -0.5)\
+\'a0\'a0\'a0\'a0\'a0\'a0 yp = -1.0 - phase;\
+\'a0\'a0\'a0\'a0else\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0yp = phase;\
+\'a0\'a0\}\
+\
+\'a0\'a0x = yp * PI;\
+\'a0\'a0x2 = x*x;\
+\
+\'a0\'a0//Taylor expansion out to x**9/9! factored\'a0\'a0into multiply-adds\
+\'a0\'a0fastsin = x*(x2*(x2*(x2*(x2*(1.0/362880.0)\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0- (1.0/5040.0))\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0+ (1.0/120.0))\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0- (1.0/6.0))\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0+ 1.0);\
+\
+\'a0\'a0outPtr[i] = fastsin * amplPtr[i];\
+\}\
+\
+\
+\
+\
+\
+\
+}
