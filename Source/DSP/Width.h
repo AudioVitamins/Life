@@ -11,8 +11,10 @@
 #ifndef WIDTH_H_INCLUDED
 #define WIDTH_H_INCLUDED
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "Smooth.h"
 namespace Jimmy {
 	namespace DSP {
+#if 0
 		class Width {
 			float mWidth;
 		public:
@@ -39,12 +41,56 @@ namespace Jimmy {
 				float mid = (inL + inR) / sqrt(2.0);
 				float side = (inL - inR) / sqrt(2.0);
 
-				mid *= 1.8 * (1 - mWidth);
-				side *= 1.8 * mWidth;
+				mid *= 2 * (1 - mWidth);
+				side *= 2 * mWidth;
 
 				outL = (mid + side) / sqrt(2.0);
 				outR = (mid - side) / sqrt(2.0);
 			}
+		};
+#endif
+		class Width {
+			float mWidth;
+			ScopedPointer<SmoothFilter> mSmooth;
+		public:
+			Width() : mWidth(0.5f) {
+				mSmooth = new SmoothFilter();
+			};
+			~Width() {
+				mSmooth = nullptr;
+			};
+
+			void preparePlay(float sampleRate) {
+				mSmooth->preparePlay(0.01, sampleRate);
+			}
+			void setWidth(float width0to1) {
+				mWidth = width0to1;
+				mSmooth->setNewValue(width0to1);
+			}
+			void process(AudioSampleBuffer& buffer) {
+				if (buffer.getNumChannels() > 1) {
+					float *inBufferL = buffer.getWritePointer(0);
+					float *inBufferR = buffer.getWritePointer(1);
+					int numSamples = buffer.getNumSamples();
+					for (int i = 0; i < numSamples; i++) {
+						const float inL = inBufferL[i];
+						const float inR = inBufferR[i];
+						float &outL = inBufferL[i];
+						float &outR = inBufferR[i];
+
+						float mid = (inL + inR)/2.0;
+						float side = (inL - inR)/2.0;
+						float width = mSmooth->getValue();
+
+						mid *=  (1 - width);
+						side *= width;
+
+						outL = (mid + side);
+						outR = (mid - side);
+					}
+				}
+			}
+
 		};
 	};
 };

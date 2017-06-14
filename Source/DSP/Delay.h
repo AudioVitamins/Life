@@ -13,6 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "../LogUtil.h"
+#include "Smooth.h"
 namespace Jimmy {
 	namespace DSP {
 		class StaticDelay {
@@ -30,7 +31,7 @@ namespace Jimmy {
 			int mReadIndex;
 			int mNumDelaySamples;
 			AudioBuffer<float> mDelayBuffer;
-
+			ScopedPointer<SmoothFilter> mSmooth;
 		public:
 			StaticDelay(float sampleRate, float minDelay/*In Mili second*/, float maxDelay /*In Mili second*/, int numChannel) :
 				mSampleRate(sampleRate),
@@ -39,35 +40,26 @@ namespace Jimmy {
 				mValueDelaySample(0.0f),
 				mNumChannels(numChannel)
 			{
-				mNumDelaySamples = 0.051 * mSampleRate;
+				mNumDelaySamples = 0.1 * mSampleRate;
 				mDelayBuffer.setSize(mNumChannels, mNumDelaySamples);
 				mDelayBuffer.clear();
 
 				mWriteIndex = mReadIndex = 0;
-				//mPositionRDelay.resize(mNumChannels);
-				//mPositionWDelay.resize(mNumChannels);
+				mSmooth = new SmoothFilter();
 			};
 
 			~StaticDelay() {
-
+				mSmooth = nullptr;
 			};
 
 			void setDelayInMiliSec(float delayInSec) {
-				mValueDelaySample = delayInSec;
+				mSmooth->setNewValue(delayInSec);
+				/*mValueDelaySample = delayInSec;
 				mDelayPoints = mSampleRate * mValueDelaySample/1000.0;
 
 				mReadIndex = mWriteIndex - (int)mDelayPoints;
 				if (mReadIndex < 0) {
 					mReadIndex += mNumDelaySamples;
-				}
-				/*for (int channel = 0; channel < mNumChannels; ++channel)
-				{
-					int &posW = mPositionWDelay.getReference(channel);
-					int &posR = mPositionRDelay.getReference(channel);
-					posR = posW - (int)mDelayPoints;
-					if (posR < 0) {
-						posR += mNumDelaySamples;
-					}
 				}*/
 			}
 
@@ -79,21 +71,37 @@ namespace Jimmy {
 			void preparePlay() {
 				
 				mDelayBuffer.clear();
+				mSmooth->preparePlay(1, mSampleRate);
 
 				mWriteIndex = 0;
+				mReadIndex = 0;
 
-				mDelayPoints = mSampleRate * mValueDelaySample / 1000.0;
-				mReadIndex = mWriteIndex - (int)mDelayPoints;
-				if (mReadIndex < 0) {
-					mReadIndex += mNumDelaySamples;
-				}
+				//mDelayPoints = mSampleRate * mValueDelaySample / 1000.0;
+				//mReadIndex = mWriteIndex - (int)mDelayPoints;
+				//if (mReadIndex < 0) {
+				//	mReadIndex += mNumDelaySamples;
+				//}
 			}
 
 			void process(AudioBuffer<float> &buffer) {
 				int numSamples = buffer.getNumSamples();
 				float **delayBuffer = mDelayBuffer.getArrayOfWritePointers();
 				float **outputBuffer = buffer.getArrayOfWritePointers();
+
+
+
+
 				for (int i = 0; i < numSamples; i++) {
+
+					// Delay
+					mValueDelaySample = mSmooth->getValue();
+					mDelayPoints = mSampleRate * mValueDelaySample / 1000.0;
+
+					mReadIndex = mWriteIndex - (int)mDelayPoints;
+					if (mReadIndex < 0) {
+						mReadIndex += mNumDelaySamples;
+					}
+
 
 					int mReadIndex_1 = mReadIndex - 1;
 					if (mReadIndex_1 < 0) {
@@ -110,9 +118,6 @@ namespace Jimmy {
 						outputBuffer[ch][i] = out;
 					}
 					
-					mReadIndex++;
-					if (mReadIndex >= mNumDelaySamples)
-						mReadIndex -= mNumDelaySamples;
 					mWriteIndex++;
 					if (mWriteIndex >= mNumDelaySamples)
 						mWriteIndex -= mNumDelaySamples;

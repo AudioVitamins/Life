@@ -17,13 +17,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_70E811DD34ADA5DB__
-#define __JUCE_HEADER_70E811DD34ADA5DB__
+#ifndef __JUCE_HEADER_EEE63DCCFEE5A61__
+#define __JUCE_HEADER_EEE63DCCFEE5A61__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
-class LifeAudioProcessor;
-class LifeGUI;
 //[/Headers]
 
 
@@ -36,36 +34,38 @@ class LifeGUI;
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class LifeAudioProcessorEditor  : public AudioProcessorEditor
+class SliderComponent  : public Slider
 {
 public:
     //==============================================================================
-    LifeAudioProcessorEditor (LifeAudioProcessor& p);
-    ~LifeAudioProcessorEditor();
+    SliderComponent ();
+    ~SliderComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	explicit SliderComponent(const String& componentName): Slider(componentName){
+	};
+	void mouseDoubleClick(const MouseEvent&) override;
     //[/UserMethods]
 
-    void paint (Graphics& g) override;
-    void resized() override;
+   // void paint (Graphics& g) override;
+    //void resized() override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    LifeAudioProcessor& mP;
+	ScopedPointer<Label> textBox;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<LifeGUI> mLifeGui;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LifeAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SliderComponent)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_70E811DD34ADA5DB__
+#endif   // __JUCE_HEADER_EEE63DCCFEE5A61__

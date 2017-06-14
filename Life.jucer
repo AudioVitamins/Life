@@ -4,7 +4,7 @@
               bundleIdentifier="com.AudioVitamins.Life" includeBinaryInAppConfig="0"
               buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"
               buildAAX="0" pluginName="Life" pluginDesc="Life" pluginManufacturer="Audio Vitamins"
-              pluginManufacturerCode="AuVi" pluginCode="Life" pluginChannelConfigs="{1,2},{2,2}"
+              pluginManufacturerCode="AuVi" pluginCode="Life" pluginChannelConfigs="{1,1},{2,2}"
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix=""
               pluginRTASCategory="" aaxIdentifier="com.AudioVitamins.Life"
@@ -14,6 +14,10 @@
               enableIAA="0">
   <MAINGROUP id="iF88XL" name="Life">
     <GROUP id="{8A69A9FD-4FF6-82F9-BF93-7A72225A8DC0}" name="Source">
+      <GROUP id="{EEF018BF-472A-3ADD-49EF-9881994EA5F2}" name="Component">
+        <FILE id="mRRIn1" name="Slider.cpp" compile="1" resource="0" file="Source/Slider.cpp"/>
+        <FILE id="wvcEYx" name="Slider.h" compile="0" resource="0" file="Source/Slider.h"/>
+      </GROUP>
       <GROUP id="{77F80B38-38B9-20E9-6F16-6164BF5A39D4}" name="DSP">
         <FILE id="Rw6BoL" name="Delay.cpp" compile="1" resource="0" file="Source/DSP/Delay.cpp"/>
         <FILE id="HGYjtX" name="Delay.h" compile="0" resource="0" file="Source/DSP/Delay.h"/>

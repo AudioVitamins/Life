@@ -13,6 +13,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Lfo.h"
 #include "Delay.h"
+#include "../LogUtil.h"
+#include "Smooth.h"
 namespace Jimmy {
 	namespace DSP {
 		class Vibrato {
@@ -36,6 +38,8 @@ namespace Jimmy {
 			//int writeIndex[2] = { 0,0 };
 			//float phase[2] = { 0,0 };
 			AudioBuffer<float> mDelayBuffer;
+
+			Array<SmoothFilter> mSmoothFeedback;
 		public:
 			Vibrato(float sampleRate, int nChans) :
 				mSampleRate(sampleRate),
@@ -58,6 +62,9 @@ namespace Jimmy {
 				}
 				mDelayBuffer.setSize(nChans, mBufferSize);
 				mDelayBuffer.clear();
+				for (int c = 0; c < mNumChans; c++) {
+					mSmoothFeedback.add(SmoothFilter());
+				}
 			}
 
 			~Vibrato() {
@@ -70,13 +77,16 @@ namespace Jimmy {
 				}
 			}
 
-			void preparePlay() {
-				// JIMMY_LOGGER_ACTIVATE(JIMMY_LOGGER_INFO);
+			void preparePlay(float sampleRate) {
+				//JIMMY_LOGGER_ACTIVATE(JIMMY_LOGGER_INFO);
 				mDelayBuffer.clear();
 				for (int c = 0; c < mNumChans; c++) {
 					mLfo.getReference(c).preparePlay();
 					mWriteIdx.getReference(c) = 0;
 					mReadIdx.getReference(c) = 0;
+				}
+				for (int c = 0; c < mNumChans; c++) {
+					mSmoothFeedback.getReference(c).preparePlay(0.01, sampleRate);
 				}
 			}
 
@@ -86,7 +96,10 @@ namespace Jimmy {
 			};
 
 			void SetFeedback(float feedBackPct) {
-				mFeedback = feedBackPct;
+				//mFeedback = feedBackPct;
+				for (int c = 0; c < mNumChans; c++) {
+					mSmoothFeedback.getReference(c).setNewValue(feedBackPct);
+				}
 			};
 
 			void process(AudioBuffer<float> &buffer) {
@@ -156,8 +169,8 @@ namespace Jimmy {
 
 					LFO &lfo = mLfo.getRawDataPointer()[c];
 					int &writeIdx = mWriteIdx.getRawDataPointer()[c];
-					//int &readIdx = mReadIdx.getRawDataPointer()[c];
 					
+					SmoothFilter &smooth = mSmoothFeedback.getReference(c);
 					for (int i = 0; i < numSamples; i++) {
 
  						float modFreq = lfo.Value();
@@ -174,6 +187,7 @@ namespace Jimmy {
 						outputBuffer[i] = fInterp;
 						//JIMMY_LOGGER_PRINT(INFORMATION, "Chan %d Read %d Write %d Delta %d Mode Freq %1.7f Offset %3.7f yn-1 %3.7f yn %3.7f delta %3.7f out %3.7f\n",
 						//c, readIdx, writeIdx, writeIdx - readIdx, modFreq, offset, yn_1, yn, yn_1 - yn, fInterp);
+						mFeedback = smooth.getValue();
 						delayBuffer[writeIdx] = (1.0 - mFeedback / 100.0) * xn + mFeedback /100.0 * fInterp;
 						// Incr Write index
 						writeIdx = (writeIdx + 1) % mBufferSize;

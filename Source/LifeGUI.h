@@ -23,6 +23,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
 class LifeAudioProcessor;
+class SliderComponent;
 //[/Headers]
 
 
@@ -74,13 +75,26 @@ public:
 	};
 	class CustomSlider : public LookAndFeel_V3
 	{
+	public:
+		class SliderLabelComp : public Label
+		{
+		public:
+			SliderLabelComp() : Label(String::empty, String::empty) {}
+
+			void mouseWheelMove(const MouseEvent&, const MouseWheelDetails&) {}
+			void mouseDoubleClick(const MouseEvent&) override {
+				this->showEditor();
+			};
+		};
+	private:
 		KnobImageInfo &knob;
 	public:
 		CustomSlider(KnobImageInfo &knobInfo) : LookAndFeel_V3(), knob(knobInfo) {
 			LookAndFeel::setDefaultLookAndFeel(this);
 		};
-		void mouseDoubleClick(const MouseEvent&);
+
 		~CustomSlider() {};
+		Label* createSliderTextBox(Slider& slider) override;
 		void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPos,
 			const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override;
 	};

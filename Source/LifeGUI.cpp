@@ -20,6 +20,7 @@
 //[Headers] You can add your own extra header files here...
 #include "PluginProcessor.h"
 #include "Config.h"
+#include "Slider.h"
 //[/Headers]
 
 #include "LifeGUI.h"
@@ -28,15 +29,30 @@
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 
 // Custom Slider
+Label* LifeGUI::CustomSlider::createSliderTextBox(Slider& slider) {
+	Label* const l = new CustomSlider::SliderLabelComp();
+
+	l->setJustificationType(Justification::centred);
+	l->setKeyboardType(TextInputTarget::decimalKeyboard);
+
+	l->setColour(Label::textColourId, slider.findColour(Slider::textBoxTextColourId));
+	l->setColour(Label::backgroundColourId,
+		(slider.getSliderStyle() == Slider::LinearBar || slider.getSliderStyle() == Slider::LinearBarVertical)
+		? Colours::transparentBlack
+		: slider.findColour(Slider::textBoxBackgroundColourId));
+	l->setColour(Label::outlineColourId, slider.findColour(Slider::textBoxOutlineColourId));
+	l->setColour(TextEditor::textColourId, slider.findColour(Slider::textBoxTextColourId));
+	l->setColour(TextEditor::backgroundColourId,
+		slider.findColour(Slider::textBoxBackgroundColourId)
+		.withAlpha((slider.getSliderStyle() == Slider::LinearBar || slider.getSliderStyle() == Slider::LinearBarVertical)
+			? 0.7f : 1.0f));
+	l->setColour(TextEditor::outlineColourId, slider.findColour(Slider::textBoxOutlineColourId));
+	l->setColour(TextEditor::highlightColourId, slider.findColour(Slider::textBoxHighlightColourId));
+
+	return l;
+}
 void LifeGUI::CustomSlider::drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPos,
 	const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) {
-//	const float radius = jmin(width / 2, height / 2) - 2.0f;
-//	const float centreX = x + width * 0.5f;
-//	const float centreY = y + height * 0.5f;
-//	const float rx = centreX - radius;
-//	const float ry = centreY - radius;
-//	const float rw = radius * 2.0f;
-//	const float angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
 	const bool isMouseOver = slider.isMouseOverOrDragging() && slider.isEnabled();
 	int numImg = sliderPos * (knob.numOfImages - 1) + 0.5f;
 	float xImg = knob.FirstKnobX;
@@ -53,7 +69,7 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	// Nomalize
-	normalizeDelaySlider = new NormalisableRange<float>(0.0f, 50.0f, 5.0);
+	normalizeDelaySlider = new NormalisableRange<float>(0.0f, 100.0f, 1.0);
 	normalizePitchRateSlider = new NormalisableRange<float>(1.0f, 4.0f, 1.0);
 	normalizePitchAmountSlider = new NormalisableRange<float>(0.0f, 5.0f, 1.0);
 	normalizeFeedbackSlider = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
@@ -187,8 +203,8 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
 
 	loPassFilterSlider->setLookAndFeel(knobLookDelay);
 	highPassFilterSlider->setLookAndFeel(knobLookDelay);
-	loPassFilterSlider->setSkewFactorFromMidPoint(2000.0f);
-	highPassFilterSlider->setSkewFactorFromMidPoint(2000.0f);
+	loPassFilterSlider->setSkewFactorFromMidPoint(1000.0f);
+	highPassFilterSlider->setSkewFactorFromMidPoint(1000.0f);
 
 	stereoWidthSlider->setLookAndFeel(knobLookDelay);
 	wetDrySlider->setLookAndFeel(knobLookDelay);
@@ -629,6 +645,7 @@ void LifeGUI::timerCallback() {
 }
 //[/MiscUserCode]
 
+
 //==============================================================================
 #if 0
 /*  -- Projucer information section --
@@ -656,7 +673,7 @@ BEGIN_JUCER_METADATA
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <SLIDER name="delaySlider" id="7678e3274e85fcea" memberName="delaySlider"
           virtualName="" explicitFocusOrder="0" pos="95 32 40 40" min="0"
-          max="50" int="1" style="RotaryHorizontalVerticalDrag" textBoxPos="NoTextBox"
+          max="100" int="1" style="RotaryHorizontalVerticalDrag" textBoxPos="NoTextBox"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"
           needsCallback="1"/>
   <SLIDER name="pitchRateSlider" id="638637df855e064f" memberName="pitchRateSlider"
