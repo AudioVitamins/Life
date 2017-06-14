@@ -17,12 +17,12 @@ namespace Jimmy {
 	namespace DSP {
 		class LFO {
 			int mSampleRate;
-			float mPhase;
 			float mFrequency;
 			float mCurrentPhase;
 		public:
 			LFO(int sampleRate) : mSampleRate(sampleRate),
-				mPhase(0.0f), mFrequency(0.0f){
+				 mFrequency(0.0f),
+				 mCurrentPhase(0.0f){
 			};
 
 			~LFO() {
@@ -31,20 +31,20 @@ namespace Jimmy {
 			void SetFrequency(float freq) {
 				mFrequency = freq;
 			}
-			void SetPhase(float phase) {
-				mCurrentPhase -= mPhase;
-				mPhase = phase;
-				mCurrentPhase += mPhase;
+
+			void preparePlay() {
+				mCurrentPhase = 0.0;
 			}
+
 			float Value() {
-				const float dp = 2 * float_Pi * mFrequency / mSampleRate; // phase step
+				const float dp = 2.0f * float_Pi * mFrequency / mSampleRate; // phase step
 
-				float value = sin(mPhase);
-				value = (value + 1) * 0.5; // transform from [-1; 1] to [0; 1]
+				float value = sin(mCurrentPhase);
+				value = (value /*+ 1*/) /* 0.5f*/; // transform from [-1; 1] to [0; 1]
 
-				mPhase += dp;
-				while (mPhase > 2 * float_Pi)
-					mPhase -= 2 * float_Pi;
+				mCurrentPhase += dp;
+				if (mCurrentPhase > 2.0f * float_Pi)
+					mCurrentPhase -= 2.0f * float_Pi;
 
 				return value;
 			}

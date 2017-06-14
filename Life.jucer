@@ -2,16 +2,16 @@
 
 <JUCERPROJECT id="P5E3Kx" name="Life" projectType="audioplug" version="1.0.0"
               bundleIdentifier="com.AudioVitamins.Life" includeBinaryInAppConfig="0"
-              buildVST="0" buildVST3="0" buildAU="0" buildAUv3="0" buildRTAS="0"
-              buildAAX="1" pluginName="Life" pluginDesc="Life" pluginManufacturer="Audio Vitamins"
+              buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"
+              buildAAX="0" pluginName="Life" pluginDesc="Life" pluginManufacturer="Audio Vitamins"
               pluginManufacturerCode="AuVi" pluginCode="Life" pluginChannelConfigs="{1,2},{2,2}"
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix=""
               pluginRTASCategory="" aaxIdentifier="com.AudioVitamins.Life"
-              pluginAAXCategory="AAX_ePlugInCategory_None" jucerVersion="4.3.1"
-              companyName="Audio Vitamins" companyWebsite="https://www.audiovitamins.com"
-              companyEmail="info@audiovitamins.com" pluginAUMainType="" pluginVSTCategory=""
-              buildStandalone="0" enableIAA="0">
+              pluginAAXCategory="" jucerVersion="4.3.1" companyName="Audio Vitamins"
+              companyWebsite="https://www.audiovitamins.com" companyEmail="info@audiovitamins.com"
+              pluginAUMainType="" pluginVSTCategory="" buildStandalone="0"
+              enableIAA="0">
   <MAINGROUP id="iF88XL" name="Life">
     <GROUP id="{8A69A9FD-4FF6-82F9-BF93-7A72225A8DC0}" name="Source">
       <GROUP id="{77F80B38-38B9-20E9-6F16-6164BF5A39D4}" name="DSP">

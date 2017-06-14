@@ -12,6 +12,7 @@
 #define PLUGINPROCESSOR_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "DSP/Delay.h"
 #include "DSP/Vibrato.h"
 #include "DSP/Tremolo.h"
 #include "DSP/IIRFilter.h"
@@ -22,7 +23,8 @@
 //==============================================================================
 /**
 */
-class LifeAudioProcessor  : public AudioProcessor
+class LifeAudioProcessor : public AudioProcessor,
+	public AudioProcessorValueTreeState::Listener
 {
 public:
     //==============================================================================
@@ -97,6 +99,7 @@ private:
 
 	static String paramGainMaster;
 
+	void parameterChanged(const String& parameterID, float newValue) override;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LifeAudioProcessor)
 };
 

@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.3.1
+  Created with Projucer version: 4.2.3
 
   ------------------------------------------------------------------------------
 
@@ -17,7 +17,8 @@
   ==============================================================================
 */
 
-#pragma once
+#ifndef __JUCE_HEADER_1A035C6AA1EC25D6__
+#define __JUCE_HEADER_1A035C6AA1EC25D6__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -75,7 +76,10 @@ public:
 	{
 		KnobImageInfo &knob;
 	public:
-		CustomSlider(KnobImageInfo &knobInfo) : LookAndFeel_V3(), knob(knobInfo) {};
+		CustomSlider(KnobImageInfo &knobInfo) : LookAndFeel_V3(), knob(knobInfo) {
+			LookAndFeel::setDefaultLookAndFeel(this);
+		};
+		void mouseDoubleClick(const MouseEvent&);
 		~CustomSlider() {};
 		void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPos,
 			const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override;
@@ -105,6 +109,8 @@ public:
     static const int whitered_rotaryswitch_6pos_vertical_60x60_pngSize;
     static const char* whitered_rotaryswitch_4pos_vertical_60x60_png;
     static const int whitered_rotaryswitch_4pos_vertical_60x60_pngSize;
+    static const char* life_ui_cmversionbgv2_png;
+    static const int life_ui_cmversionbgv2_pngSize;
 
 
 private:
@@ -165,7 +171,7 @@ private:
     ScopedPointer<Slider> loPassFilterSlider;
     ScopedPointer<Slider> wetDrySlider;
     ScopedPointer<Slider> masterGainSlider;
-    Image cachedImage_life_ui_cmversionbg_png_1;
+    Image cachedImage_life_ui_cmversionbgv2_png_1;
 
 
     //==============================================================================
@@ -174,3 +180,5 @@ private:
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+
+#endif   // __JUCE_HEADER_1A035C6AA1EC25D6__

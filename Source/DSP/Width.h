@@ -39,8 +39,8 @@ namespace Jimmy {
 				float mid = (inL + inR) / sqrt(2.0);
 				float side = (inL - inR) / sqrt(2.0);
 
-				mid *= 2 * (1 - mWidth);
-				side *= 2 * mWidth;
+				mid *= 1.8 * (1 - mWidth);
+				side *= 1.8 * mWidth;
 
 				outL = (mid + side) / sqrt(2.0);
 				outR = (mid - side) / sqrt(2.0);
