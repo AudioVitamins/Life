@@ -1,42 +1,118 @@
 /*
   ==============================================================================
 
-    This file was auto-generated!
+  This is an automatically generated GUI class created by the Projucer!
 
-    It contains the basic framework code for a JUCE plugin editor.
+  Be careful when adding custom code to these files, as only the code within
+  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
+  and re-saved.
+
+  Created with Projucer version: 4.2.3
+
+  ------------------------------------------------------------------------------
+
+  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
+  Copyright (c) 2015 - ROLI Ltd.
 
   ==============================================================================
 */
 
+//[Headers] You can add your own extra header files here...
 #include "PluginProcessor.h"
+#include "LifeGui.h"
+//[/Headers]
+
 #include "PluginEditor.h"
 
 
+//[MiscUserDefs] You can add your own user definitions and misc code here...
+//[/MiscUserDefs]
+
 //==============================================================================
 LifeAudioProcessorEditor::LifeAudioProcessorEditor (LifeAudioProcessor& p)
-    : AudioProcessorEditor (&p), processor (p)
+    : mP(p), AudioProcessorEditor(p)
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
+
+    addAndMakeVisible (mLifeGui = new LifeGUI (mP));
+    mLifeGui->setName ("new component");
+
+
+    //[UserPreSize]
+    //[/UserPreSize]
+
+    setSize (584, 217);
+
+
+    //[Constructor] You can add your own custom stuff here..
+    //[/Constructor]
 }
 
 LifeAudioProcessorEditor::~LifeAudioProcessorEditor()
 {
+    //[Destructor_pre]. You can add your own custom destruction code here..
+    //[/Destructor_pre]
+
+    mLifeGui = nullptr;
+
+
+    //[Destructor]. You can add your own custom destruction code here..
+    //[/Destructor]
 }
 
 //==============================================================================
 void LifeAudioProcessorEditor::paint (Graphics& g)
 {
+    //[UserPrePaint] Add your own custom painting code here..
+    //[/UserPrePaint]
+
     g.fillAll (Colours::white);
 
-    g.setColour (Colours::black);
-    g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
+    //[UserPaint] Add your own custom painting code here..
+    //[/UserPaint]
 }
 
 void LifeAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
+    mLifeGui->setBounds (0, 0, 584, 217);
+    //[UserResized] Add your own custom resize handling here..
+    //[/UserResized]
 }
+
+
+
+//[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+//[/MiscUserCode]
+
+
+//==============================================================================
+#if 0
+/*  -- Projucer information section --
+
+    This is where the Projucer stores the metadata that describe this GUI layout, so
+    make changes in here at your peril!
+
+BEGIN_JUCER_METADATA
+
+<JUCER_COMPONENT documentType="Component" className="LifeAudioProcessorEditor"
+                 componentName="" parentClasses="public AudioProcessorEditor"
+                 constructorParams="LifeAudioProcessor&amp; p" variableInitialisers="mP(p), AudioProcessorEditor(p)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="1" initialWidth="584" initialHeight="217">
+  <BACKGROUND backgroundColour="ffffffff"/>
+  <GENERICCOMPONENT name="new component" id="b8e5f4c8e79ac33e" memberName="mLifeGui"
+                    virtualName="" explicitFocusOrder="0" pos="0 0 584 217" class="LifeGUI"
+                    params="mP"/>
+</JUCER_COMPONENT>
+
+END_JUCER_METADATA
+*/
+#endif
+
+
+//[EndFile] You can add extra defines here...
+//[/EndFile]

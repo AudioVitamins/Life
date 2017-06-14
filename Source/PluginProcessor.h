@@ -12,7 +12,12 @@
 #define PLUGINPROCESSOR_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-
+#include "DSP/Vibrato.h"
+#include "DSP/Tremolo.h"
+#include "DSP/IIRFilter.h"
+#include "DSP/Width.h"
+#include "DSP/WetDry.h"
+#include "Config.h"
 
 //==============================================================================
 /**
@@ -58,6 +63,40 @@ public:
 
 private:
     //==============================================================================
+
+	ScopedPointer<Jimmy::DSP::StaticDelay> mDelay;
+	ScopedPointer<Jimmy::DSP::Vibrato> mVibrato;
+	ScopedPointer<Jimmy::DSP::Tremolo> mTremolo;
+
+	ScopedPointer<Jimmy::DSP::IIRFilterHP> mFilterHP;
+	ScopedPointer<Jimmy::DSP::IIRFilterLP> mFilterLP;
+
+	ScopedPointer<Jimmy::DSP::Width> mWidth;
+	ScopedPointer<Jimmy::DSP::WetDry> mWet;
+
+	float RateToFrequency(float rate);
+
+
+	ScopedPointer<AudioProcessorValueTreeState> mState;
+	ScopedPointer<UndoManager>                  mUndoManager;
+
+	static String paramDelay;
+	
+	static String paramPitchRate;
+	static String paramPitchAmount;
+	static String paramFeedback;
+
+	static String paramAmplitudeRate;
+	static String paramAmplitudeAmount;
+
+	static String paramHighFreq;
+	static String paramLowFreq;
+
+	static String paramWidth;
+	static String paramWetDry;
+
+	static String paramGainMaster;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LifeAudioProcessor)
 };
 
