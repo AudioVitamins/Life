@@ -18,76 +18,72 @@
 */
 
 //[Headers] You can add your own extra header files here...
-#include "PluginProcessor.h"
-#include "LifeGui.h"
 //[/Headers]
 
-#include "PluginEditor.h"
+#include "Slider.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-LifeAudioProcessorEditor::LifeAudioProcessorEditor (LifeAudioProcessor& p)
-    : mP(p), AudioProcessorEditor(p)
+SliderComponent::SliderComponent ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-    //[/Constructor_pre]
+	textBox = new Label();
 
-    addAndMakeVisible (mLifeGui = new LifeGUI (mP));
-    mLifeGui->setName ("new component");
+    //[/Constructor_pre]
 
 
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (584, 217);
+   // setSize (600, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
     //[/Constructor]
 }
 
-LifeAudioProcessorEditor::~LifeAudioProcessorEditor()
+SliderComponent::~SliderComponent()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    mLifeGui = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
     //[/Destructor]
 }
 
-//==============================================================================
-void LifeAudioProcessorEditor::paint (Graphics& g)
-{
-    //[UserPrePaint] Add your own custom painting code here..
-    //[/UserPrePaint]
-
-    g.fillAll (Colours::white);
-
-    //[UserPaint] Add your own custom painting code here..
-    //[/UserPaint]
-}
-
-void LifeAudioProcessorEditor::resized()
-{
-    //[UserPreResize] Add your own custom resize code here..
-    //[/UserPreResize]
-
-    mLifeGui->setBounds (0, 0, 584, 217);
-    //[UserResized] Add your own custom resize handling here..
-    //[/UserResized]
-}
+////==============================================================================
+//void SliderComponent::paint (Graphics& g)
+//{
+//    //[UserPrePaint] Add your own custom painting code here..
+//    //[/UserPrePaint]
+//
+//    g.fillAll (Colours::white);
+//
+//    //[UserPaint] Add your own custom painting code here..
+//    //[/UserPaint]
+//}
+//
+//void SliderComponent::resized()
+//{
+//    //[UserPreResize] Add your own custom resize code here..
+//    //[/UserPreResize]
+//
+//    //[UserResized] Add your own custom resize handling here..
+//    //[/UserResized]
+//}
 
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void SliderComponent::mouseDoubleClick(const MouseEvent&) {
+	this->showTextBox();
+}
 //[/MiscUserCode]
-
 
 //==============================================================================
 #if 0
@@ -98,15 +94,11 @@ void LifeAudioProcessorEditor::resized()
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="LifeAudioProcessorEditor"
-                 componentName="" parentClasses="public AudioProcessorEditor"
-                 constructorParams="LifeAudioProcessor&amp; p" variableInitialisers="mP(p), AudioProcessorEditor(p)"
+<JUCER_COMPONENT documentType="Component" className="SliderComponent" componentName=""
+                 parentClasses="public Slider" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="1" initialWidth="584" initialHeight="217">
+                 fixedSize="1" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ffffffff"/>
-  <GENERICCOMPONENT name="new component" id="b8e5f4c8e79ac33e" memberName="mLifeGui"
-                    virtualName="" explicitFocusOrder="0" pos="0 0 584 217" class="LifeGUI"
-                    params="mP"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -18,6 +18,7 @@
 #include "DSP/IIRFilter.h"
 #include "DSP/Width.h"
 #include "DSP/WetDry.h"
+#include "DSP/GainMaster.h"
 #include "Config.h"
 
 //==============================================================================
@@ -75,6 +76,9 @@ private:
 
 	ScopedPointer<Jimmy::DSP::Width> mWidth;
 	ScopedPointer<Jimmy::DSP::WetDry> mWet;
+
+	ScopedPointer<Jimmy::DSP::GainMaster> mGainMaster;
+
 
 	float RateToFrequency(float rate);
 
