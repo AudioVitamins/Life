@@ -14,7 +14,7 @@
 namespace Jimmy {
 	namespace DSP {
 		class IIRFilterLP {
-			ScopedPointer<juce::IIRFilter> mIIRFilter;
+			Array<juce::IIRFilter> mIIRFilter;
 			float mSampleRate;
 			int mNumChans;
 			juce::IIRCoefficients mCoefficients;
@@ -22,31 +22,39 @@ namespace Jimmy {
 			IIRFilterLP(float sampleRate, int numChans)
 				:mSampleRate(sampleRate),
 				mNumChans(numChans) {
-				mIIRFilter = new juce::IIRFilter();
+				for (int i = 0; i < numChans; i++) {
+					mIIRFilter.add(juce::IIRFilter());
+				}
 			};
 			~IIRFilterLP() {
-				mIIRFilter = nullptr;
+				mIIRFilter.clearQuick();
 			};
 			void changeCutOff(float cutOff) {
 				mCoefficients = juce::IIRCoefficients::makeLowPass(mSampleRate, cutOff);
-				mIIRFilter->setCoefficients(mCoefficients);
+				for (int i = 0; i < mNumChans; i++) {
+					mIIRFilter.getReference(i).setCoefficients(mCoefficients);
+				}
 			};
-
+			void reset() {
+				for (int i = 0; i < mNumChans; i++) {
+					mIIRFilter.getReference(i).reset();
+				}
+			}
 			void process(AudioBuffer<float> &buffer) {
 				float **buffersCh = buffer.getArrayOfWritePointers();
 				int numSamples = buffer.getNumSamples();
 
 				for (int i = 0; i < mNumChans; i++) {
-					mIIRFilter->processSamples(buffersCh[i], numSamples);
+					mIIRFilter.getReference(i).processSamples(buffersCh[i], numSamples);
 				}
 				
 			};
-			float process(float in) {
-				return mIIRFilter->processSingleSampleRaw(in);
+			void setSampleRate(float sample) {
+				mSampleRate = sample;
 			}
 		};
 		class IIRFilterHP {
-			ScopedPointer<juce::IIRFilter> mIIRFilter;
+			Array<juce::IIRFilter> mIIRFilter;
 			float mSampleRate;
 			int mNumChans;
 			juce::IIRCoefficients mCoefficients;
@@ -54,31 +62,39 @@ namespace Jimmy {
 			IIRFilterHP(float sampleRate, int numChans)
 				:mSampleRate(sampleRate),
 				mNumChans(numChans) {
-				mIIRFilter = new juce::IIRFilter();
+				for (int i = 0; i < numChans; i++) {
+					mIIRFilter.add(juce::IIRFilter());
+				}
 			};
 			~IIRFilterHP() {
-				mIIRFilter = nullptr;
+				mIIRFilter.clearQuick();
 			};
 			void changeCutOff(float cutOff) {
 				mCoefficients = juce::IIRCoefficients::makeHighPass(mSampleRate, cutOff);
-				mIIRFilter->setCoefficients(mCoefficients);
+				for (int i = 0; i < mNumChans; i++) {
+					mIIRFilter.getReference(i).setCoefficients(mCoefficients);
+				}
 			};
 			void process(AudioBuffer<float> &buffer) {
 				float **buffersCh = buffer.getArrayOfWritePointers();
 				int numSamples = buffer.getNumSamples();
 
 				for (int i = 0; i < mNumChans; i++) {
-					mIIRFilter->processSamples(buffersCh[i], numSamples);
+					mIIRFilter.getReference(i).processSamples(buffersCh[i], numSamples);
 				}
 
 			};
-			float process(float in) {
-				return mIIRFilter->processSingleSampleRaw(in);
+			void setSampleRate(float sample) {
+				mSampleRate = sample;
+			}
+			void reset() {
+				for (int i = 0; i < mNumChans; i++) {
+					mIIRFilter.getReference(i).reset();
+				}
 			}
 		};
-
 		class IIRFilterBP {
-			ScopedPointer<juce::IIRFilter> mIIRFilter;
+			Array<juce::IIRFilter> mIIRFilter;
 			float mSampleRate;
 			int mNumChans;
 			juce::IIRCoefficients mCoefficients;
@@ -86,28 +102,35 @@ namespace Jimmy {
 			IIRFilterBP(float sampleRate, int numChans)
 				:mSampleRate(sampleRate),
 				mNumChans(numChans) {
-				mIIRFilter = new juce::IIRFilter();
+				for (int i = 0; i < numChans; i++) {
+					mIIRFilter.add(juce::IIRFilter());
+				}
 			};
 			~IIRFilterBP() {
-				mIIRFilter = nullptr;
+				mIIRFilter.clearQuick();
 			};
 			void changeCutOff(float cutOff) {
 				mCoefficients = juce::IIRCoefficients::makeLowPass(mSampleRate, cutOff);
-				mIIRFilter->setCoefficients(mCoefficients);
+				for (int i = 0; i < mNumChans; i++) {
+					mIIRFilter.getReference(i).setCoefficients(mCoefficients);
+				}
 			};
-
+			void reset() {
+				for (int i = 0; i < mNumChans; i++) {
+					mIIRFilter.getReference(i).reset();
+				}
+			}
+			void setSampleRate(float sample) {
+				mSampleRate = sample;
+			}
 			void process(AudioBuffer<float> &buffer) {
 				float **buffersCh = buffer.getArrayOfWritePointers();
 				int numSamples = buffer.getNumSamples();
 
 				for (int i = 0; i < mNumChans; i++) {
-					mIIRFilter->processSamples(buffersCh[i], numSamples);
+					mIIRFilter.getReference(i).processSamples(buffersCh[i], numSamples);
 				}
-
 			};
-			float process(float in) {
-				return mIIRFilter->processSingleSampleRaw(in);
-			}
 		};
 	};
 };

@@ -23,15 +23,18 @@ namespace Jimmy {
 			float mDelayMs;
 			
 			int mBufferSize;
-			int mDelaySamples;
-
+			//int mDelaySamples;
+			
+			int mDelaySamplesForVibrato;
 			int mNumChans;
 
 			float mfDelaySamples;
-			int mReadIdx;
-			int mWriteIdx;
+			Array<int> mReadIdx;
+			Array<int> mWriteIdx;
 
-			LFO mLfo;
+			Array<LFO> mLfo;
+			//int writeIndex[2] = { 0,0 };
+			//float phase[2] = { 0,0 };
 			AudioBuffer<float> mDelayBuffer;
 		public:
 			Vibrato(float sampleRate, int nChans) :
@@ -39,14 +42,21 @@ namespace Jimmy {
 				mNumChans(nChans),
 				mFrequency(0.0),
 				mDepth(0.0),
-				mLfo(mSampleRate),
-				mBufferSize(4 * mSampleRate),
-				mDelayBuffer(mBufferSize, nChans),
-				mReadIdx(0),
-				mWriteIdx(0),
-				mDelaySamples(0),
+				mLfo(),
+				mBufferSize(2 * mSampleRate),
+				mReadIdx(),
+				mWriteIdx(),
+				//mDelaySamples(0),
+				mDelaySamplesForVibrato(2.0f /1000.0f * mSampleRate),
+				mDelayBuffer(),
 				mfDelaySamples(0.0)
 			{
+				for (int c = 0; c < mNumChans; c++) {
+					mLfo.add(LFO(mSampleRate));
+					mReadIdx.add(0);
+					mWriteIdx.add(0);
+				}
+				mDelayBuffer.setSize(nChans, mBufferSize);
 				mDelayBuffer.clear();
 			}
 
@@ -54,18 +64,22 @@ namespace Jimmy {
 
 			}
 
-			void SetDelay(float delay0to1) {
-				mDelayMs = delay0to1;
-				mDelaySamples = mDelayMs* mSampleRate;
-			};
-
 			void SetFrequency(float frequency) {
-				mLfo.SetFrequency(frequency);
+				for (int c = 0; c < mNumChans; c++) {
+					mLfo.getRawDataPointer()[c].SetFrequency(frequency);
+				}
 			}
 
-			void SetPhase(float phase) {
-				mLfo.SetPhase(phase);
+			void preparePlay() {
+				// JIMMY_LOGGER_ACTIVATE(JIMMY_LOGGER_INFO);
+				mDelayBuffer.clear();
+				for (int c = 0; c < mNumChans; c++) {
+					mLfo.getReference(c).preparePlay();
+					mWriteIdx.getReference(c) = 0;
+					mReadIdx.getReference(c) = 0;
+				}
 			}
+
 			// Amount
 			void SetDepth(float depth) {
 				mDepth = depth;
@@ -76,48 +90,104 @@ namespace Jimmy {
 			};
 
 			void process(AudioBuffer<float> &buffer) {
-				const float **input = buffer.getArrayOfReadPointers();
-				float **output = buffer.getArrayOfWritePointers();
-				float **delayBuffer = mDelayBuffer.getArrayOfWritePointers();
 				int numSamples = buffer.getNumSamples();
-				for (int i = 0; i < numSamples; i++) {
-					float lfo = mLfo.Value();
-					float offset = lfo * mDepth / 200 * mDelaySamples;
-					mReadIdx = mWriteIdx - (int)(offset);
 
-					int nReadIndex_1 = mReadIdx - 1;
-					if (nReadIndex_1 < 0) {
-						nReadIndex_1 = mBufferSize - 1; // m_nBufferSize-1 is last location
-					}
+				//AudioBuffer<float> output(mNumChans, numSamples);
+				//output.clear();
+				//float **outputBuffer = mDelayBuffer.getArrayOfWritePointers();
+				/*float depthCopy = round(0.001*mSampleRate);
+				float delay = round(0.001*mSampleRate);
+	
+				float deltaAngle = updateAngle(8);
+				for (int channel = 0; channel < mNumChans; ++channel)
+				{
+					int pos = writeIndex[channel];
+					float* channelData = buffer.getWritePointer(channel);
 
-					// Readidx check boundary
-					if (mReadIdx < 0) {
-						mReadIdx += mBufferSize;
-					}
+					for (int i = 0; i < numSamples; i++)
+					{
+						delayBuffer[channel][pos] = channelData[i];
 
-					float fFracDelay = offset - (int)offset;
+						double modfreq = sin(phase[channel]);
 
-					for (int c = 0; c < mNumChans; c++) {
-						float xn = input[c][i];
-						float &yout = output[c][i];
-						if (mReadIdx == mWriteIdx && offset < 1.0) {
-							yout = xn;
+						phase[channel] = phase[channel] + deltaAngle;
+
+						if (phase[channel] > float_Pi * 2)
+							phase[channel] = phase[channel] - (2 * float_Pi);
+
+
+						float tap = 1 + delay + depthCopy * modfreq;
+						int n = floor(tap);
+
+						float frac = tap - n;
+
+						int rindex = floor(pos - n);
+
+						if (rindex < 0)
+							rindex = rindex + mDelaySamplesForVibrato;
+
+						float sample = 0;
+						float y_1 = 0.0f, yn = 0.0f;
+						if (rindex == 0) {
+							y_1 = delayBuffer[channel][mDelaySamplesForVibrato - 1];
+							yn = delayBuffer[channel][rindex];
+							sample += y_1 *frac + (1 - frac)*yn;
 						}
 						else {
-							
-							float yn = delayBuffer[c][mReadIdx];
-							float yn_1 = delayBuffer[c][nReadIndex_1];
-							float fInterp = dLinTerp(0, 1, yn, yn_1, fFracDelay);
-							yout = fInterp;
+							y_1 = delayBuffer[channel][rindex - 1];
+							yn = delayBuffer[channel][rindex];
+							sample += y_1 *frac + (1 - frac)*yn;
 						}
+						//JIMMY_LOGGER_PRINT(JIMMY_LOGGER_INFO, "Chan %d Read %d Write %d Mode %1.7f Offset %3.7f yn-1 %3.7f yn %3.7f out %3.7f\n",
+						//	channel, rindex, pos, modfreq, tap, y_1, yn, sample);
+						pos = (pos + 1) % mDelaySamplesForVibrato;
 
-						delayBuffer[c][mWriteIdx] = xn + mFeedback /100.0 * yout;
+						channelData[i] = sample;
+						//channelData[i] = dry*channelData[i] + wet*sample;
 					}
-					// Incr Write index
-					mWriteIdx++;
-					if (mWriteIdx >= mBufferSize)
-						mWriteIdx = 0;
+					writeIndex[channel] = pos;
+				}*/
+
+				for (int c = 0; c < mNumChans; c++) {
+
+					const float *inputBuffer = buffer.getReadPointer(c);
+					float *outputBuffer = buffer.getWritePointer(c);
+					float *delayBuffer = mDelayBuffer.getWritePointer(c);
+
+					LFO &lfo = mLfo.getRawDataPointer()[c];
+					int &writeIdx = mWriteIdx.getRawDataPointer()[c];
+					//int &readIdx = mReadIdx.getRawDataPointer()[c];
+					
+					for (int i = 0; i < numSamples; i++) {
+
+ 						float modFreq = lfo.Value();
+						int delay = floor( mDepth / 100.0f * mDelaySamplesForVibrato);
+						float offset = 1 + delay +  modFreq * delay;
+						int readIdx = (writeIdx - (int)floor(offset) + mBufferSize) % mBufferSize;
+						int nReadIndex_1 = (readIdx - 1 + mBufferSize) % mBufferSize;
+						float frac = offset - floor(offset);
+
+						float xn = inputBuffer[i];
+						float yn = delayBuffer[readIdx];
+						float yn_1 = delayBuffer[nReadIndex_1];
+						float fInterp = yn_1 * frac + (1 - frac)* yn;
+						outputBuffer[i] = fInterp;
+						//JIMMY_LOGGER_PRINT(INFORMATION, "Chan %d Read %d Write %d Delta %d Mode Freq %1.7f Offset %3.7f yn-1 %3.7f yn %3.7f delta %3.7f out %3.7f\n",
+						//c, readIdx, writeIdx, writeIdx - readIdx, modFreq, offset, yn_1, yn, yn_1 - yn, fInterp);
+						delayBuffer[writeIdx] = (1.0 - mFeedback / 100.0) * xn + mFeedback /100.0 * fInterp;
+						// Incr Write index
+						writeIdx = (writeIdx + 1) % mBufferSize;
+					}
+					
+					
 				}
+				//float *delayBuffer = mDelayBuffer.getWritePointer(0);
+				//int sam = mDelayBuffer.getNumSamples();
+				//for (int i = 0; i < sam; i++) {
+				//JIMMY_LOGGER_PRINT(INFORMATION, "Idx %d  %3.5f\n", i,
+				//delayBuffer[i]);
+				//}
+				////buffer.copyFrom();
 			}
 
 		private:
@@ -134,6 +204,17 @@ namespace Jimmy {
 				float result = dx*y2 + (1 - dx)*y1;
 
 				return result;
+			}
+			float getSampleHermite4p3o(float x, float y1, float y2, float y3, float y4)
+			{
+				float c0, c1, c2, c3;
+
+				// 4-point, 3rd-order Hermite (x-form)
+				c0 = y2;
+				c1 = (1.0 / 2.0)*(y3 - y1);
+				c2 = (y1 - (5.0 / 2.0)*y2) + (2.0*y3 - (1.0 / 2.0)*y4);
+				c3 = (1.0 / 2.0)*(y4 - y1) + (3.0 / 2.0)*(y2 - y3);
+				return ((c3*x + c2)*x + c1)*x + c0;
 			}
 		};
 	}
