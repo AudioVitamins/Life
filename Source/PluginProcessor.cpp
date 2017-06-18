@@ -75,6 +75,8 @@ LifeAudioProcessor::LifeAudioProcessor()
 	mState->addParameterListener(paramWetDry, this);
 
 	mState->addParameterListener(paramGainMaster, this);
+
+    //LifeAudioProcessor::prepareToPlay(44100.0, 128); // ensure objects are built in case we get a parameter change sent before prepareToPlay is called by the host
 }
 
 LifeAudioProcessor::~LifeAudioProcessor()
@@ -149,10 +151,10 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 	mWidth = new Jimmy::DSP::Width();
 	mWet = new Jimmy::DSP::WetDry();
 
-	mDelay = new Jimmy::DSP::StaticDelay(float(sampleRate), 0.0f, 0.1f, numOutputChannel);
+	mDelay = new Jimmy::DSP::StaticDelay(float(sampleRate), 0.1f, numOutputChannel);
 	// Aplly Pitch/Feedback
 	float *delayMs = mState->getRawParameterValue(paramDelay);
-	mDelay->preparePlay();
+	mDelay->preparePlay(samplesPerBlock);
 	mDelay->setDelayInMiliSec(*delayMs);
 
 	float *ratePitch = mState->getRawParameterValue(paramPitchRate);
@@ -291,7 +293,19 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 
 //==============================================================================
 
-void LifeAudioProcessor::parameterChanged(const String& parameterID, float newValue) {
+void LifeAudioProcessor::parameterChanged(const String& parameterID, float newValue) 
+{
+    if (mDelay == nullptr)
+    {
+        /* There's a right can of worms here ... I think the approach for handling parameter
+         * changes with this listener might be wrong.   Anyway - it's possible that this
+         * is called before prepareToPlay which causes a crash unless we do this check. 
+         * 
+         * Also getPlayHead() is being called somewhere else during prepareToPlay and this isn't
+         * a valid place to call it - you should only call that in processBlock...
+         */
+        return; 
+    }
 
 	if (parameterID == LifeAudioProcessor::paramDelay) {
 //		suspendProcessing(true);

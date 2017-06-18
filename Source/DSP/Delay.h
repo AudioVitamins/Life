@@ -17,163 +17,232 @@
 namespace Jimmy {
 	namespace DSP {
 		class StaticDelay {
+
+            /** A basic delay abstraction, with linear interpolation for the reads. */
+            class SingleDelay
+            {
+            public:
+                SingleDelay (int bsize)
+                    :
+                    buf (1, nextPowerOfTwo (bsize)),
+                    mask (nextPowerOfTwo (bsize) - 1),
+                    ptr (mask)
+                {
+                    buf.clear();
+                    data = buf.getWritePointer (0);
+                }
+
+                ~SingleDelay()
+                {}
+
+                /** Return the value for a fractional delay time in samples. */
+
+                float geti (float delayTime) const
+                {
+                    const auto dInt = int (delayTime);
+                    const auto dFrac = delayTime - float (dInt);
+
+                    const int dlyIndex = (ptr + dInt) & mask;
+
+                    const auto a = data[dlyIndex];
+                    const auto b = data[(dlyIndex + 1) & mask];
+
+                    return a * (1.0f - dFrac) + b * dFrac;
+                }
+                /** Store the sample. Do this before returning delay taps
+                for an accurate timing.
+
+                @note ptr points to the sample just written. So when we read later
+                with a delay time of zero we actually get a sample!
+                */
+                void put (float inSignal)
+                {
+                    data[mask & --ptr] = inSignal;
+                }
+
+                float get (int delay) const
+                {
+                    return data[ptr + delay & mask];
+                }
+
+            private:
+                float* data;
+                AudioSampleBuffer buf;
+                int mask;
+                int ptr;
+            };
+
+
+            class PlayHead
+            {
+            public:
+                /** Returns the current gain of the playhead.  */
+                float gain()
+                {
+                    auto g = fade.getNextValue();
+                    return std::sqrt(g);
+                }
+
+                bool stopped() const { return !(fade.isSmoothing() || fade.getTargetValue() == 1.0f); }
+
+                void setFullGain()
+                {
+                    fade.setValue(1.0f);
+                    resetSmoother();
+                }
+
+                void setZeroGain()
+                {
+                    fade.setValue(0.0f);
+                    resetSmoother();
+                }
+
+                void startFadeIn()
+                {
+                    if (fade.getTargetValue() != 1.0f)
+                    {
+                        fade.setValue(0.0f);
+                        resetSmoother();
+                        fade.setValue(1.0f);
+                    }
+                }
+
+                void startFadeOut()
+                {
+                    if (fade.getTargetValue() != 0.0f)
+                    {
+                        fade.setValue(1.0f);
+                        resetSmoother();
+                        fade.setValue(0.0f);
+                    }
+                }
+
+                void resetSmoother()
+                {
+                    const float crossfadeTimeInSeconds = 0.25f;
+
+                    fade.reset(sampleRate, crossfadeTimeInSeconds);
+                }
+
+                void prepareToPlay(float sampleRate_)
+                {
+                    sampleRate = sampleRate_; 
+                }
+
+                LinearSmoothedValue<float> fade;
+
+                float delayTime{ 0 };
+                float sampleRate; 
+            };
+
+            PlayHead playheads[2];
+
+            int currentPlayhead{ 0 };
+            int mBlockSize{ 1 };
+
 			float mSampleRate;
-			float mMaxMsDelay ;
-			float mMinMsDelay;
-			float mValueDelaySample;
-			float mDelayPoints;
 			int mNumChannels;
 
-			//Array<int> mPositionRDelay;
-			//Array<int> mPositionWDelay;
-			//
-			int mWriteIndex;
-			int mReadIndex;
 			int mNumDelaySamples;
-			AudioBuffer<float> mDelayBuffer;
-			ScopedPointer<SmoothFilter> mSmooth;
+
+            bool isFirstTimeLoad{ true };
+            bool loadNewDelayTime{ false };
+            float newTargetDelayInSamples{ 0.0f };
+
+            OwnedArray<SingleDelay> delays;
+
 		public:
-			StaticDelay(float sampleRate, float minDelay/*In Mili second*/, float maxDelay /*In Mili second*/, int numChannel) :
+			StaticDelay(float sampleRate, float maxDelayMilliseconds, int numChannel) :
 				mSampleRate(sampleRate),
-				mMaxMsDelay(maxDelay),
-				mMinMsDelay(minDelay),
-				mValueDelaySample(0.0f),
 				mNumChannels(numChannel)
 			{
-				mNumDelaySamples = 0.1 * mSampleRate;
-				mDelayBuffer.setSize(mNumChannels, mNumDelaySamples);
-				mDelayBuffer.clear();
+				mNumDelaySamples = maxDelayMilliseconds * mSampleRate;
 
-				mWriteIndex = mReadIndex = 0;
-				mSmooth = new SmoothFilter();
-			};
+                for (int i = 0; i < numChannel; ++i)
+                    delays.add(new SingleDelay(mNumDelaySamples));
 
-			~StaticDelay() {
-				mSmooth = nullptr;
-			};
-
-			void setDelayInMiliSec(float delayInSec) {
-				mSmooth->setNewValue(delayInSec);
-				/*mValueDelaySample = delayInSec;
-				mDelayPoints = mSampleRate * mValueDelaySample/1000.0;
-
-				mReadIndex = mWriteIndex - (int)mDelayPoints;
-				if (mReadIndex < 0) {
-					mReadIndex += mNumDelaySamples;
-				}*/
+                playheads[0].prepareToPlay(sampleRate);
+                playheads[0].setFullGain();
+                playheads[1].prepareToPlay(sampleRate);
+                playheads[1].setZeroGain();
 			}
 
-			void setDelay(float delay0to1) {
-				mValueDelaySample = mMinMsDelay + (mMaxMsDelay - mMinMsDelay) * delay0to1;
-				setDelayInMiliSec(mValueDelaySample);
+			~StaticDelay() {}
+
+            void togglePlayhead ()
+            {
+                currentPlayhead = 1 - currentPlayhead;
+            }
+             
+            PlayHead & getOtherPlayhead()
+            {
+                return playheads[1 - currentPlayhead];
+            }
+
+            void setDelayInMiliSec(float delayInSec)
+		    {
+                if (isFirstTimeLoad)
+                {
+                    playheads[currentPlayhead].delayTime = newTargetDelayInSamples * mSampleRate / 1000.0f;
+                    isFirstTimeLoad = false;
+                }
+                else
+                {
+                    loadNewDelayTime = true;
+                    newTargetDelayInSamples = delayInSec;
+                }
 			}
 
-			void preparePlay() {
-				
-				mDelayBuffer.clear();
-				mSmooth->preparePlay(1, mSampleRate);
-
-				mWriteIndex = 0;
-				mReadIndex = 0;
-
-				//mDelayPoints = mSampleRate * mValueDelaySample / 1000.0;
-				//mReadIndex = mWriteIndex - (int)mDelayPoints;
-				//if (mReadIndex < 0) {
-				//	mReadIndex += mNumDelaySamples;
-				//}
+			void preparePlay(int blockSize) 
+		    {
+                mBlockSize = blockSize;
 			}
 
-			void process(AudioBuffer<float> &buffer) {
-				int numSamples = buffer.getNumSamples();
-				float **delayBuffer = mDelayBuffer.getArrayOfWritePointers();
-				float **outputBuffer = buffer.getArrayOfWritePointers();
+            void updateDelayTime ()
+            {
+                if (loadNewDelayTime && getOtherPlayhead().stopped())
+                {
+                    playheads[currentPlayhead].startFadeOut();
+                    togglePlayhead();
+                    playheads[currentPlayhead].startFadeIn();
+                    playheads[currentPlayhead].delayTime = newTargetDelayInSamples * mSampleRate / 1000.0f;
+                    loadNewDelayTime = false;
+                }
+            }
 
+			void process(AudioBuffer<float> &buffer) 
+		    {
+                updateDelayTime(); 
 
+				auto numSamples = buffer.getNumSamples();
+				auto numChannels = buffer.getNumChannels();
 
+				auto audio = buffer.getArrayOfWritePointers();
 
-				for (int i = 0; i < numSamples; i++) {
+                for (int i = 0; i < numSamples; ++i)
+                {
+                    float headGains[2]; 
 
-					// Delay
-					mValueDelaySample = mSmooth->getValue();
-					mDelayPoints = mSampleRate * mValueDelaySample / 1000.0;
+                    headGains[0] = playheads[0].gain();
+                    headGains[1] = playheads[1].gain();
 
-					mReadIndex = mWriteIndex - (int)mDelayPoints;
-					if (mReadIndex < 0) {
-						mReadIndex += mNumDelaySamples;
-					}
+                    for (int chan = 0; chan < numChannels; ++chan)
+                    {
+                        delays[chan]->put(audio[chan][i]);
 
+                        float out{ 0.0f };
 
-					int mReadIndex_1 = mReadIndex - 1;
-					if (mReadIndex_1 < 0) {
-						mReadIndex_1 += mNumDelaySamples;
-					}
+                        for (int headIndex = 0; headIndex < 2; ++headIndex)
+                        {
+                            if (! playheads[headIndex].stopped())
+                                out += delays[chan]->geti(playheads[headIndex].delayTime) * headGains[headIndex];
+                        }
 
-					for (int ch = 0; ch < mNumChannels; ch++) {
-						float xn = delayBuffer[ch][mWriteIndex] = outputBuffer[ch][i];
-						float yn = delayBuffer[ch][mReadIndex];
-						float yn_1 = delayBuffer[ch][mReadIndex_1];
-
-						float factor = mDelayPoints - (int)mDelayPoints;
-						float out = dLinTerp(0.0, 1.0, yn, yn_1, factor);
-						outputBuffer[ch][i] = out;
-					}
-					
-					mWriteIndex++;
-					if (mWriteIndex >= mNumDelaySamples)
-						mWriteIndex -= mNumDelaySamples;
-				}
-
-				//int numSamples = buffer.getNumSamples();
-				//// Push To delay
-				//for (int channel = 0; channel < mNumChannels; ++channel)
-				//{
-	
-				//	//int &posR = mPositionRDelay.getReference(channel);
-				//	//int &posW = mPositionWDelay.getReference(channel);
-				//	float *delayWPointer = mDelayBuffer.getWritePointer(channel);
-				//	float* outputData = buffer.getWritePointer(channel);
-				//	
-				//	for (int i = 0; i < numSamples; i++) {
-				//		// xn
-				//		float xn = outputData[i];
-				//		float yn = delayWPointer[posR];
-
-				//		int posR_1 = posR - 1;
-				//		if (posR_1 < 0) {
-				//			posR_1 += mNumDelaySamples;
-				//		}
-				//		float yn_1 = delayWPointer[posR_1];
-				//		float fFracDelay = mDelayPoints - (int)mDelayPoints;
-				//		// Send output
-				//		outputData[i] = /*(yn_1) * fFracDelay + (1.0 - fFracDelay) **/ yn;
-
-				//		// Write data to delay buffer
-				//		delayWPointer[posW] = xn;
-				//		posR++;
-				//		if (posR > mNumDelaySamples)
-				//			posR -= mNumDelaySamples;
-				//		posW++;
-				//		if (posW > mNumDelaySamples)
-				//			posW -= mNumDelaySamples;
-				//	}
-				//}
-			};
-
-			float dLinTerp(float x1, float x2, float y1, float y2, float x)
-			{
-				float denom = x2 - x1;
-				if (denom == 0)
-					return y1; // should not ever happen
-
-							   // calculate decimal position of x
-				float dx = (x - x1) / (x2 - x1);
-
-				// use weighted sum method of interpolating
-				float result = dx*y2 + (1 - dx)*y1;
-
-				return result;
+                        audio[chan][i] = out;
+                    }
+                }
 			}
 		};
-	};
-};
+	}
+}
 #endif  // DELAY_H_INCLUDED
