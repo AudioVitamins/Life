@@ -78,8 +78,8 @@ namespace Jimmy {
 						float &outL = inBufferL[i];
 						float &outR = inBufferR[i];
 
-						float mid = (inL + inR)/2.0;
-						float side = (inL - inR)/2.0;
+						float mid = (inL + inR);
+						float side = (inL - inR);
 						float width = mSmooth->getValue();
 
 						mid *=  (1 - width);

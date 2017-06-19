@@ -72,7 +72,6 @@ namespace Jimmy {
                 int ptr;
             };
 
-
             class PlayHead
             {
             public:

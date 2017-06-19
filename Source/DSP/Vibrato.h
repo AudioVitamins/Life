@@ -17,6 +17,327 @@
 #include "Smooth.h"
 namespace Jimmy {
 	namespace DSP {
+		class DelayVibrato {
+
+			/** A basic delay abstraction, with linear interpolation for the reads. */
+			class SingleDelay
+			{
+			public:
+				SingleDelay(int bsize)
+					:
+					buf(1, nextPowerOfTwo(bsize)),
+					mask(nextPowerOfTwo(bsize) - 1),
+					ptr(mask)
+				{
+					buf.clear();
+					data = buf.getWritePointer(0);
+				}
+
+				~SingleDelay()
+				{}
+
+				/** Return the value for a fractional delay time in samples. */
+
+				float geti(float delayTime) const
+				{
+					const auto dInt = int(delayTime);
+					const auto dFrac = delayTime - float(dInt);
+
+					const int dlyIndex = (ptr + dInt) & mask;
+
+					const auto a = data[dlyIndex];
+					const auto b = data[(dlyIndex + 1) & mask];
+
+					return a * (1.0f - dFrac) + b * dFrac;
+				}
+				/** Store the sample. Do this before returning delay taps
+				for an accurate timing.
+
+				@note ptr points to the sample just written. So when we read later
+				with a delay time of zero we actually get a sample!
+				*/
+				void put(float inSignal)
+				{
+					data[mask & --ptr] = inSignal;
+				}
+
+				float get(int delay) const
+				{
+					return data[ptr + delay & mask];
+				}
+
+			private:
+				float* data;
+				AudioSampleBuffer buf;
+				int mask;
+				int ptr;
+			};
+
+			class PlayHead
+			{
+			public:
+				/** Returns the current gain of the playhead.  */
+				float gain()
+				{
+					auto g = fade.getNextValue();
+					return std::sqrt(g);
+				}
+
+				bool stopped() const {
+					return !(fade.isSmoothing() || fade.getTargetValue() == 1.0f);
+				}
+
+				void setFullGain()
+				{
+					fade.setValue(1.0f);
+					resetSmoother();
+				}
+
+				void setZeroGain()
+				{
+					fade.setValue(0.0f);
+					resetSmoother();
+				}
+
+				void startFadeIn()
+				{
+					if (fade.getTargetValue() != 1.0f)
+					{
+						fade.setValue(0.0f);
+						resetSmoother();
+						fade.setValue(1.0f);
+					}
+				}
+
+				void startFadeOut()
+				{
+					if (fade.getTargetValue() != 0.0f)
+					{
+						fade.setValue(1.0f);
+						resetSmoother();
+						fade.setValue(0.0f);
+					}
+				}
+
+				void resetSmoother()
+				{
+					const float crossfadeTimeInSeconds = 0.25f;
+
+					fade.reset(sampleRate, crossfadeTimeInSeconds);
+				}
+
+				void prepareToPlay(float sampleRate_)
+				{
+					sampleRate = sampleRate_;
+				}
+
+				LinearSmoothedValue<float> fade;
+
+				float delayTime{ 0 };
+				float sampleRate;
+			};
+
+			PlayHead playheads[2];
+
+			int currentPlayhead{ 0 };
+			int mBlockSize{ 1 };
+
+			float mSampleRate;
+			int mNumChannels;
+
+			int mNumDelaySamples;
+
+			bool isFirstTimeLoad{ true };
+			bool loadNewDelayTime{ false };
+			float newTargetDelayInSamples{ 0.0f };
+
+			OwnedArray<SingleDelay> delays;
+
+			// FOr vibrato
+			float mFrequency;
+			float mDepth;
+			float mFeedback;
+			float mDelayMs;
+
+			int mBufferSize;
+			int mDelaySamplesForVibrato;
+			float mfDelaySamples;
+			Array<int> mReadIdx;
+			Array<int> mWriteIdx;
+
+			Array<LFO> mLfo;
+			AudioBuffer<float> mDelayBuffer;
+
+			Array<SmoothFilter> mSmoothFeedback;
+		public:
+			DelayVibrato(float sampleRate, float maxDelayMilliseconds, int numChannel) :
+				mSampleRate(sampleRate),
+				mNumChannels(numChannel),
+				// FOr Vibrato
+				mFrequency(0.0),
+				mDepth(0.0),
+				mLfo(),
+				mBufferSize(2 * mSampleRate),
+				mReadIdx(),
+				mWriteIdx(),
+				mDelaySamplesForVibrato(2.0f / 1000.0f * mSampleRate),
+				mDelayBuffer(),
+				mfDelaySamples(0.0)
+			{
+				mNumDelaySamples = maxDelayMilliseconds * mSampleRate;
+
+				for (int i = 0; i < mNumChannels; ++i)
+					delays.add(new SingleDelay(mNumDelaySamples));
+
+				playheads[0].prepareToPlay(sampleRate);
+				playheads[0].setFullGain();
+				playheads[1].prepareToPlay(sampleRate);
+				playheads[1].setZeroGain();
+
+				// For vibrato
+				for (int c = 0; c < mNumChannels; c++) {
+					mLfo.add(LFO(mSampleRate));
+					mReadIdx.add(0);
+					mWriteIdx.add(0);
+				}
+				mDelayBuffer.setSize(mNumChannels, mBufferSize);
+				mDelayBuffer.clear();
+				for (int c = 0; c < mNumChannels; c++) {
+					mSmoothFeedback.add(SmoothFilter());
+				}
+			}
+
+			~DelayVibrato() {}
+
+			void togglePlayhead()
+			{
+				currentPlayhead = 1 - currentPlayhead;
+			}
+
+			PlayHead & getOtherPlayhead()
+			{
+				return playheads[1 - currentPlayhead];
+			}
+
+			void setDelayInMiliSec(float delayInSec)
+			{
+				if (isFirstTimeLoad)
+				{
+					playheads[currentPlayhead].delayTime = newTargetDelayInSamples * mSampleRate / 1000.0f;
+					isFirstTimeLoad = false;
+				}
+				else
+				{
+					loadNewDelayTime = true;
+					newTargetDelayInSamples = delayInSec;
+				}
+			}
+			//For vibrato
+			void SetFrequency(float frequency) {
+				for (int c = 0; c < mNumChannels; c++) {
+					mLfo.getRawDataPointer()[c].SetFrequency(frequency);
+				}
+			}
+			// Amount
+			void SetDepth(float depth) {
+				mDepth = depth;
+			};
+
+			void SetFeedback(float feedBackPct) {
+				for (int c = 0; c < mNumChannels; c++) {
+					mSmoothFeedback.getReference(c).setNewValue(feedBackPct);
+				}
+			};
+
+			void preparePlay(float sampleRate, int blockSize)
+			{
+				mBlockSize = blockSize;
+
+				// For Vibrato
+				mDelayBuffer.clear();
+				for (int c = 0; c < mNumChannels; c++) {
+					mLfo.getReference(c).preparePlay();
+					mWriteIdx.getReference(c) = 0;
+					mReadIdx.getReference(c) = 0;
+				}
+				for (int c = 0; c < mNumChannels; c++) {
+					mSmoothFeedback.getReference(c).preparePlay(0.01, sampleRate);
+				}
+			}
+
+			void updateDelayTime()
+			{
+				if (loadNewDelayTime && getOtherPlayhead().stopped())
+				{
+					playheads[currentPlayhead].startFadeOut();
+					togglePlayhead();
+					playheads[currentPlayhead].startFadeIn();
+					playheads[currentPlayhead].delayTime = newTargetDelayInSamples * mSampleRate / 1000.0f;
+					loadNewDelayTime = false;
+				}
+			}
+
+			void process(AudioBuffer<float> &buffer)
+			{
+				updateDelayTime();
+
+				auto numSamples = buffer.getNumSamples();
+				auto numChannels = buffer.getNumChannels();
+
+				auto audio = buffer.getArrayOfWritePointers();
+				auto delayBuffer = mDelayBuffer.getArrayOfWritePointers();
+
+				for (int i = 0; i < numSamples; ++i)
+				{
+					float headGains[2];
+
+					headGains[0] = playheads[0].gain();
+					headGains[1] = playheads[1].gain();
+
+					for (int chan = 0; chan < numChannels; ++chan)
+					{
+						
+						//delays[chan]->put(audio[chan][i]);
+
+						float out{ 0.0f };
+
+						for (int headIndex = 0; headIndex < 2; ++headIndex)
+						{
+							if (!playheads[headIndex].stopped())
+								out += delays[chan]->geti(playheads[headIndex].delayTime) * headGains[headIndex];
+						}
+
+						//audio[chan][i] = out;
+
+						// LFO
+						LFO &lfo = mLfo.getRawDataPointer()[chan];
+						int &writeIdx = mWriteIdx.getRawDataPointer()[chan];
+						SmoothFilter &smooth = mSmoothFeedback.getReference(chan);
+
+						float modFreq = lfo.Value();
+						int delay = floor(mDepth / 100.0f * mDelaySamplesForVibrato);
+						float offset = 1 + delay + modFreq * delay;
+						int readIdx = (writeIdx - (int)floor(offset) + mBufferSize) % mBufferSize;
+						int nReadIndex_1 = (readIdx - 1 + mBufferSize) % mBufferSize;
+						float frac = offset - floor(offset);
+
+						float xn = audio[chan][i];
+						float yn = delayBuffer[chan][readIdx];
+						float yn_1 = delayBuffer[chan][nReadIndex_1];
+						float fInterp = yn_1 * frac + (1 - frac)* yn;
+						audio[chan][i] = fInterp;
+						mFeedback = smooth.getValue();
+						delayBuffer[chan][writeIdx] = out;
+						float input	= (1.0 - mFeedback / 100.0) * xn + mFeedback / 100.0 * fInterp;
+						// Write to delay
+						delays[chan]->put(input);
+						// Incr Write index
+						writeIdx = (writeIdx + 1) % mBufferSize;
+					}
+				}
+			};
+		};
+
 		class Vibrato {
 			float mSampleRate;
 			float mFrequency;
@@ -25,7 +346,6 @@ namespace Jimmy {
 			float mDelayMs;
 			
 			int mBufferSize;
-			//int mDelaySamples;
 			
 			int mDelaySamplesForVibrato;
 			int mNumChans;
@@ -35,8 +355,6 @@ namespace Jimmy {
 			Array<int> mWriteIdx;
 
 			Array<LFO> mLfo;
-			//int writeIndex[2] = { 0,0 };
-			//float phase[2] = { 0,0 };
 			AudioBuffer<float> mDelayBuffer;
 
 			Array<SmoothFilter> mSmoothFeedback;
@@ -71,14 +389,9 @@ namespace Jimmy {
 
 			}
 
-			void SetFrequency(float frequency) {
-				for (int c = 0; c < mNumChans; c++) {
-					mLfo.getRawDataPointer()[c].SetFrequency(frequency);
-				}
-			}
+		
 
 			void preparePlay(float sampleRate) {
-				//JIMMY_LOGGER_ACTIVATE(JIMMY_LOGGER_INFO);
 				mDelayBuffer.clear();
 				for (int c = 0; c < mNumChans; c++) {
 					mLfo.getReference(c).preparePlay();
@@ -89,7 +402,11 @@ namespace Jimmy {
 					mSmoothFeedback.getReference(c).preparePlay(0.01, sampleRate);
 				}
 			}
-
+			void SetFrequency(float frequency) {
+				for (int c = 0; c < mNumChans; c++) {
+					mLfo.getRawDataPointer()[c].SetFrequency(frequency);
+				}
+			}
 			// Amount
 			void SetDepth(float depth) {
 				mDepth = depth;
@@ -105,64 +422,7 @@ namespace Jimmy {
 			void process(AudioBuffer<float> &buffer) {
 				int numSamples = buffer.getNumSamples();
 
-				//AudioBuffer<float> output(mNumChans, numSamples);
-				//output.clear();
-				//float **outputBuffer = mDelayBuffer.getArrayOfWritePointers();
-				/*float depthCopy = round(0.001*mSampleRate);
-				float delay = round(0.001*mSampleRate);
-	
-				float deltaAngle = updateAngle(8);
-				for (int channel = 0; channel < mNumChans; ++channel)
-				{
-					int pos = writeIndex[channel];
-					float* channelData = buffer.getWritePointer(channel);
-
-					for (int i = 0; i < numSamples; i++)
-					{
-						delayBuffer[channel][pos] = channelData[i];
-
-						double modfreq = sin(phase[channel]);
-
-						phase[channel] = phase[channel] + deltaAngle;
-
-						if (phase[channel] > float_Pi * 2)
-							phase[channel] = phase[channel] - (2 * float_Pi);
-
-
-						float tap = 1 + delay + depthCopy * modfreq;
-						int n = floor(tap);
-
-						float frac = tap - n;
-
-						int rindex = floor(pos - n);
-
-						if (rindex < 0)
-							rindex = rindex + mDelaySamplesForVibrato;
-
-						float sample = 0;
-						float y_1 = 0.0f, yn = 0.0f;
-						if (rindex == 0) {
-							y_1 = delayBuffer[channel][mDelaySamplesForVibrato - 1];
-							yn = delayBuffer[channel][rindex];
-							sample += y_1 *frac + (1 - frac)*yn;
-						}
-						else {
-							y_1 = delayBuffer[channel][rindex - 1];
-							yn = delayBuffer[channel][rindex];
-							sample += y_1 *frac + (1 - frac)*yn;
-						}
-						//JIMMY_LOGGER_PRINT(JIMMY_LOGGER_INFO, "Chan %d Read %d Write %d Mode %1.7f Offset %3.7f yn-1 %3.7f yn %3.7f out %3.7f\n",
-						//	channel, rindex, pos, modfreq, tap, y_1, yn, sample);
-						pos = (pos + 1) % mDelaySamplesForVibrato;
-
-						channelData[i] = sample;
-						//channelData[i] = dry*channelData[i] + wet*sample;
-					}
-					writeIndex[channel] = pos;
-				}*/
-
 				for (int c = 0; c < mNumChans; c++) {
-
 					const float *inputBuffer = buffer.getReadPointer(c);
 					float *outputBuffer = buffer.getWritePointer(c);
 					float *delayBuffer = mDelayBuffer.getWritePointer(c);
@@ -185,23 +445,12 @@ namespace Jimmy {
 						float yn_1 = delayBuffer[nReadIndex_1];
 						float fInterp = yn_1 * frac + (1 - frac)* yn;
 						outputBuffer[i] = fInterp;
-						//JIMMY_LOGGER_PRINT(INFORMATION, "Chan %d Read %d Write %d Delta %d Mode Freq %1.7f Offset %3.7f yn-1 %3.7f yn %3.7f delta %3.7f out %3.7f\n",
-						//c, readIdx, writeIdx, writeIdx - readIdx, modFreq, offset, yn_1, yn, yn_1 - yn, fInterp);
 						mFeedback = smooth.getValue();
 						delayBuffer[writeIdx] = (1.0 - mFeedback / 100.0) * xn + mFeedback /100.0 * fInterp;
 						// Incr Write index
 						writeIdx = (writeIdx + 1) % mBufferSize;
 					}
-					
-					
 				}
-				//float *delayBuffer = mDelayBuffer.getWritePointer(0);
-				//int sam = mDelayBuffer.getNumSamples();
-				//for (int i = 0; i < sam; i++) {
-				//JIMMY_LOGGER_PRINT(INFORMATION, "Idx %d  %3.5f\n", i,
-				//delayBuffer[i]);
-				//}
-				////buffer.copyFrom();
 			}
 
 		private:

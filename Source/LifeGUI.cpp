@@ -69,7 +69,7 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	// Nomalize
-	normalizeDelaySlider = new NormalisableRange<float>(0.0f, 100.0f, 1.0);
+	normalizeDelaySlider = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
 	normalizePitchRateSlider = new NormalisableRange<float>(1.0f, 4.0f, 1.0);
 	normalizePitchAmountSlider = new NormalisableRange<float>(0.0f, 5.0f, 1.0);
 	normalizeFeedbackSlider = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
@@ -125,7 +125,7 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
     amplitudeOscilationsSyncToggleButton->setColour (ToggleButton::textColourId, Colour (0x00000000));
 
     addAndMakeVisible (delaySlider = new Slider ("delaySlider"));
-    delaySlider->setRange (0, 100, 1);
+    delaySlider->setRange (0, 100, 0.01);
     delaySlider->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
     delaySlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
     delaySlider->addListener (this);
@@ -673,9 +673,9 @@ BEGIN_JUCER_METADATA
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <SLIDER name="delaySlider" id="7678e3274e85fcea" memberName="delaySlider"
           virtualName="" explicitFocusOrder="0" pos="95 32 40 40" min="0"
-          max="100" int="1" style="RotaryHorizontalVerticalDrag" textBoxPos="NoTextBox"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"
-          needsCallback="1"/>
+          max="100" int="0.010000000000000000208" style="RotaryHorizontalVerticalDrag"
+          textBoxPos="NoTextBox" textBoxEditable="1" textBoxWidth="80"
+          textBoxHeight="20" skewFactor="1" needsCallback="1"/>
   <SLIDER name="pitchRateSlider" id="638637df855e064f" memberName="pitchRateSlider"
           virtualName="" explicitFocusOrder="0" pos="176 31 40 40" min="1"
           max="4" int="1" style="RotaryHorizontalVerticalDrag" textBoxPos="NoTextBox"
