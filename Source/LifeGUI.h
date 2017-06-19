@@ -125,6 +125,8 @@ public:
     static const int whitered_rotaryswitch_4pos_vertical_60x60_pngSize;
     static const char* life_ui_cmversionbgv2_png;
     static const int life_ui_cmversionbgv2_pngSize;
+    static const char* life_ui_cmbgv3_png;
+    static const int life_ui_cmbgv3_pngSize;
 
 
 private:
@@ -185,7 +187,7 @@ private:
     ScopedPointer<Slider> loPassFilterSlider;
     ScopedPointer<Slider> wetDrySlider;
     ScopedPointer<Slider> masterGainSlider;
-    Image cachedImage_life_ui_cmversionbgv2_png_1;
+    Image cachedImage_life_ui_cmbgv3_png_1;
 
 
     //==============================================================================
