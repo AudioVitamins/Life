@@ -24,14 +24,13 @@ namespace Jimmy {
 				mTaget(0.0), 
 				mCurrent(0.0),
 				mStep(0.0),
-				mCount(0.0),
 				mNumSamples(0)
 			{
 				
 			}
 			void preparePlay(float smoothingTimeInSec, int samplingRate) {
 				mNumSamples = smoothingTimeInSec * samplingRate;
-				mCount = 0;
+				mCountDown = 0;
 				mCurrent = mTaget;
 			}
 
@@ -57,7 +56,7 @@ namespace Jimmy {
 			}
 		private:
 			int  mNumSamples, mCountDown;
-			float mTaget, mCurrent, mStep, mCount;
+			float mTaget, mCurrent, mStep;
 		};
 	};
 };
