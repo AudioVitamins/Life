@@ -18,10 +18,14 @@ namespace Jimmy {
 			float mSampleRate;
 			int mNumChans;
 			juce::IIRCoefficients mCoefficients;
+
+			ScopedPointer<LinearSmoothedValue<float>> mSmooth;
 		public:
 			IIRFilterLP(float sampleRate, int numChans)
 				:mSampleRate(sampleRate),
 				mNumChans(numChans) {
+				mSmooth = new LinearSmoothedValue<float>();
+				mSmooth->reset(sampleRate, 0.5);
 				for (int i = 0; i < numChans; i++) {
 					mIIRFilter.add(juce::IIRFilter());
 				}
@@ -30,10 +34,11 @@ namespace Jimmy {
 				mIIRFilter.clearQuick();
 			};
 			void changeCutOff(float cutOff) {
-				mCoefficients = juce::IIRCoefficients::makeLowPass(mSampleRate, cutOff);
-				for (int i = 0; i < mNumChans; i++) {
-					mIIRFilter.getReference(i).setCoefficients(mCoefficients);
-				}
+				mSmooth->setValue(cutOff);
+				//mCoefficients = juce::IIRCoefficients::makeLowPass(mSampleRate, cutOff);
+				//for (int i = 0; i < mNumChans; i++) {
+				//	mIIRFilter.getReference(i).setCoefficients(mCoefficients);
+				//}
 			};
 			void reset() {
 				for (int i = 0; i < mNumChans; i++) {
@@ -43,11 +48,15 @@ namespace Jimmy {
 			void process(AudioBuffer<float> &buffer) {
 				float **buffersCh = buffer.getArrayOfWritePointers();
 				int numSamples = buffer.getNumSamples();
+				for (int i = 0; i < numSamples; i++) {
 
-				for (int i = 0; i < mNumChans; i++) {
-					mIIRFilter.getReference(i).processSamples(buffersCh[i], numSamples);
+					float freq = mSmooth->getNextValue();
+					mCoefficients = juce::IIRCoefficients::makeLowPass(mSampleRate, freq);
+					for (int c = 0; c < mNumChans; c++) {
+						mIIRFilter.getReference(c).setCoefficients(mCoefficients);
+						buffersCh[c][i] = mIIRFilter.getReference(c).processSingleSampleRaw(buffersCh[c][i]);
+					}
 				}
-				
 			};
 			void setSampleRate(float sample) {
 				mSampleRate = sample;
@@ -92,45 +101,6 @@ namespace Jimmy {
 					mIIRFilter.getReference(i).reset();
 				}
 			}
-		};
-		class IIRFilterBP {
-			Array<juce::IIRFilter> mIIRFilter;
-			float mSampleRate;
-			int mNumChans;
-			juce::IIRCoefficients mCoefficients;
-		public:
-			IIRFilterBP(float sampleRate, int numChans)
-				:mSampleRate(sampleRate),
-				mNumChans(numChans) {
-				for (int i = 0; i < numChans; i++) {
-					mIIRFilter.add(juce::IIRFilter());
-				}
-			};
-			~IIRFilterBP() {
-				mIIRFilter.clearQuick();
-			};
-			void changeCutOff(float cutOff) {
-				mCoefficients = juce::IIRCoefficients::makeLowPass(mSampleRate, cutOff);
-				for (int i = 0; i < mNumChans; i++) {
-					mIIRFilter.getReference(i).setCoefficients(mCoefficients);
-				}
-			};
-			void reset() {
-				for (int i = 0; i < mNumChans; i++) {
-					mIIRFilter.getReference(i).reset();
-				}
-			}
-			void setSampleRate(float sample) {
-				mSampleRate = sample;
-			}
-			void process(AudioBuffer<float> &buffer) {
-				float **buffersCh = buffer.getArrayOfWritePointers();
-				int numSamples = buffer.getNumSamples();
-
-				for (int i = 0; i < mNumChans; i++) {
-					mIIRFilter.getReference(i).processSamples(buffersCh[i], numSamples);
-				}
-			};
 		};
 	};
 };
