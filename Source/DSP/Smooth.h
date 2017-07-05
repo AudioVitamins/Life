@@ -21,17 +21,16 @@ namespace Jimmy {
 		{
 		public:
 			SmoothFilter():
-				mTaget(0.0), 
-				mCurrent(0.0),
-				mStep(0.0),
-				mNumSamples(0)
+                mNumSamples(0),
+                mTaget(0.0),
+                mCurrent(0.0),
+                mStep(0.0)
 			{
 				
 			}
 			void preparePlay(float smoothingTimeInSec, int samplingRate) {
 				mNumSamples = smoothingTimeInSec * samplingRate;
-				mCountDown = 0;
-				mCurrent = mTaget;
+				mCountDown = 0;  
 			}
 
 			void setNewValue(float newValue) {

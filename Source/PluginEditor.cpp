@@ -30,7 +30,7 @@
 
 //==============================================================================
 LifeAudioProcessorEditor::LifeAudioProcessorEditor (LifeAudioProcessor& p)
-    : mP(p), AudioProcessorEditor(p)
+    : AudioProcessorEditor(p), mP(p)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]

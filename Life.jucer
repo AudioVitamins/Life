@@ -51,24 +51,26 @@
     <XCODE_MAC targetFolder="Builds/MacOSX" vst3Folder="/Frameworks/VST3SDK"
                aaxFolder="/Frameworks/AAX">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Life"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="Life"/>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Life" osxCompatibility="10.9 SDK"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="Life"
+                       cppLanguageStandard="c++11" cppLibType="libc++" osxCompatibility="10.8 SDK"
+                       osxArchitecture="64BitUniversal"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_core" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_events" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_graphics" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_data_structures" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_gui_basics" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_gui_extra" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_cryptography" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_video" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_opengl" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_audio_basics" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_audio_devices" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_audio_formats" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_audio_processors" path="..\loopcloud\juce\modules"/>
-        <MODULEPATH id="juce_audio_plugin_client" path="..\loopcloud\juce\modules"/>
+        <MODULEPATH id="juce_core" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../Frameworks/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../../Frameworks/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2015 targetFolder="Builds/VisualStudio2015" vstFolder="G:\Working\FrameWork\VST3 SDK"
