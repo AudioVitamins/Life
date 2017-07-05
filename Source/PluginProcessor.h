@@ -67,8 +67,8 @@ public:
 private:
     //==============================================================================
 
-	ScopedPointer<Jimmy::DSP::StaticDelay> mDelay;
-	ScopedPointer<Jimmy::DSP::Vibrato> mVibrato;
+//	ScopedPointer<Jimmy::DSP::StaticDelay> mDelay;
+//	ScopedPointer<Jimmy::DSP::Vibrato> mVibrato;
 
 	ScopedPointer<Jimmy::DSP::DelayVibrato> mDelayVibrato;
 	ScopedPointer<Jimmy::DSP::Tremolo> mTremolo;

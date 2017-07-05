@@ -176,13 +176,14 @@ namespace Jimmy {
 				// FOr Vibrato
 				mFrequency(0.0),
 				mDepth(0.0),
-				mLfo(),
 				mBufferSize(2 * mSampleRate),
-				mReadIdx(),
-				mWriteIdx(),
-				mDelaySamplesForVibrato(2.0f / 1000.0f * mSampleRate),
-				mDelayBuffer(),
-				mfDelaySamples(0.0)
+                mDelaySamplesForVibrato(2.0f / 1000.0f * mSampleRate),
+                mfDelaySamples(0.0),
+                mReadIdx(),
+                mWriteIdx(),
+            
+                mLfo(),
+				mDelayBuffer()
 			{
 				mNumDelaySamples = maxDelayMilliseconds * mSampleRate;
 
@@ -240,7 +241,7 @@ namespace Jimmy {
 			}
 			// Amount
 			void SetDepth(float depth) {
-				mDepth = depth;
+				mDepth = depth / 10;
 			};
 
 			void SetFeedback(float feedBackPct) {
@@ -315,7 +316,7 @@ namespace Jimmy {
 						SmoothFilter &smooth = mSmoothFeedback.getReference(chan);
 
 						float modFreq = lfo.Value();
-						int delay = floor(mDepth / 100.0f * mDelaySamplesForVibrato);
+						int delay = floor(mDepth * mDelaySamplesForVibrato);
 						float offset = 1 + delay + modFreq * delay;
 						int readIdx = (writeIdx - (int)floor(offset) + mBufferSize) % mBufferSize;
 						int nReadIndex_1 = (readIdx - 1 + mBufferSize) % mBufferSize;
@@ -339,22 +340,20 @@ namespace Jimmy {
 		};
 
 		class Vibrato {
-			float mSampleRate;
+            float mSampleRate;
+            int mNumChans;
 			float mFrequency;
 			float mDepth;
 			float mFeedback;
 			float mDelayMs;
-			
 			int mBufferSize;
-			
-			int mDelaySamplesForVibrato;
-			int mNumChans;
-
-			float mfDelaySamples;
+            Array<LFO> mLfo;
 			Array<int> mReadIdx;
-			Array<int> mWriteIdx;
-
-			Array<LFO> mLfo;
+            Array<int> mWriteIdx;
+            float mfDelaySamples;
+            
+            int mDelaySamplesForVibrato;
+            
 			AudioBuffer<float> mDelayBuffer;
 
 			Array<SmoothFilter> mSmoothFeedback;
@@ -363,16 +362,16 @@ namespace Jimmy {
 				mSampleRate(sampleRate),
 				mNumChans(nChans),
 				mFrequency(0.0),
-				mDepth(0.0),
+                mDepth(0.0),
+                mBufferSize(2 * mSampleRate),
 				mLfo(),
-				mBufferSize(2 * mSampleRate),
 				mReadIdx(),
 				mWriteIdx(),
 				//mDelaySamples(0),
-				mDelaySamplesForVibrato(2.0f /1000.0f * mSampleRate),
-				mDelayBuffer(),
-				mfDelaySamples(0.0)
-			{
+                mfDelaySamples(0.0),
+                mDelaySamplesForVibrato(2.0f /1000.0f * mSampleRate),
+				mDelayBuffer()
+                {
 				for (int c = 0; c < mNumChans; c++) {
 					mLfo.add(LFO(mSampleRate));
 					mReadIdx.add(0);
@@ -409,7 +408,7 @@ namespace Jimmy {
 			}
 			// Amount
 			void SetDepth(float depth) {
-				mDepth = depth;
+				mDepth = depth / 10;
 			};
 
 			void SetFeedback(float feedBackPct) {
@@ -434,7 +433,7 @@ namespace Jimmy {
 					for (int i = 0; i < numSamples; i++) {
 
  						float modFreq = lfo.Value();
-						int delay = floor( mDepth / 100.0f * mDelaySamplesForVibrato);
+						int delay = floor( mDepth * mDelaySamplesForVibrato);
 						float offset = 1 + delay +  modFreq * delay;
 						int readIdx = (writeIdx - (int)floor(offset) + mBufferSize) % mBufferSize;
 						int nReadIndex_1 = (readIdx - 1 + mBufferSize) % mBufferSize;

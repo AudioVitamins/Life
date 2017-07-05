@@ -141,7 +141,7 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-	int numOutputChannel = getNumOutputChannels();
+	int numOutputChannel = getTotalNumOutputChannels();
 	//mVibrato = new Jimmy::DSP::Vibrato(float(sampleRate), numOutputChannel);
 	mDelayVibrato = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
 	mTremolo = new Jimmy::DSP::Tremolo(float(sampleRate), numOutputChannel);
@@ -165,9 +165,9 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 	float *feedback = mState->getRawParameterValue(paramFeedback);
 	float freqPitch = RateToFrequency(*ratePitch);
 	//mVibrato->preparePlay(sampleRate);
-	//mVibrato->SetFrequency(freqPitch);
-	//mVibrato->SetDepth(*amountPitch);
-	//mVibrato->SetFeedback(*feedback);
+//	mVibrato->SetFrequency(freqPitch);
+//	mVibrato->SetDepth(*amountPitch);
+//	mVibrato->SetFeedback(*feedback);
 	mDelayVibrato->SetFrequency(freqPitch);
 	mDelayVibrato->SetDepth(*amountPitch);
 	mDelayVibrato->SetFeedback(*feedback);
@@ -330,14 +330,14 @@ void LifeAudioProcessor::parameterChanged(const String& parameterID, float newVa
 		// Apply Filter
 //		suspendProcessing(true);
 		mFilterHP->changeCutOff(newValue);
-		mFilterHP->reset();
+//		mFilterHP->reset();
 //		suspendProcessing(false);
 	}
 	else if (parameterID == LifeAudioProcessor::paramLowFreq) {
 		// Apply Filter
 //		suspendProcessing(true);
 		mFilterLP->changeCutOff(newValue);
-		mFilterLP->reset();
+//		mFilterLP->reset();
 //		suspendProcessing(false);
 	}
 	else if (parameterID == LifeAudioProcessor::paramWidth) {

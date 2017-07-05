@@ -81,7 +81,7 @@ public:
 		public:
 			SliderLabelComp() : Label(String::empty, String::empty) {}
 
-			void mouseWheelMove(const MouseEvent&, const MouseWheelDetails&) {}
+			void mouseWheelMove(const MouseEvent&, const MouseWheelDetails&) override {}
 			void mouseDoubleClick(const MouseEvent&) override {
 				this->showEditor();
 			};
@@ -103,8 +103,8 @@ public:
 	void timerCallback() override;
 
 	//Slider Handler
-	void sliderDragStarted(Slider* sliderThatWasMoved);
-	void sliderDragEnded(Slider* sliderThatWasMoved);
+	void sliderDragStarted(Slider* sliderThatWasMoved) override;
+	void sliderDragEnded(Slider* sliderThatWasMoved) override;
     //[/UserMethods]
 
     void paint (Graphics& g) override;
