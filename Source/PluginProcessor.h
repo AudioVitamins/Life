@@ -84,7 +84,8 @@ private:
 
 	float RateToFrequency(float rate);
 
-
+    AudioPlayHead::CurrentPositionInfo info;
+    
 	ScopedPointer<AudioProcessorValueTreeState> mState;
 	ScopedPointer<UndoManager>                  mUndoManager;
 
