@@ -75,8 +75,18 @@ LifeAudioProcessor::LifeAudioProcessor()
 	mState->addParameterListener(paramWetDry, this);
 
 	mState->addParameterListener(paramGainMaster, this);
-
-    //LifeAudioProcessor::prepareToPlay(44100.0, 128); // ensure objects are built in case we get a parameter change sent before prepareToPlay is called by the host
+    float sampleRate = 44100.0;
+    int numOutputChannel = 2;
+    mDelayVibrato = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
+    mTremolo = new Jimmy::DSP::Tremolo(float(sampleRate), numOutputChannel);
+    
+    mFilterHP = new Jimmy::DSP::IIRFilterHP(float(sampleRate), numOutputChannel);
+    mFilterLP = new Jimmy::DSP::IIRFilterLP(float(sampleRate), numOutputChannel);
+    
+    mWidth = new Jimmy::DSP::Width();
+    mWet = new Jimmy::DSP::WetDry();
+    
+    mGainMaster = new Jimmy::DSP::GainMaster(-10.0f, 10.0f, numOutputChannel);
 }
 
 LifeAudioProcessor::~LifeAudioProcessor()
@@ -142,7 +152,7 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 	int numOutputChannel = getTotalNumOutputChannels();
-	//mVibrato = new Jimmy::DSP::Vibrato(float(sampleRate), numOutputChannel);
+    
 	mDelayVibrato = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
 	mTremolo = new Jimmy::DSP::Tremolo(float(sampleRate), numOutputChannel);
 
@@ -151,7 +161,9 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
 	mWidth = new Jimmy::DSP::Width();
 	mWet = new Jimmy::DSP::WetDry();
-
+    
+    mGainMaster = new Jimmy::DSP::GainMaster(-10.0f, 10.0f, numOutputChannel);
+    
 	//mDelay = new Jimmy::DSP::StaticDelay(float(sampleRate), 0.1f, numOutputChannel);
 	// Aplly Pitch/Feedback
 	mDelayVibrato->preparePlay(sampleRate, samplesPerBlock);
@@ -196,7 +208,6 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 	mWet->setWet(wet0to1);
 
 	// Master Gain
-	mGainMaster = new Jimmy::DSP::GainMaster(-10.0f, 10.0f, numOutputChannel);
 	float gain0to1 = mState->getParameter(paramGainMaster)->getValue();
 	mGainMaster->preparePlay(sampleRate);
 	mGainMaster->SetGainDb0to1(gain0to1);
@@ -240,7 +251,10 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 	for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 		buffer.clear(i, 0, buffer.getNumSamples());
 
-
+    bool ok = getPlayHead()->getCurrentPosition(info);
+    float *ratePitch = mState->getRawParameterValue(paramPitchRate);
+    float freq = RateToFrequency(*ratePitch);
+    mDelayVibrato->SetFrequency(freq);
 	AudioSampleBuffer raw;
 	raw.makeCopyOf(buffer);
 	///
