@@ -53,7 +53,7 @@ namespace Jimmy {
 				for (int i = 0; i < numSamples; i++) {
 					float lfo = mLfo.Value();
 					// first multiply the value by depth/100
-					float gain = mDepth / 100.0 * (lfo - 1)  + 1;
+					float gain = mDepth / 30.0 * (lfo - 1)  + 1;
 					for (int c = 0; c < mNumChans; c++) {
 						output[c][i] = input[c][i] * gain;
 					}
