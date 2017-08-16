@@ -66,6 +66,8 @@ namespace Jimmy {
 					return data[ptr + delay & mask];
 				}
 
+				void clear () { buf.clear(); }
+
 			private:
 				float* data;
 				AudioSampleBuffer buf;
@@ -156,7 +158,7 @@ namespace Jimmy {
 			// FOr vibrato
 			float mFrequency;
 			float mDepth;
-			float mFeedback;
+			LinearSmoothedValue<float> smoothedDepth;
 			float mDelayMs;
 
 			int mBufferSize;
@@ -166,7 +168,8 @@ namespace Jimmy {
 			Array<int> mWriteIdx;
 
 			Array<LFO> mLfo;
-			AudioBuffer<float> mDelayBuffer;
+			//AudioBuffer<float> mDelayBuffer;
+			OwnedArray<SingleDelay> secondDelays;
 
 			Array<SmoothFilter> mSmoothFeedback;
 		public:
@@ -175,15 +178,14 @@ namespace Jimmy {
 				mNumChannels(numChannel),
 				// FOr Vibrato
 				mFrequency(0.0),
-				mDepth(0.0),
+				mDepth(0.0), mDelayMs(0),
 				mBufferSize(2 * mSampleRate),
-                mDelaySamplesForVibrato(2.0f / 1000.0f * mSampleRate),
-                mfDelaySamples(0.0),
-                mReadIdx(),
-                mWriteIdx(),
-            
-                mLfo(),
-				mDelayBuffer()
+				mDelaySamplesForVibrato(2.0f / 1000.0f * mSampleRate),
+				mfDelaySamples(0.0),
+				mReadIdx(),
+				mWriteIdx(),
+
+				mLfo()
 			{
 				mNumDelaySamples = maxDelayMilliseconds * mSampleRate;
 
@@ -196,16 +198,20 @@ namespace Jimmy {
 				playheads[1].setZeroGain();
 
 				// For vibrato
-				for (int c = 0; c < mNumChannels; c++) {
+				for (int c = 0; c < mNumChannels; c++)
+				{
 					mLfo.add(LFO(mSampleRate));
 					mReadIdx.add(0);
 					mWriteIdx.add(0);
 				}
-				mDelayBuffer.setSize(mNumChannels, mBufferSize);
-				mDelayBuffer.clear();
-				for (int c = 0; c < mNumChannels; c++) {
+				//mDelayBuffer.setSize(mNumChannels, mBufferSize);
+				//mDelayBuffer.clear();
+
+				for (int i = 0; i < mNumChannels; ++i)
+					secondDelays.add(new SingleDelay(mBufferSize));
+
+				for (int c = 0; c < mNumChannels; c++)
 					mSmoothFeedback.add(SmoothFilter());
-				}
 			}
 
 			~DelayVibrato() {}
@@ -239,10 +245,12 @@ namespace Jimmy {
 					mLfo.getRawDataPointer()[c].SetFrequency(frequency);
 				}
 			}
+
 			// Amount
 			void SetDepth(float depth) {
 				mDepth = depth / 10;
-			};
+				smoothedDepth.setValue(mDepth);
+			}
 
 			void SetFeedback(float feedBackPct) {
 				for (int c = 0; c < mNumChannels; c++) {
@@ -255,15 +263,20 @@ namespace Jimmy {
 				mBlockSize = blockSize;
 
 				// For Vibrato
-				mDelayBuffer.clear();
+				//mDelayBuffer.clear();
+				for (auto d : secondDelays)
+					d->clear();
+
 				for (int c = 0; c < mNumChannels; c++) {
 					mLfo.getReference(c).preparePlay();
 					mWriteIdx.getReference(c) = 0;
 					mReadIdx.getReference(c) = 0;
 				}
-				for (int c = 0; c < mNumChannels; c++) {
+
+				for (int c = 0; c < mNumChannels; c++) 
 					mSmoothFeedback.getReference(c).preparePlay(0.01, sampleRate);
-				}
+
+				smoothedDepth.reset(sampleRate, 0.1);
 			}
 
 			void updateDelayTime()
@@ -286,7 +299,7 @@ namespace Jimmy {
 				auto numChannels = buffer.getNumChannels();
 
 				auto audio = buffer.getArrayOfWritePointers();
-				auto delayBuffer = mDelayBuffer.getArrayOfWritePointers();
+				//auto delayBuffer = mDelayBuffer.getArrayOfWritePointers();
 
 				for (int i = 0; i < numSamples; ++i)
 				{
@@ -297,43 +310,34 @@ namespace Jimmy {
 
 					for (int chan = 0; chan < numChannels; ++chan)
 					{
-						
-						//delays[chan]->put(audio[chan][i]);
-
-						float out{ 0.0f };
+						float summedDelayOutputs{ 0.0f };
 
 						for (int headIndex = 0; headIndex < 2; ++headIndex)
 						{
 							if (!playheads[headIndex].stopped())
-								out += delays[chan]->geti(playheads[headIndex].delayTime) * headGains[headIndex];
+								summedDelayOutputs += delays[chan]->geti(playheads[headIndex].delayTime) * headGains[headIndex];
 						}
 
-						//audio[chan][i] = out;
-
-						// LFO
 						LFO &lfo = mLfo.getRawDataPointer()[chan];
-						int &writeIdx = mWriteIdx.getRawDataPointer()[chan];
-						SmoothFilter &smooth = mSmoothFeedback.getReference(chan);
+						SmoothFilter &smoothedFeedback = mSmoothFeedback.getReference(chan);
 
-						float modFreq = lfo.Value();
-						int delay = floor(mDepth * mDelaySamplesForVibrato);
-						float offset = 1 + delay + modFreq * delay;
-						int readIdx = (writeIdx - (int)floor(offset) + mBufferSize) % mBufferSize;
-						int nReadIndex_1 = (readIdx - 1 + mBufferSize) % mBufferSize;
-						float frac = offset - floor(offset);
+						float delay = floor(smoothedDepth.getNextValue() * mDelaySamplesForVibrato);
 
-						float xn = audio[chan][i];
-						float yn = delayBuffer[chan][readIdx];
-						float yn_1 = delayBuffer[chan][nReadIndex_1];
-						float fInterp = yn_1 * frac + (1 - frac)* yn;
-						audio[chan][i] = fInterp;
-						mFeedback = smooth.getValue();
-						delayBuffer[chan][writeIdx] = out;
-						float input	= (1.0 - mFeedback / 100.0) * xn + mFeedback / 100.0 * fInterp;
-						// Write to delay
+						float offset = 1.0f + delay + lfo.Value() * delay;
+
+						auto secondDelayOutput = secondDelays[chan]->geti(offset);
+
+						float originalInput = audio[chan][i];
+
+						audio[chan][i] = secondDelayOutput;
+
+						auto feedback = smoothedFeedback.getValue() / 100.0f;
+
+						secondDelays[chan]->put(summedDelayOutputs);
+
+						float input	= (1.0f - feedback) * originalInput + feedback * secondDelayOutput;
+
 						delays[chan]->put(input);
-						// Incr Write index
-						writeIdx = (writeIdx + 1) % mBufferSize;
 					}
 				}
 			};
@@ -362,24 +366,26 @@ namespace Jimmy {
 				mSampleRate(sampleRate),
 				mNumChans(nChans),
 				mFrequency(0.0),
-                mDepth(0.0),
-                mBufferSize(2 * mSampleRate),
+				mDepth(0.0), mFeedback(0), mDelayMs(0),
+				mBufferSize(2 * mSampleRate),
 				mLfo(),
 				mReadIdx(),
 				mWriteIdx(),
 				//mDelaySamples(0),
-                mfDelaySamples(0.0),
-                mDelaySamplesForVibrato(2.0f /1000.0f * mSampleRate),
+				mfDelaySamples(0.0),
+				mDelaySamplesForVibrato(2.0f / 1000.0f * mSampleRate),
 				mDelayBuffer()
-                {
-				for (int c = 0; c < mNumChans; c++) {
+			{
+				for (int c = 0; c < mNumChans; c++)
+				{
 					mLfo.add(LFO(mSampleRate));
 					mReadIdx.add(0);
 					mWriteIdx.add(0);
 				}
 				mDelayBuffer.setSize(nChans, mBufferSize);
 				mDelayBuffer.clear();
-				for (int c = 0; c < mNumChans; c++) {
+				for (int c = 0; c < mNumChans; c++)
+				{
 					mSmoothFeedback.add(SmoothFilter());
 				}
 			}

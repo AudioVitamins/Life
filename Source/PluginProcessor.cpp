@@ -149,10 +149,10 @@ void LifeAudioProcessor::changeProgramName (int index, const String& newName)
 //==============================================================================
 void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
 	int numOutputChannel = getTotalNumOutputChannels();
     
+	dryAudioBuffer.setSize(numOutputChannel, samplesPerBlock, false, true);
+
 	mDelayVibrato = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
 	mTremolo = new Jimmy::DSP::Tremolo(float(sampleRate), numOutputChannel);
 
@@ -245,19 +245,29 @@ bool LifeAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) con
 
 void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
+	if (getPlayHead()->getCurrentPosition(currentPositionInfo))
+		lastKnownBpm = currentPositionInfo.bpm;
+
+	if (lastKnownBpm == 0.0)
+		lastKnownBpm = 120.0;
+
 	const int totalNumInputChannels = getTotalNumInputChannels();
 	const int totalNumOutputChannels = getTotalNumOutputChannels();
+
 	// Clear/Reset apart of output chans
 	for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 		buffer.clear(i, 0, buffer.getNumSamples());
 
-    bool ok = getPlayHead()->getCurrentPosition(info);
+	if (totalNumInputChannels < 1 || totalNumInputChannels > 2 || buffer.getNumSamples() == 0)
+		return;
+
     float *ratePitch = mState->getRawParameterValue(paramPitchRate);
     float freq = RateToFrequency(*ratePitch);
+
     mDelayVibrato->SetFrequency(freq);
-	AudioSampleBuffer raw;
-	raw.makeCopyOf(buffer);
-	///
+	
+	dryAudioBuffer.makeCopyOf(buffer, true);
+
 	mDelayVibrato->process(buffer);
 	//Delay
  	//mDelay->process(buffer);
@@ -273,11 +283,8 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 	
 	mFilterLP->process(buffer);
 	
-	//Apply Width
 	mWidth->process(buffer);
-
-	//Apply Dry/Wet
-	mWet->process(raw, buffer);
+	mWet->process(dryAudioBuffer, buffer);
 
 	// Apply gain
 	mGainMaster->process(buffer);
@@ -385,27 +392,17 @@ AudioProcessorEditor* LifeAudioProcessor::createEditor()
 }
 
 
-float LifeAudioProcessor::RateToFrequency(float rate) {
+float LifeAudioProcessor::RateToFrequency(float rate) const
+{
 	int iRate = roundFloatToInt(rate);
-	AudioPlayHead::CurrentPositionInfo info;
-	bool ok = getPlayHead()->getCurrentPosition(info);
+
 	switch (iRate)
 	{
-	case 1:
-		return info.bpm / 120;
-		break;
-	case 2:
-		return info.bpm / 60;
-		break;
-	case 3:
-		return info.bpm / 30;
-		break;
-	case 4:
-		return info.bpm / 15;
-		break;
-	default:
-		return info.bpm / 120;
-		break;
+	case 1: return lastKnownBpm / 120.0;
+	case 2: return lastKnownBpm / 60.0;
+	case 3: return lastKnownBpm / 30.0;
+	case 4: return lastKnownBpm / 15.0;
+	default: return lastKnownBpm / 120.0;
 	}
 }
 //==============================================================================

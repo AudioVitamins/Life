@@ -84,7 +84,7 @@ namespace Jimmy {
 				:mSampleRate(sampleRate),
 				mNumChans(numChans) {
 				mSmooth = new LinearSmoothedValue<float>();
-				mSmooth->reset(sampleRate, 0.5);
+				mSmooth->reset(sampleRate, 0.1);
 				for (int i = 0; i < numChans; i++) {
 					mIIRFilter.add(juce::IIRFilter());
 				}
@@ -157,7 +157,7 @@ namespace Jimmy {
 					mIIRFilter.add(juce::IIRFilter());
 				}
 				mSmooth = new LinearSmoothedValue<float>();
-				mSmooth->reset(sampleRate, 0.5);
+				mSmooth->reset(sampleRate, 0.1);
 			};
 			~IIRFilterHP() {
 				mIIRFilter.clearQuick();

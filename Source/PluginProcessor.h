@@ -82,9 +82,9 @@ private:
 	ScopedPointer<Jimmy::DSP::GainMaster> mGainMaster;
 
 
-	float RateToFrequency(float rate);
+	float RateToFrequency(float rate) const;
 
-    AudioPlayHead::CurrentPositionInfo info;
+    AudioPlayHead::CurrentPositionInfo currentPositionInfo;
     
 	ScopedPointer<AudioProcessorValueTreeState> mState;
 	ScopedPointer<UndoManager>                  mUndoManager;
@@ -105,6 +105,9 @@ private:
 	static String paramWetDry;
 
 	static String paramGainMaster;
+
+	double lastKnownBpm{ 0.0 };
+	AudioSampleBuffer dryAudioBuffer;
 
 	void parameterChanged(const String& parameterID, float newValue) override;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LifeAudioProcessor)
