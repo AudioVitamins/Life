@@ -1,0 +1,6 @@
+#!/bin/sh
+pushd juce/extras/Projucer/Builds/MacOSX/
+xcodebuild
+popd
+juce/extras/Projucer/Builds/MacOSX/build/Debug/Projucer.app/Contents/MacOS/Projucer ./Life.jucer
+
