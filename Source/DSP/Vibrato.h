@@ -158,7 +158,7 @@ namespace Jimmy {
 			// FOr vibrato
 			float mFrequency;
 			float mDepth;
-			LinearSmoothedValue<float> smoothedDepth;
+			LinearSmoothedValue<float> smoothedVibratoDepth;
 			float mDelayMs;
 
 			int mBufferSize;
@@ -169,7 +169,7 @@ namespace Jimmy {
 
 			Array<LFO> mLfo;
 			//AudioBuffer<float> mDelayBuffer;
-			OwnedArray<SingleDelay> secondDelays;
+			OwnedArray<SingleDelay> vibratoDelays;
 
 			Array<SmoothFilter> mSmoothFeedback;
 		public:
@@ -208,7 +208,7 @@ namespace Jimmy {
 				//mDelayBuffer.clear();
 
 				for (int i = 0; i < mNumChannels; ++i)
-					secondDelays.add(new SingleDelay(mBufferSize));
+					vibratoDelays.add(new SingleDelay(mBufferSize));
 
 				for (int c = 0; c < mNumChannels; c++)
 					mSmoothFeedback.add(SmoothFilter());
@@ -249,7 +249,7 @@ namespace Jimmy {
 			// Amount
 			void SetDepth(float depth) {
 				mDepth = depth / 10;
-				smoothedDepth.setValue(mDepth);
+				smoothedVibratoDepth.setValue(mDepth);
 			}
 
 			void SetFeedback(float feedBackPct) {
@@ -264,7 +264,7 @@ namespace Jimmy {
 
 				// For Vibrato
 				//mDelayBuffer.clear();
-				for (auto d : secondDelays)
+				for (auto d : vibratoDelays)
 					d->clear();
 
 				for (int c = 0; c < mNumChannels; c++) {
@@ -276,7 +276,7 @@ namespace Jimmy {
 				for (int c = 0; c < mNumChannels; c++) 
 					mSmoothFeedback.getReference(c).preparePlay(0.01, sampleRate);
 
-				smoothedDepth.reset(sampleRate, 0.3);
+				smoothedVibratoDepth.reset(sampleRate, 0.3);
 			}
 
 			void updateDelayTime()
@@ -321,21 +321,21 @@ namespace Jimmy {
 						LFO &lfo = mLfo.getRawDataPointer()[chan];
 						SmoothFilter &smoothedFeedback = mSmoothFeedback.getReference(chan);
 
-						float delay = smoothedDepth.getNextValue() * mDelaySamplesForVibrato;
+						float vibratoDelayLength = smoothedVibratoDepth.getNextValue() * mDelaySamplesForVibrato;
 
-						float offset = 1.0f + delay + lfo.Value() * delay;
+						float vibratoLfoAppliedDelayLength = 1.0f + vibratoDelayLength + lfo.Value() * vibratoDelayLength;
 
-						auto secondDelayOutput = secondDelays[chan]->geti(offset);
+						auto vibratoOut = vibratoDelays[chan]->geti(vibratoLfoAppliedDelayLength);
 
 						float originalInput = audio[chan][i];
 
-						audio[chan][i] = secondDelayOutput;
+						audio[chan][i] = vibratoOut;
 
 						auto feedback = smoothedFeedback.getValue() / 100.0f;
 
-						secondDelays[chan]->put(summedDelayOutputs);
+						vibratoDelays[chan]->put(summedDelayOutputs);
 
-						float input	= (1.0f - feedback) * originalInput + feedback * secondDelayOutput;
+						float input	= (1.0f - feedback) * originalInput + feedback * vibratoOut;
 
 						delays[chan]->put(input);
 					}
