@@ -162,7 +162,7 @@ namespace Jimmy {
 			float mDelayMs;
 
 			int mBufferSize;
-			int mDelaySamplesForVibrato;
+			float mDelaySamplesForVibrato;
 			float mfDelaySamples;
 			Array<int> mReadIdx;
 			Array<int> mWriteIdx;
@@ -276,7 +276,7 @@ namespace Jimmy {
 				for (int c = 0; c < mNumChannels; c++) 
 					mSmoothFeedback.getReference(c).preparePlay(0.01, sampleRate);
 
-				smoothedDepth.reset(sampleRate, 0.1);
+				smoothedDepth.reset(sampleRate, 0.3);
 			}
 
 			void updateDelayTime()
@@ -321,7 +321,7 @@ namespace Jimmy {
 						LFO &lfo = mLfo.getRawDataPointer()[chan];
 						SmoothFilter &smoothedFeedback = mSmoothFeedback.getReference(chan);
 
-						float delay = floor(smoothedDepth.getNextValue() * mDelaySamplesForVibrato);
+						float delay = smoothedDepth.getNextValue() * mDelaySamplesForVibrato;
 
 						float offset = 1.0f + delay + lfo.Value() * delay;
 
@@ -356,7 +356,7 @@ namespace Jimmy {
             Array<int> mWriteIdx;
             float mfDelaySamples;
             
-            int mDelaySamplesForVibrato;
+            float mDelaySamplesForVibrato;
             
 			AudioBuffer<float> mDelayBuffer;
 
