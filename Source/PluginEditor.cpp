@@ -42,8 +42,7 @@ LifeAudioProcessorEditor::LifeAudioProcessorEditor (LifeAudioProcessor& p)
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (584, 217);
-
+    setSize(750, 150);
 
     //[Constructor] You can add your own custom stuff here..
     //[/Constructor]
@@ -78,7 +77,7 @@ void LifeAudioProcessorEditor::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    mLifeGui->setBounds (0, 0, 584, 217);
+    mLifeGui->setBounds (0, 0, 750, 150);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }

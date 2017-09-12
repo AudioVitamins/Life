@@ -127,8 +127,9 @@ public:
     static const int life_ui_cmversionbgv2_pngSize;
     static const char* life_ui_cmbgv3_png;
     static const int life_ui_cmbgv3_pngSize;
-
-
+	static const char* life_ui_bg_png;
+	static const int life_ui_bg_pngSize;
+	 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     LifeAudioProcessor& mP;
@@ -171,6 +172,9 @@ private:
 	Image bgrImgAmount;
 	ScopedPointer<KnobImageInfo> knobInfoAmount;
 	ScopedPointer<CustomSlider> knobLookAmount;
+
+	Image CachedImage_Life_UI_Background_v1_png;
+
     //[/UserVariables]
 
     //==============================================================================
