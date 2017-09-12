@@ -22,6 +22,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "LifeGUI.h"
 class LifeAudioProcessor;
 class LifeGUI;
 //[/Headers]
@@ -59,7 +60,6 @@ private:
 
     //==============================================================================
     ScopedPointer<LifeGUI> mLifeGui;
-
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LifeAudioProcessorEditor)
