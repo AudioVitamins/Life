@@ -11,7 +11,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "LogUtil.h"
-String LifeAudioProcessor::paramDelay = "Delay";
+String LifeAudioProcessor::paramDelayLeft = "DelayLeft";
+String LifeAudioProcessor::paramDelayRight = "DelayRight";
 String LifeAudioProcessor::paramPitchRate = "PitchRate";
 String LifeAudioProcessor::paramPitchAmount = "PitchAmount";
 String LifeAudioProcessor::paramFeedback = "Feedback";
@@ -43,7 +44,9 @@ LifeAudioProcessor::LifeAudioProcessor()
 	mUndoManager = new UndoManager();
 	mState = new AudioProcessorValueTreeState(*this, mUndoManager);
 	// Current design no need add listener 
-	mState->createAndAddParameter(paramDelay, "Delay", TRANS("Delay"), NormalisableRange<float>(0.0f, 100.0f, 0.01), 0.0, nullptr, nullptr);
+	mState->createAndAddParameter(paramDelayLeft, "DelayLeft", TRANS("DelayLeft"), NormalisableRange<float>(0.0f, 100.0f, 0.01), 0.0, nullptr, nullptr);
+	mState->createAndAddParameter(paramDelayRight, "DelayRight", TRANS("DelayRight"), NormalisableRange<float>(0.0f, 100.0f, 0.01), 0.0, nullptr, nullptr);
+
 	mState->createAndAddParameter(paramPitchRate, "Pitch Rate", TRANS("Pitch Rate"), NormalisableRange<float>(1.0f, 4.0f, 1), 1.0, nullptr, nullptr);
 	mState->createAndAddParameter(paramPitchAmount, "Pitch Amount", TRANS("Pitch Amount"), NormalisableRange<float>(0.0f, 5.0f, 1), 0.0, nullptr, nullptr);
 	mState->createAndAddParameter(paramFeedback, "Feedback", TRANS("Feedback"), NormalisableRange<float>(0.0f, 100.0f, 0.1), 50.0, nullptr, nullptr);
@@ -60,7 +63,9 @@ LifeAudioProcessor::LifeAudioProcessor()
 	mState->createAndAddParameter(paramGainMaster, "Gain Master", TRANS("Gain Master"), NormalisableRange<float>(-10.0f, 10.0f, 0.1), 0.0, nullptr, nullptr);
 	mState->state = ValueTree("LifeParameters");
 
-	mState->addParameterListener(paramDelay, this);
+	mState->addParameterListener(paramDelayLeft, this);
+	mState->addParameterListener(paramDelayRight, this);
+
 	mState->addParameterListener(paramPitchRate, this);
 	mState->addParameterListener(paramPitchAmount, this);
 	mState->addParameterListener(paramFeedback, this);
@@ -77,7 +82,8 @@ LifeAudioProcessor::LifeAudioProcessor()
 	mState->addParameterListener(paramGainMaster, this);
     float sampleRate = 44100.0;
     int numOutputChannel = 2;
-    mDelayVibrato = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
+    mDelayVibrato[L] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
+	mDelayVibrato[R] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
     mTremolo = new Jimmy::DSP::Tremolo(float(sampleRate), numOutputChannel);
     
     mFilterHP = new Jimmy::DSP::IIRFilterHP(float(sampleRate), numOutputChannel);
@@ -153,7 +159,8 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     
 	dryAudioBuffer.setSize(numOutputChannel, samplesPerBlock, false, true);
 
-	mDelayVibrato = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
+	mDelayVibrato[0] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
+	mDelayVibrato[1] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
 	mTremolo = new Jimmy::DSP::Tremolo(float(sampleRate), numOutputChannel);
 
 	mFilterHP = new Jimmy::DSP::IIRFilterHP(float(sampleRate), numOutputChannel);
@@ -166,9 +173,13 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     
 	//mDelay = new Jimmy::DSP::StaticDelay(float(sampleRate), 0.1f, numOutputChannel);
 	// Aplly Pitch/Feedback
-	mDelayVibrato->preparePlay(sampleRate, samplesPerBlock);
-	float *delayMs = mState->getRawParameterValue(paramDelay);
-	mDelayVibrato->setDelayInMiliSec(*delayMs);
+	mDelayVibrato[L]->preparePlay(sampleRate, samplesPerBlock);
+	mDelayVibrato[R]->preparePlay(sampleRate, samplesPerBlock);
+	float *delayMsLeft = mState->getRawParameterValue(paramDelayLeft);
+	float *delayMsRight = mState->getRawParameterValue(paramDelayRight);
+
+	mDelayVibrato[L]->setDelayInMiliSec(*delayMsLeft);
+	mDelayVibrato[R]->setDelayInMiliSec(*delayMsRight);
 	//mDelay->preparePlay(samplesPerBlock);
 	//mDelay->setDelayInMiliSec(*delayMs);
 
@@ -180,9 +191,13 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 //	mVibrato->SetFrequency(freqPitch);
 //	mVibrato->SetDepth(*amountPitch);
 //	mVibrato->SetFeedback(*feedback);
-	mDelayVibrato->SetFrequency(freqPitch);
-	mDelayVibrato->SetDepth(*amountPitch);
-	mDelayVibrato->SetFeedback(*feedback);
+	mDelayVibrato[0]->SetFrequency(freqPitch);
+	mDelayVibrato[0]->SetDepth(*amountPitch);
+	mDelayVibrato[0]->SetFeedback(*feedback);
+
+	mDelayVibrato[1]->SetFrequency(freqPitch);
+	mDelayVibrato[1]->SetDepth(*amountPitch);
+	mDelayVibrato[1]->SetFeedback(*feedback);
 	
 	// Apply AM
 	float *rateAm = mState->getRawParameterValue(paramAmplitudeRate);
@@ -211,6 +226,7 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 	float gain0to1 = mState->getParameter(paramGainMaster)->getValue();
 	mGainMaster->preparePlay(sampleRate);
 	mGainMaster->SetGainDb0to1(gain0to1);
+
 }
 
 void LifeAudioProcessor::releaseResources()
@@ -263,12 +279,16 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 
     float *ratePitch = mState->getRawParameterValue(paramPitchRate);
     float freq = RateToFrequency(*ratePitch);
-
-    mDelayVibrato->SetFrequency(freq);
-	
+				
+    mDelayVibrato[0]->SetFrequency(freq);
+	mDelayVibrato[1]->SetFrequency(freq);
+		
 	dryAudioBuffer.makeCopyOf(buffer, true);
 
-	mDelayVibrato->process(buffer);
+	mDelayVibrato[0]->process(buffer, L);
+	mDelayVibrato[1]->process(buffer, R);
+
+		
 	//Delay
  	//mDelay->process(buffer);
 
@@ -306,17 +326,25 @@ void LifeAudioProcessor::parameterChanged(const String& parameterID, float newVa
     //    return; 
     //}
 
-	if (parameterID == LifeAudioProcessor::paramDelay) {
+	if (parameterID == LifeAudioProcessor::paramDelayLeft) {
 //		suspendProcessing(true);
 		//mDelay->setDelayInMiliSec(newValue);
-		mDelayVibrato->setDelayInMiliSec(newValue);
+		mDelayVibrato[L]->setDelayInMiliSec(newValue);
 //		suspendProcessing(false);
 	}
+	else if (parameterID == LifeAudioProcessor::paramDelayRight) {
+		//		suspendProcessing(true);
+		//mDelay->setDelayInMiliSec(newValue);
+		mDelayVibrato[R]->setDelayInMiliSec(newValue);
+		//		suspendProcessing(false);
+	}
 	else if (parameterID == LifeAudioProcessor::paramPitchRate) {
-//		suspendProcessing(true);
+//		suspendProcessing(true);AU
 		//float *ratePitch = mState->getRawParameterValue(paramPitchRate);
 		float freqPitch = RateToFrequency(newValue);
-		mDelayVibrato->SetFrequency(freqPitch);
+		mDelayVibrato[L]->SetFrequency(freqPitch);
+		mDelayVibrato[R]->SetFrequency(freqPitch);
+
 		//mVibrato->SetFrequency(freqPitch);
 //		suspendProcessing(false);
 	}
@@ -324,14 +352,17 @@ void LifeAudioProcessor::parameterChanged(const String& parameterID, float newVa
 //		suspendProcessing(true);
 		//float *amountPitch = mState->getRawParameterValue(paramPitchAmount);
 		//mVibrato->SetDepth(newValue);
-		mDelayVibrato->SetDepth(newValue);
+		mDelayVibrato[L]->SetDepth(newValue);
+		mDelayVibrato[R]->SetDepth(newValue);
+
 //		suspendProcessing(false);
 	}
 	else if (parameterID == LifeAudioProcessor::paramFeedback) {
 //		suspendProcessing(true);
 		//float *feedback = mState->getRawParameterValue(paramFeedback);
 		//mVibrato->SetFeedback(newValue);
-		mDelayVibrato->SetFeedback(newValue);
+		mDelayVibrato[L]->SetFeedback(newValue);
+		mDelayVibrato[R]->SetFeedback(newValue);
 //		suspendProcessing(false);
 	}
 	else if (parameterID == LifeAudioProcessor::paramAmplitudeRate) {

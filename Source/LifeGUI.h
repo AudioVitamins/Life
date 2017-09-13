@@ -134,7 +134,7 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     LifeAudioProcessor& mP;
 	//Normalize
-	ScopedPointer<NormalisableRange<float>> normalizeDelaySlider;
+	ScopedPointer<NormalisableRange<float>> normalizeDelaySlider[2];
 	ScopedPointer<NormalisableRange<float>> normalizePitchRateSlider;
 	ScopedPointer<NormalisableRange<float>> normalizePitchAmountSlider;
 	ScopedPointer<NormalisableRange<float>> normalizeFeedbackSlider;
@@ -146,7 +146,7 @@ private:
 	ScopedPointer<NormalisableRange<float>> normalizeWetDrySlider;
 	ScopedPointer<NormalisableRange<float>> normalizeGainMasterSlider;
 	//Automation
-	bool mAutomationDelay;
+	bool mAutomationDelay[2];
 	bool mAutomationPitchRate;
 	bool mAutomationPitchAmount;
 	bool mAutomationAmplitudeRate;
@@ -180,7 +180,7 @@ private:
     //==============================================================================
     ScopedPointer<ToggleButton> pitchOscilationsSyncToggleButton;
     ScopedPointer<ToggleButton> amplitudeOscilationsSyncToggleButton;
-    ScopedPointer<Slider> delaySlider;
+    ScopedPointer<Slider> delaySlider[2];
     ScopedPointer<Slider> pitchRateSlider;
     ScopedPointer<Slider> pitchAmountSlider;
     ScopedPointer<Slider> feedbackSlider;
