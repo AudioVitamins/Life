@@ -69,7 +69,8 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	// Nomalize
-	normalizeDelaySlider = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
+	normalizeDelaySlider[L] = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
+	normalizeDelaySlider[R] = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
 	normalizePitchRateSlider = new NormalisableRange<float>(1.0f, 4.0f, 1.0);
 	normalizePitchAmountSlider = new NormalisableRange<float>(0.0f, 5.0f, 1.0);
 	normalizeFeedbackSlider = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
@@ -85,7 +86,10 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
 
 	normalizeGainMasterSlider = new NormalisableRange<float>(-10.0f, 10.0f, 0.0);
 	//Automation
-	mAutomationDelay = true;
+	for (int SliderNum = 0; SliderNum < 2; SliderNum++)
+	{
+		mAutomationDelay[SliderNum] = true;
+	}
 	mAutomationPitchRate = true;
 	mAutomationPitchAmount = true;
 	mAutomationFeedback = true;
@@ -124,11 +128,17 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
     amplitudeOscilationsSyncToggleButton->addListener (this);
     amplitudeOscilationsSyncToggleButton->setColour (ToggleButton::textColourId, Colour (0x00000000));
 
-    addAndMakeVisible (delaySlider = new Slider ("delaySlider"));
-    delaySlider->setRange (0, 100, 0.01);
-    delaySlider->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
-    delaySlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
-    delaySlider->addListener (this);
+	addAndMakeVisible(delaySlider[L] = new Slider("delaySliderLeft"));
+	addAndMakeVisible(delaySlider[R] = new Slider("delaySliderRight"));
+
+
+	for (int SliderNum = 0; SliderNum < 2; SliderNum++)
+	{
+		delaySlider[SliderNum]->setRange(0, 100, 0.01);
+		delaySlider[SliderNum]->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+		delaySlider[SliderNum]->setTextBoxStyle(Slider::NoTextBox, false, 80, 20);
+		delaySlider[SliderNum]->addListener(this);
+	}
 
     addAndMakeVisible (pitchRateSlider = new Slider ("pitchRateSlider"));
     pitchRateSlider->setRange (1, 4, 1);
@@ -195,7 +205,8 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
 
 
     //[UserPreSize]
-	delaySlider->setLookAndFeel(knobLookDelay);
+	delaySlider[L]->setLookAndFeel(knobLookDelay);
+	delaySlider[R]->setLookAndFeel(knobLookDelay);
 	pitchRateSlider->setLookAndFeel(knobLookRate);
 	pitchAmountSlider->setLookAndFeel(knobLookAmount);
 	feedbackSlider->setLookAndFeel(knobLookDelay);
@@ -226,19 +237,21 @@ LifeGUI::~LifeGUI()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    pitchOscilationsSyncToggleButton = nullptr;
-    amplitudeOscilationsSyncToggleButton = nullptr;
-    delaySlider = nullptr;
-    pitchRateSlider = nullptr;
-    pitchAmountSlider = nullptr;
-    feedbackSlider = nullptr;
-    stereoWidthSlider = nullptr;
-    amplitudeRateSlider = nullptr;
-    amplitudeAmountSlider = nullptr;
-    highPassFilterSlider = nullptr;
-    loPassFilterSlider = nullptr;
-    wetDrySlider = nullptr;
-    masterGainSlider = nullptr;
+		pitchOscilationsSyncToggleButton = nullptr;
+		amplitudeOscilationsSyncToggleButton = nullptr;
+		delaySlider[L] = nullptr;
+		delaySlider[R] = nullptr;
+		pitchRateSlider = nullptr;
+		pitchAmountSlider = nullptr;
+		feedbackSlider = nullptr;
+		stereoWidthSlider = nullptr;
+		amplitudeRateSlider = nullptr;
+		amplitudeAmountSlider = nullptr;
+		highPassFilterSlider = nullptr;
+		loPassFilterSlider = nullptr;
+		wetDrySlider = nullptr;
+		masterGainSlider = nullptr;
+	
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -272,7 +285,8 @@ void LifeGUI::resized()
 
     pitchOscilationsSyncToggleButton->setBounds (-48, 40, 24, 40);
     amplitudeOscilationsSyncToggleButton->setBounds (-40, 112, 23, 40);
-    delaySlider->setBounds (85, EncoderTopRowY, 40, 40);
+    delaySlider[L]->setBounds (85, EncoderTopRowY, 40, 40);
+	delaySlider[R]->setBounds(85, EncoderBottomRowY + 8, 40, 40);
 	pitchRateSlider->setBounds (157, EncoderTopRowY + 1, 40, 40);
 	pitchAmountSlider->setBounds (210, EncoderTopRowY + 1, 40, 40); 
 	feedbackSlider->setBounds (274, EncoderTopRowY, 40, 40);
@@ -313,14 +327,22 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
     //[UsersliderValueChanged_Pre]
     //[/UsersliderValueChanged_Pre]
 
-    if (sliderThatWasMoved == delaySlider)
+    if (sliderThatWasMoved == delaySlider[L])
     {
         //[UserSliderCode_delaySlider] -- add your slider handling code here..
 		float val = sliderThatWasMoved->getValue();
-		float val0to1 = normalizeDelaySlider->convertTo0to1(val);
-		mP.setParameterNotifyingHost(PARAMETER_DELAY, val0to1);
+		float val0to1 = normalizeDelaySlider[L]->convertTo0to1(val);
+		mP.setParameterNotifyingHost(PARAMETER_DELAY_LEFT, val0to1);
         //[/UserSliderCode_delaySlider]
     }
+	else if (sliderThatWasMoved == delaySlider[R])
+	{
+		//[UserSliderCode_delaySlider] -- add your slider handling code here..
+		float val = sliderThatWasMoved->getValue();
+		float val0to1 = normalizeDelaySlider[R]->convertTo0to1(val);
+		mP.setParameterNotifyingHost(PARAMETER_DELAY_RIGHT, val0to1);
+		//[/UserSliderCode_delaySlider]
+	}
     else if (sliderThatWasMoved == pitchRateSlider)
     {
         //[UserSliderCode_pitchRateSlider] -- add your slider handling code here..
@@ -414,11 +436,18 @@ void LifeGUI::sliderDragStarted(Slider* sliderThatWasMoved)
 	//[UsersliderValueChanged_Pre]
 	//[/UsersliderValueChanged_Pre]
 
-	if (sliderThatWasMoved == delaySlider)
+	if (sliderThatWasMoved == delaySlider[L])
 	{
 		//[UserSliderCode_delaySlider] -- add your slider handling code here..
-		mAutomationDelay = false;
-		mP.beginParameterChangeGesture(PARAMETER_DELAY);
+		mAutomationDelay[L] = false;
+		mP.beginParameterChangeGesture(PARAMETER_DELAY_LEFT);
+		//[/UserSliderCode_delaySlider]
+	}
+	else if (sliderThatWasMoved == delaySlider[R])
+	{
+		//[UserSliderCode_delaySlider] -- add your slider handling code here..
+		mAutomationDelay[R] = false;
+		mP.beginParameterChangeGesture(PARAMETER_DELAY_RIGHT);	
 		//[/UserSliderCode_delaySlider]
 	}
 	else if (sliderThatWasMoved == pitchRateSlider)
@@ -500,11 +529,18 @@ void LifeGUI::sliderDragEnded(Slider* sliderThatWasMoved)
 	//[UsersliderValueChanged_Pre]
 	//[/UsersliderValueChanged_Pre]
 
-	if (sliderThatWasMoved == delaySlider)
+	if (sliderThatWasMoved == delaySlider[L])
 	{
 		//[UserSliderCode_delaySlider] -- add your slider handling code here..
-		mP.endParameterChangeGesture(PARAMETER_DELAY);
-		mAutomationDelay = true;
+		mP.endParameterChangeGesture(PARAMETER_DELAY_LEFT);
+		mAutomationDelay[L] = true;
+		//[/UserSliderCode_delaySlider]
+	}
+	else if (sliderThatWasMoved == delaySlider[R])
+	{
+		//[UserSliderCode_delaySlider] -- add your slider handling code here..
+		mP.endParameterChangeGesture(PARAMETER_DELAY_RIGHT);
+		mAutomationDelay[R] = true;
 		//[/UserSliderCode_delaySlider]
 	}
 	else if (sliderThatWasMoved == pitchRateSlider)
@@ -583,10 +619,16 @@ void LifeGUI::sliderDragEnded(Slider* sliderThatWasMoved)
 }
 
 void LifeGUI::timerCallback() {
-	if (mAutomationDelay) {
-		float delay0to1 = mP.getParameter(PARAMETER_DELAY);
-		float delay = normalizeDelaySlider->convertFrom0to1(delay0to1);
-		delaySlider->setValue(delay);
+	if (mAutomationDelay[L]) {
+		float delay0to1 = mP.getParameter(PARAMETER_DELAY_LEFT);
+		float delay = normalizeDelaySlider[L]->convertFrom0to1(delay0to1);
+		delaySlider[L]->setValue(delay);
+	}
+
+	else if (mAutomationDelay[R]) {
+		float delay0to1 = mP.getParameter(PARAMETER_DELAY_RIGHT);
+		float delay = normalizeDelaySlider[R]->convertFrom0to1(delay0to1);
+		delaySlider[R]->setValue(delay);
 	}
 
 	if (mAutomationPitchRate) {
