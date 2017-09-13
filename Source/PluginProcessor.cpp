@@ -191,13 +191,13 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 //	mVibrato->SetFrequency(freqPitch);
 //	mVibrato->SetDepth(*amountPitch);
 //	mVibrato->SetFeedback(*feedback);
-	mDelayVibrato[0]->SetFrequency(freqPitch);
-	mDelayVibrato[0]->SetDepth(*amountPitch);
-	mDelayVibrato[0]->SetFeedback(*feedback);
+	mDelayVibrato[L]->SetFrequency(freqPitch);
+	mDelayVibrato[L]->SetDepth(*amountPitch);
+	mDelayVibrato[L]->SetFeedback(*feedback);
 
-	mDelayVibrato[1]->SetFrequency(freqPitch);
-	mDelayVibrato[1]->SetDepth(*amountPitch);
-	mDelayVibrato[1]->SetFeedback(*feedback);
+	mDelayVibrato[R]->SetFrequency(freqPitch);
+	mDelayVibrato[R]->SetDepth(*amountPitch);
+	mDelayVibrato[R]->SetFeedback(*feedback);
 	
 	// Apply AM
 	float *rateAm = mState->getRawParameterValue(paramAmplitudeRate);
@@ -280,13 +280,13 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
     float *ratePitch = mState->getRawParameterValue(paramPitchRate);
     float freq = RateToFrequency(*ratePitch);
 				
-    mDelayVibrato[0]->SetFrequency(freq);
-	mDelayVibrato[1]->SetFrequency(freq);
+    mDelayVibrato[L]->SetFrequency(freq);
+	mDelayVibrato[R]->SetFrequency(freq);
 		
 	dryAudioBuffer.makeCopyOf(buffer, true);
 
-	mDelayVibrato[0]->process(buffer, L);
-	mDelayVibrato[1]->process(buffer, R);
+	mDelayVibrato[L]->process(buffer, L);
+	mDelayVibrato[R]->process(buffer, R);
 
 		
 	//Delay
