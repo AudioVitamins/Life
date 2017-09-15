@@ -92,9 +92,14 @@ private:
 	static String paramDelayLeft;
 	static String paramDelayRight;
 
-	static String paramPitchRate;
-	static String paramPitchAmount;
-	static String paramFeedback;
+	static String paramPitchRateLeft;
+	static String paramPitchRateRight;
+
+	static String paramPitchAmountLeft;
+	static String paramPitchAmountRight;
+
+	static String paramFeedbackLeft;
+	static String paramFeedbackRight;
 
 	static String paramAmplitudeRate;
 	static String paramAmplitudeAmount;

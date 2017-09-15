@@ -71,9 +71,16 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
 	// Nomalize
 	normalizeDelaySlider[L] = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
 	normalizeDelaySlider[R] = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
-	normalizePitchRateSlider = new NormalisableRange<float>(1.0f, 4.0f, 1.0);
-	normalizePitchAmountSlider = new NormalisableRange<float>(0.0f, 5.0f, 1.0);
-	normalizeFeedbackSlider = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
+
+	normalizePitchRateSlider[L] = new NormalisableRange<float>(1.0f, 4.0f, 1.0);
+	normalizePitchRateSlider[R] = new NormalisableRange<float>(1.0f, 4.0f, 1.0);
+
+	normalizePitchAmountSlider[L] = new NormalisableRange<float>(0.0f, 5.0f, 1.0);
+	normalizePitchAmountSlider[R] = new NormalisableRange<float>(0.0f, 5.0f, 1.0);
+
+	normalizeFeedbackSlider[L] = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
+	normalizeFeedbackSlider[R] = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
+
 
 	normalizeAmplitudeRateSlider = new NormalisableRange<float>(1.0f, 4.0f, 1.0);
 	normalizeAmplitudeAmountSlider = new NormalisableRange<float>(0.0f, 5.0f, 1.0);
@@ -89,10 +96,10 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
 	for (int SliderNum = 0; SliderNum < 2; SliderNum++)
 	{
 		mAutomationDelay[SliderNum] = true;
+		mAutomationPitchRate[SliderNum] = true;
+		mAutomationPitchAmount[SliderNum] = true;
+		mAutomationFeedback[SliderNum] = true;
 	}
-	mAutomationPitchRate = true;
-	mAutomationPitchAmount = true;
-	mAutomationFeedback = true;
 
 	mAutomationAmplitudeRate = true;
 	mAutomationAmplitudeAmount = true;
@@ -131,6 +138,16 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
 	addAndMakeVisible(delaySlider[L] = new Slider("delaySliderLeft"));
 	addAndMakeVisible(delaySlider[R] = new Slider("delaySliderRight"));
 
+	addAndMakeVisible(pitchRateSlider[L] = new Slider("pitchRateSliderLeft"));
+	addAndMakeVisible(pitchRateSlider[R] = new Slider("pitchRateSliderRight"));
+
+	addAndMakeVisible(pitchAmountSlider[L] = new Slider("pitchAmountSliderLeft"));
+	addAndMakeVisible(pitchAmountSlider[R] = new Slider("pitchAmountSliderRight"));
+
+	addAndMakeVisible(feedbackSlider[L] = new Slider("feedbackSlider"));
+	addAndMakeVisible(feedbackSlider[R] = new Slider("feedbackSlider"));
+
+
 
 	for (int SliderNum = 0; SliderNum < 2; SliderNum++)
 	{
@@ -138,25 +155,24 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
 		delaySlider[SliderNum]->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 		delaySlider[SliderNum]->setTextBoxStyle(Slider::NoTextBox, false, 80, 20);
 		delaySlider[SliderNum]->addListener(this);
+
+		pitchRateSlider[SliderNum]->setRange(1, 4, 1);
+		pitchRateSlider[SliderNum]->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+		pitchRateSlider[SliderNum]->setTextBoxStyle(Slider::NoTextBox, false, 80, 20);
+		pitchRateSlider[SliderNum]->addListener(this);
+
+		pitchAmountSlider[SliderNum]->setRange(0, 5, 1);
+		pitchAmountSlider[SliderNum]->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+		pitchAmountSlider[SliderNum]->setTextBoxStyle(Slider::NoTextBox, false, 80, 20);
+		pitchAmountSlider[SliderNum]->addListener(this);
+
+		feedbackSlider[SliderNum]->setRange(0, 50, 0.1);
+		feedbackSlider[SliderNum]->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+		feedbackSlider[SliderNum]->setTextBoxStyle(Slider::NoTextBox, false, 80, 20);
+		feedbackSlider[SliderNum]->addListener(this);
 	}
 
-    addAndMakeVisible (pitchRateSlider = new Slider ("pitchRateSlider"));
-    pitchRateSlider->setRange (1, 4, 1);
-    pitchRateSlider->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
-    pitchRateSlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
-    pitchRateSlider->addListener (this);
-
-    addAndMakeVisible (pitchAmountSlider = new Slider ("pitchAmountSlider"));
-    pitchAmountSlider->setRange (0, 5, 1);
-    pitchAmountSlider->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
-    pitchAmountSlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
-    pitchAmountSlider->addListener (this);
-
-    addAndMakeVisible (feedbackSlider = new Slider ("feedbackSlider"));
-    feedbackSlider->setRange (0, 50, 0.1);
-    feedbackSlider->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
-    feedbackSlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
-    feedbackSlider->addListener (this);
+    
 
     addAndMakeVisible (stereoWidthSlider = new Slider ("stereoWidthSlider"));
     stereoWidthSlider->setRange (0, 2, 0.1);
@@ -207,9 +223,13 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
     //[UserPreSize]
 	delaySlider[L]->setLookAndFeel(knobLookDelay);
 	delaySlider[R]->setLookAndFeel(knobLookDelay);
-	pitchRateSlider->setLookAndFeel(knobLookRate);
-	pitchAmountSlider->setLookAndFeel(knobLookAmount);
-	feedbackSlider->setLookAndFeel(knobLookDelay);
+	pitchRateSlider[L]->setLookAndFeel(knobLookRate);
+	pitchRateSlider[R]->setLookAndFeel(knobLookRate);
+	pitchAmountSlider[L]->setLookAndFeel(knobLookAmount);
+	pitchAmountSlider[R]->setLookAndFeel(knobLookAmount);
+	feedbackSlider[L]->setLookAndFeel(knobLookDelay);
+	feedbackSlider[R]->setLookAndFeel(knobLookDelay);
+
 
 	amplitudeRateSlider->setLookAndFeel(knobLookRate);
 	amplitudeAmountSlider->setLookAndFeel(knobLookAmount);
@@ -241,9 +261,12 @@ LifeGUI::~LifeGUI()
 		amplitudeOscilationsSyncToggleButton = nullptr;
 		delaySlider[L] = nullptr;
 		delaySlider[R] = nullptr;
-		pitchRateSlider = nullptr;
-		pitchAmountSlider = nullptr;
-		feedbackSlider = nullptr;
+		pitchRateSlider[L] = nullptr;
+		pitchRateSlider[R] = nullptr;
+		pitchAmountSlider[L] = nullptr;
+		pitchAmountSlider[R] = nullptr;
+		feedbackSlider[L] = nullptr;
+		feedbackSlider[R] = nullptr;
 		stereoWidthSlider = nullptr;
 		amplitudeRateSlider = nullptr;
 		amplitudeAmountSlider = nullptr;
@@ -287,9 +310,12 @@ void LifeGUI::resized()
     amplitudeOscilationsSyncToggleButton->setBounds (-40, 112, 23, 40);
     delaySlider[L]->setBounds (85, EncoderTopRowY, 40, 40);
 	delaySlider[R]->setBounds(85, EncoderBottomRowY + 8, 40, 40);
-	pitchRateSlider->setBounds (157, EncoderTopRowY + 1, 40, 40);
-	pitchAmountSlider->setBounds (210, EncoderTopRowY + 1, 40, 40); 
-	feedbackSlider->setBounds (274, EncoderTopRowY, 40, 40);
+	pitchRateSlider[L]->setBounds (157, EncoderTopRowY + 1, 40, 40);
+	pitchRateSlider[R]->setBounds(157, EncoderBottomRowY + 8, 40, 40);
+	pitchAmountSlider[L]->setBounds (210, EncoderTopRowY + 1, 40, 40); 
+	pitchAmountSlider[R]->setBounds(210, EncoderBottomRowY + 8, 40, 40);
+	feedbackSlider[L]->setBounds (274, EncoderTopRowY, 40, 40);
+	feedbackSlider[R]->setBounds(274, EncoderBottomRowY + 8, 40, 40);
 	amplitudeRateSlider->setBounds (344, EncoderTopRowY + 1, 40, 40);
     amplitudeAmountSlider->setBounds (397, EncoderTopRowY + 1, 40, 40);
     highPassFilterSlider->setBounds (462, EncoderTopRowY, 40, 40);
@@ -343,30 +369,54 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
 		mP.setParameterNotifyingHost(PARAMETER_DELAY_RIGHT, val0to1);
 		//[/UserSliderCode_delaySlider]
 	}
-    else if (sliderThatWasMoved == pitchRateSlider)
+    else if (sliderThatWasMoved == pitchRateSlider[L])
     {
         //[UserSliderCode_pitchRateSlider] -- add your slider handling code here..
 		float val = sliderThatWasMoved->getValue();
-		float val0to1 = normalizePitchRateSlider->convertTo0to1(val);
-		mP.setParameterNotifyingHost(PARAMETER_PITCH_RATE, val0to1);
+		float val0to1 = normalizePitchRateSlider[L]->convertTo0to1(val);
+		mP.setParameterNotifyingHost(PARAMETER_PITCH_RATE_LEFT, val0to1);
         //[/UserSliderCode_pitchRateSlider]
     }
-    else if (sliderThatWasMoved == pitchAmountSlider)
+	else if (sliderThatWasMoved == pitchRateSlider[R])
+	{
+		//[UserSliderCode_pitchRateSlider] -- add your slider handling code here..
+		float val = sliderThatWasMoved->getValue();
+		float val0to1 = normalizePitchRateSlider[R]->convertTo0to1(val);
+		mP.setParameterNotifyingHost(PARAMETER_PITCH_RATE_RIGHT, val0to1);
+		//[/UserSliderCode_pitchRateSlider]
+	}
+	else if (sliderThatWasMoved == pitchAmountSlider[L])
     {
         //[UserSliderCode_pitchAmountSlider] -- add your slider handling code here..
 		float val = sliderThatWasMoved->getValue();
-		float val0to1 = normalizePitchAmountSlider->convertTo0to1(val);
-		mP.setParameterNotifyingHost(PARAMETER_PITCH_AMOUNT, val0to1);
+		float val0to1 = normalizePitchAmountSlider[L]->convertTo0to1(val);
+		mP.setParameterNotifyingHost(PARAMETER_PITCH_AMOUNT_LEFT, val0to1);
         //[/UserSliderCode_pitchAmountSlider]
     }
-    else if (sliderThatWasMoved == feedbackSlider)
+	else if (sliderThatWasMoved == pitchAmountSlider[R])
+	{
+		//[UserSliderCode_pitchAmountSlider] -- add your slider handling code here..
+		float val = sliderThatWasMoved->getValue();
+		float val0to1 = normalizePitchAmountSlider[R]->convertTo0to1(val);
+		mP.setParameterNotifyingHost(PARAMETER_PITCH_AMOUNT_RIGHT, val0to1);
+		//[/UserSliderCode_pitchAmountSlider]
+	}
+    else if (sliderThatWasMoved == feedbackSlider[L])
     {
         //[UserSliderCode_feedbackSlider] -- add your slider handling code here..
 		float val = sliderThatWasMoved->getValue();
-		float val0to1 = normalizeFeedbackSlider->convertTo0to1(val);
-		mP.setParameterNotifyingHost(PARAMETER_FEEDBACK, val0to1);
+		float val0to1 = normalizeFeedbackSlider[L]->convertTo0to1(val);
+		mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_LEFT, val0to1);
         //[/UserSliderCode_feedbackSlider]
     }
+	else if (sliderThatWasMoved == feedbackSlider[R])
+	{
+		//[UserSliderCode_feedbackSlider] -- add your slider handling code here..
+		float val = sliderThatWasMoved->getValue();
+		float val0to1 = normalizeFeedbackSlider[R]->convertTo0to1(val);
+		mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_RIGHT, val0to1);
+		//[/UserSliderCode_feedbackSlider]
+	}
     else if (sliderThatWasMoved == stereoWidthSlider)
     {
         //[UserSliderCode_stereoWidthSlider] -- add your slider handling code here..
@@ -450,25 +500,46 @@ void LifeGUI::sliderDragStarted(Slider* sliderThatWasMoved)
 		mP.beginParameterChangeGesture(PARAMETER_DELAY_RIGHT);	
 		//[/UserSliderCode_delaySlider]
 	}
-	else if (sliderThatWasMoved == pitchRateSlider)
+	else if (sliderThatWasMoved == pitchRateSlider[L])
 	{
 		//[UserSliderCode_pitchRateSlider] -- add your slider handling code here..
-		mAutomationPitchRate = false;
-		mP.beginParameterChangeGesture(PARAMETER_PITCH_RATE);
+		mAutomationPitchRate[L] = false;
+		mP.beginParameterChangeGesture(PARAMETER_PITCH_RATE_LEFT);
 		//[/UserSliderCode_pitchRateSlider]
 	}
-	else if (sliderThatWasMoved == pitchAmountSlider)
+	else if (sliderThatWasMoved == pitchRateSlider[R])
+	{
+		//[UserSliderCode_pitchRateSlider] -- add your slider handling code here..
+		mAutomationPitchRate[R] = false;
+		mP.beginParameterChangeGesture(PARAMETER_PITCH_RATE_RIGHT);
+		//[/UserSliderCode_pitchRateSlider]
+	}
+	else if (sliderThatWasMoved == pitchAmountSlider[L])
 	{
 		//[UserSliderCode_pitchAmountSlider] -- add your slider handling code here..
-		mAutomationPitchAmount = false;
-		mP.beginParameterChangeGesture(PARAMETER_PITCH_AMOUNT);
+		mAutomationPitchAmount[L] = false;
+		mP.beginParameterChangeGesture(PARAMETER_PITCH_AMOUNT_LEFT);
 		//[/UserSliderCode_pitchAmountSlider]
 	}
-	else if (sliderThatWasMoved == feedbackSlider)
+	else if (sliderThatWasMoved == pitchAmountSlider[R])
+	{
+		//[UserSliderCode_pitchAmountSlider] -- add your slider handling code here..
+		mAutomationPitchAmount[R] = false;
+		mP.beginParameterChangeGesture(PARAMETER_PITCH_AMOUNT_RIGHT);
+		//[/UserSliderCode_pitchAmountSlider]
+	}
+	else if (sliderThatWasMoved == feedbackSlider[L])
 	{
 		//[UserSliderCode_feedbackSlider] -- add your slider handling code here..
-		mAutomationFeedback = false;
-		mP.beginParameterChangeGesture(PARAMETER_FEEDBACK);
+		mAutomationFeedback[L] = false;
+		mP.beginParameterChangeGesture(PARAMETER_FEEDBACK_LEFT);
+		//[/UserSliderCode_feedbackSlider]
+	}
+	else if (sliderThatWasMoved == feedbackSlider[R])
+	{
+		//[UserSliderCode_feedbackSlider] -- add your slider handling code here..
+		mAutomationFeedback[R] = false;
+		mP.beginParameterChangeGesture(PARAMETER_FEEDBACK_RIGHT);
 		//[/UserSliderCode_feedbackSlider]
 	}
 	else if (sliderThatWasMoved == stereoWidthSlider)
@@ -543,25 +614,46 @@ void LifeGUI::sliderDragEnded(Slider* sliderThatWasMoved)
 		mAutomationDelay[R] = true;
 		//[/UserSliderCode_delaySlider]
 	}
-	else if (sliderThatWasMoved == pitchRateSlider)
+	else if (sliderThatWasMoved == pitchRateSlider[L])
 	{
 		//[UserSliderCode_pitchRateSlider] -- add your slider handling code here..
-		mP.endParameterChangeGesture(PARAMETER_PITCH_RATE);
-		mAutomationPitchRate = true;
+		mP.endParameterChangeGesture(PARAMETER_PITCH_RATE_LEFT);
+		mAutomationPitchRate[L] = true;
 		//[/UserSliderCode_pitchRateSlider]
 	}
-	else if (sliderThatWasMoved == pitchAmountSlider)
+	else if (sliderThatWasMoved == pitchRateSlider[R])
+	{
+		//[UserSliderCode_pitchRateSlider] -- add your slider handling code here..
+		mP.endParameterChangeGesture(PARAMETER_PITCH_RATE_RIGHT);
+		mAutomationPitchRate[R] = true;
+		//[/UserSliderCode_pitchRateSlider]
+	}
+	else if (sliderThatWasMoved == pitchAmountSlider[L])
 	{
 		//[UserSliderCode_pitchAmountSlider] -- add your slider handling code here..
-		mP.endParameterChangeGesture(PARAMETER_PITCH_AMOUNT);
-		mAutomationPitchAmount = true;
+		mP.endParameterChangeGesture(PARAMETER_PITCH_AMOUNT_LEFT);
+		mAutomationPitchAmount[L] = true;
 		//[/UserSliderCode_pitchAmountSlider]
 	}
-	else if (sliderThatWasMoved == feedbackSlider)
+	else if (sliderThatWasMoved == pitchAmountSlider[R])
+	{
+		//[UserSliderCode_pitchAmountSlider] -- add your slider handling code here..
+		mP.endParameterChangeGesture(PARAMETER_PITCH_AMOUNT_RIGHT);
+		mAutomationPitchAmount[R] = true;
+		//[/UserSliderCode_pitchAmountSlider]
+	}
+	else if (sliderThatWasMoved == feedbackSlider[L])
 	{
 		//[UserSliderCode_feedbackSlider] -- add your slider handling code here..
-		mP.endParameterChangeGesture(PARAMETER_FEEDBACK);
-		mAutomationFeedback = true;
+		mP.endParameterChangeGesture(PARAMETER_FEEDBACK_LEFT);
+		mAutomationFeedback[L] = true;
+		//[/UserSliderCode_feedbackSlider]
+	}
+	else if (sliderThatWasMoved == feedbackSlider[R])
+	{
+		//[UserSliderCode_feedbackSlider] -- add your slider handling code here..
+		mP.endParameterChangeGesture(PARAMETER_FEEDBACK_RIGHT);
+		mAutomationFeedback[R] = true;
 		//[/UserSliderCode_feedbackSlider]
 	}
 	else if (sliderThatWasMoved == stereoWidthSlider)
@@ -631,16 +723,26 @@ void LifeGUI::timerCallback() {
 		delaySlider[R]->setValue(delay);
 	}
 
-	if (mAutomationPitchRate) {
-		float pitchRate0to1 = mP.getParameter(PARAMETER_PITCH_RATE);
-		float pitchRate = normalizePitchRateSlider->convertFrom0to1(pitchRate0to1);
-		pitchRateSlider->setValue(pitchRate);
+	if (mAutomationPitchRate[L]) {
+		float pitchRate0to1 = mP.getParameter(PARAMETER_PITCH_RATE_LEFT);
+		float pitchRate = normalizePitchRateSlider[L]->convertFrom0to1(pitchRate0to1);
+		pitchRateSlider[L]->setValue(pitchRate);
+	}
+	if (mAutomationPitchRate[R]) {
+		float pitchRate0to1 = mP.getParameter(PARAMETER_PITCH_RATE_RIGHT);
+		float pitchRate = normalizePitchRateSlider[R]->convertFrom0to1(pitchRate0to1);
+		pitchRateSlider[R]->setValue(pitchRate);
 	}
 
-	if (mAutomationPitchAmount) {
-		float pitchAmount0to1 = mP.getParameter(PARAMETER_PITCH_AMOUNT);
-		float pitchAmount = normalizePitchAmountSlider->convertFrom0to1(pitchAmount0to1);
-		pitchAmountSlider->setValue(pitchAmount);
+	if (mAutomationPitchAmount[L]) {
+		float pitchAmount0to1 = mP.getParameter(PARAMETER_PITCH_AMOUNT_LEFT);
+		float pitchAmount = normalizePitchAmountSlider[L]->convertFrom0to1(pitchAmount0to1);
+		pitchAmountSlider[L]->setValue(pitchAmount);
+	}
+	if (mAutomationPitchAmount[R]) {
+		float pitchAmount0to1 = mP.getParameter(PARAMETER_PITCH_AMOUNT_RIGHT);
+		float pitchAmount = normalizePitchAmountSlider[R]->convertFrom0to1(pitchAmount0to1);
+		pitchAmountSlider[R]->setValue(pitchAmount);
 	}
 
 	if (mAutomationAmplitudeRate) {
@@ -655,10 +757,16 @@ void LifeGUI::timerCallback() {
 		amplitudeAmountSlider->setValue(amplitudeAmount);
 	}
 
-	if (mAutomationFeedback) {
-		float feedback0to1 = mP.getParameter(PARAMETER_FEEDBACK);
-		float feedback = normalizeFeedbackSlider->convertFrom0to1(feedback0to1);
-		feedbackSlider->setValue(feedback);
+	if (mAutomationFeedback[L]) {
+		float feedback0to1 = mP.getParameter(PARAMETER_FEEDBACK_LEFT);
+		float feedback = normalizeFeedbackSlider[L]->convertFrom0to1(feedback0to1);
+		feedbackSlider[L]->setValue(feedback);
+	}
+
+	if (mAutomationFeedback[R]) {
+		float feedback0to1 = mP.getParameter(PARAMETER_FEEDBACK_RIGHT);
+		float feedback = normalizeFeedbackSlider[R]->convertFrom0to1(feedback0to1);
+		feedbackSlider[R]->setValue(feedback);
 	}
 
 	if (mAutomationHighPass) {
