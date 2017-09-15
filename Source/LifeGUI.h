@@ -135,9 +135,9 @@ private:
     LifeAudioProcessor& mP;
 	//Normalize
 	ScopedPointer<NormalisableRange<float>> normalizeDelaySlider[2];
-	ScopedPointer<NormalisableRange<float>> normalizePitchRateSlider;
-	ScopedPointer<NormalisableRange<float>> normalizePitchAmountSlider;
-	ScopedPointer<NormalisableRange<float>> normalizeFeedbackSlider;
+	ScopedPointer<NormalisableRange<float>> normalizePitchRateSlider[2];
+	ScopedPointer<NormalisableRange<float>> normalizePitchAmountSlider[2];
+	ScopedPointer<NormalisableRange<float>> normalizeFeedbackSlider[2];
 	ScopedPointer<NormalisableRange<float>> normalizeAmplitudeRateSlider;
 	ScopedPointer<NormalisableRange<float>> normalizeAmplitudeAmountSlider;
 	ScopedPointer<NormalisableRange<float>> normalizeLowPassSlider;
@@ -147,11 +147,11 @@ private:
 	ScopedPointer<NormalisableRange<float>> normalizeGainMasterSlider;
 	//Automation
 	bool mAutomationDelay[2];
-	bool mAutomationPitchRate;
-	bool mAutomationPitchAmount;
+	bool mAutomationPitchRate[2];
+	bool mAutomationPitchAmount[2];
 	bool mAutomationAmplitudeRate;
 	bool mAutomationAmplitudeAmount;
-	bool mAutomationFeedback;
+	bool mAutomationFeedback[2];
 
 	bool mAutomationHighPass;
 	bool mAutomationLowPass;
@@ -181,9 +181,9 @@ private:
     ScopedPointer<ToggleButton> pitchOscilationsSyncToggleButton;
     ScopedPointer<ToggleButton> amplitudeOscilationsSyncToggleButton;
     ScopedPointer<Slider> delaySlider[2];
-    ScopedPointer<Slider> pitchRateSlider;
-    ScopedPointer<Slider> pitchAmountSlider;
-    ScopedPointer<Slider> feedbackSlider;
+    ScopedPointer<Slider> pitchRateSlider[2];
+    ScopedPointer<Slider> pitchAmountSlider[2];
+    ScopedPointer<Slider> feedbackSlider[2];
     ScopedPointer<Slider> stereoWidthSlider;
     ScopedPointer<Slider> amplitudeRateSlider;
     ScopedPointer<Slider> amplitudeAmountSlider;
