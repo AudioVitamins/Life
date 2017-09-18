@@ -127,17 +127,16 @@ public:
     static const int life_ui_cmversionbgv2_pngSize;
     static const char* life_ui_cmbgv3_png;
     static const int life_ui_cmbgv3_pngSize;
-	static const char* life_ui_bg_png;
-	static const int life_ui_bg_pngSize;
-	 
+
+
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     LifeAudioProcessor& mP;
 	//Normalize
-	ScopedPointer<NormalisableRange<float>> normalizeDelaySlider[2];
-	ScopedPointer<NormalisableRange<float>> normalizePitchRateSlider[2];
-	ScopedPointer<NormalisableRange<float>> normalizePitchAmountSlider[2];
-	ScopedPointer<NormalisableRange<float>> normalizeFeedbackSlider[2];
+	ScopedPointer<NormalisableRange<float>> normalizeDelaySlider;
+	ScopedPointer<NormalisableRange<float>> normalizePitchRateSlider;
+	ScopedPointer<NormalisableRange<float>> normalizePitchAmountSlider;
+	ScopedPointer<NormalisableRange<float>> normalizeFeedbackSlider;
 	ScopedPointer<NormalisableRange<float>> normalizeAmplitudeRateSlider;
 	ScopedPointer<NormalisableRange<float>> normalizeAmplitudeAmountSlider;
 	ScopedPointer<NormalisableRange<float>> normalizeLowPassSlider;
@@ -146,12 +145,12 @@ private:
 	ScopedPointer<NormalisableRange<float>> normalizeWetDrySlider;
 	ScopedPointer<NormalisableRange<float>> normalizeGainMasterSlider;
 	//Automation
-	bool mAutomationDelay[2];
-	bool mAutomationPitchRate[2];
-	bool mAutomationPitchAmount[2];
+	bool mAutomationDelay;
+	bool mAutomationPitchRate;
+	bool mAutomationPitchAmount;
 	bool mAutomationAmplitudeRate;
 	bool mAutomationAmplitudeAmount;
-	bool mAutomationFeedback[2];
+	bool mAutomationFeedback;
 
 	bool mAutomationHighPass;
 	bool mAutomationLowPass;
@@ -172,26 +171,23 @@ private:
 	Image bgrImgAmount;
 	ScopedPointer<KnobImageInfo> knobInfoAmount;
 	ScopedPointer<CustomSlider> knobLookAmount;
-
-	Image CachedImage_Life_UI_Background_v1_png;
-
     //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<ToggleButton> pitchOscilationsSyncToggleButton;
     ScopedPointer<ToggleButton> amplitudeOscilationsSyncToggleButton;
-    ScopedPointer<Slider> delaySlider[2];
-    ScopedPointer<Slider> pitchRateSlider[2];
-    ScopedPointer<Slider> pitchAmountSlider[2];
-    ScopedPointer<Slider> feedbackSlider[2];
+    ScopedPointer<Slider> delaySlider;
+    ScopedPointer<Slider> pitchRateSlider;
+    ScopedPointer<Slider> pitchAmountSlider;
+    ScopedPointer<Slider> feedbackSlider;
     ScopedPointer<Slider> stereoWidthSlider;
     ScopedPointer<Slider> amplitudeRateSlider;
     ScopedPointer<Slider> amplitudeAmountSlider;
     ScopedPointer<Slider> highPassFilterSlider;
     ScopedPointer<Slider> loPassFilterSlider;
     ScopedPointer<Slider> wetDrySlider;
-    ScopedPointer<Slider> masterGainSlider;
-    Image cachedImage_life_ui_cmbgv3_png_1;
+	ScopedPointer<Slider> masterGainSlider;
+	Image cachedImage_life_ui_cmbgv3_png_1;
 
 
     //==============================================================================

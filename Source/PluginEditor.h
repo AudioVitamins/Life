@@ -60,6 +60,7 @@ private:
     //==============================================================================
     ScopedPointer<LifeGUI> mLifeGui;
 
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LifeAudioProcessorEditor)
 };
