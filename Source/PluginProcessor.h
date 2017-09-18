@@ -70,7 +70,7 @@ private:
 //	ScopedPointer<Jimmy::DSP::StaticDelay> mDelay;
 //	ScopedPointer<Jimmy::DSP::Vibrato> mVibrato;
 
-	ScopedPointer<Jimmy::DSP::DelayVibrato> mDelayVibrato[2];
+	ScopedPointer<Jimmy::DSP::DelayVibrato> mDelayVibrato;
 	ScopedPointer<Jimmy::DSP::Tremolo> mTremolo;
 
 	ScopedPointer<Jimmy::DSP::IIRFilterHP> mFilterHP;
@@ -89,17 +89,11 @@ private:
 	ScopedPointer<AudioProcessorValueTreeState> mState;
 	ScopedPointer<UndoManager>                  mUndoManager;
 
-	static String paramDelayLeft;
-	static String paramDelayRight;
-
-	static String paramPitchRateLeft;
-	static String paramPitchRateRight;
-
-	static String paramPitchAmountLeft;
-	static String paramPitchAmountRight;
-
-	static String paramFeedbackLeft;
-	static String paramFeedbackRight;
+	static String paramDelay;
+	
+	static String paramPitchRate;
+	static String paramPitchAmount;
+	static String paramFeedback;
 
 	static String paramAmplitudeRate;
 	static String paramAmplitudeAmount;
