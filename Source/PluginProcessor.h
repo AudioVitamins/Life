@@ -70,11 +70,11 @@ private:
 //	ScopedPointer<Jimmy::DSP::StaticDelay> mDelay;
 //	ScopedPointer<Jimmy::DSP::Vibrato> mVibrato;
 
-	ScopedPointer<Jimmy::DSP::DelayVibrato> mDelayVibrato;
-	ScopedPointer<Jimmy::DSP::Tremolo> mTremolo;
+	ScopedPointer<Jimmy::DSP::DelayVibrato> mDelayVibrato[2];
+	ScopedPointer<Jimmy::DSP::Tremolo> mTremolo[2];
 
-	ScopedPointer<Jimmy::DSP::IIRFilterHP> mFilterHP;
-	ScopedPointer<Jimmy::DSP::IIRFilterLP> mFilterLP;
+	ScopedPointer<Jimmy::DSP::IIRFilterHP> mFilterHP[2];
+	ScopedPointer<Jimmy::DSP::IIRFilterLP> mFilterLP[2];
 
 	ScopedPointer<Jimmy::DSP::Width> mWidth;
 	ScopedPointer<Jimmy::DSP::WetDry> mWet;
@@ -89,17 +89,29 @@ private:
 	ScopedPointer<AudioProcessorValueTreeState> mState;
 	ScopedPointer<UndoManager>                  mUndoManager;
 
-	static String paramDelay;
-	
-	static String paramPitchRate;
-	static String paramPitchAmount;
-	static String paramFeedback;
+	static String paramDelayLeft;
+	static String paramDelayRight;
 
-	static String paramAmplitudeRate;
-	static String paramAmplitudeAmount;
+	static String paramPitchRateLeft;
+	static String paramPitchRateRight;
 
-	static String paramHighFreq;
-	static String paramLowFreq;
+	static String paramPitchAmountLeft;
+	static String paramPitchAmountRight;
+
+	static String paramFeedbackLeft;
+	static String paramFeedbackRight;
+
+	static String paramAmplitudeRateLeft;
+	static String paramAmplitudeRateRight;
+
+	static String paramAmplitudeAmountLeft;
+	static String paramAmplitudeAmountRight;
+
+
+	static String paramHighFreqLeft;
+	static String paramHighFreqRight;
+	static String paramLowFreqLeft;
+	static String paramLowFreqRight;
 
 	static String paramWidth;
 	static String paramWetDry;
