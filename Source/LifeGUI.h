@@ -127,33 +127,34 @@ public:
     static const int life_ui_cmversionbgv2_pngSize;
     static const char* life_ui_cmbgv3_png;
     static const int life_ui_cmbgv3_pngSize;
-
-
+	static const char* life_ui_bg_png;
+	static const int life_ui_bg_pngSize;
+	 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     LifeAudioProcessor& mP;
 	//Normalize
-	ScopedPointer<NormalisableRange<float>> normalizeDelaySlider;
-	ScopedPointer<NormalisableRange<float>> normalizePitchRateSlider;
-	ScopedPointer<NormalisableRange<float>> normalizePitchAmountSlider;
-	ScopedPointer<NormalisableRange<float>> normalizeFeedbackSlider;
-	ScopedPointer<NormalisableRange<float>> normalizeAmplitudeRateSlider;
-	ScopedPointer<NormalisableRange<float>> normalizeAmplitudeAmountSlider;
-	ScopedPointer<NormalisableRange<float>> normalizeLowPassSlider;
-	ScopedPointer<NormalisableRange<float>> normalizeHighPassSlider;
+	ScopedPointer<NormalisableRange<float>> normalizeDelaySlider[2];
+	ScopedPointer<NormalisableRange<float>> normalizePitchRateSlider[2];
+	ScopedPointer<NormalisableRange<float>> normalizePitchAmountSlider[2];
+	ScopedPointer<NormalisableRange<float>> normalizeFeedbackSlider[2];
+	ScopedPointer<NormalisableRange<float>> normalizeAmplitudeRateSlider[2];
+	ScopedPointer<NormalisableRange<float>> normalizeAmplitudeAmountSlider[2];
+	ScopedPointer<NormalisableRange<float>> normalizeLowPassSlider[2];
+	ScopedPointer<NormalisableRange<float>> normalizeHighPassSlider[2];
 	ScopedPointer<NormalisableRange<float>> normalizeWidthSlider;
 	ScopedPointer<NormalisableRange<float>> normalizeWetDrySlider;
 	ScopedPointer<NormalisableRange<float>> normalizeGainMasterSlider;
 	//Automation
-	bool mAutomationDelay;
-	bool mAutomationPitchRate;
-	bool mAutomationPitchAmount;
-	bool mAutomationAmplitudeRate;
-	bool mAutomationAmplitudeAmount;
-	bool mAutomationFeedback;
+	bool mAutomationDelay[2];
+	bool mAutomationPitchRate[2];
+	bool mAutomationPitchAmount[2];
+	bool mAutomationAmplitudeRate[2];
+	bool mAutomationAmplitudeAmount[2];
+	bool mAutomationFeedback[2];
 
-	bool mAutomationHighPass;
-	bool mAutomationLowPass;
+	bool mAutomationHighPass[2];
+	bool mAutomationLowPass[2];
 
 	bool mAutomationWidth;
 	bool mAutomationWetDry;
@@ -171,23 +172,26 @@ private:
 	Image bgrImgAmount;
 	ScopedPointer<KnobImageInfo> knobInfoAmount;
 	ScopedPointer<CustomSlider> knobLookAmount;
+
+	Image CachedImage_Life_UI_Background_v1_png;
+
     //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<ToggleButton> pitchOscilationsSyncToggleButton;
     ScopedPointer<ToggleButton> amplitudeOscilationsSyncToggleButton;
-    ScopedPointer<Slider> delaySlider;
-    ScopedPointer<Slider> pitchRateSlider;
-    ScopedPointer<Slider> pitchAmountSlider;
-    ScopedPointer<Slider> feedbackSlider;
+    ScopedPointer<Slider> delaySlider[2];
+    ScopedPointer<Slider> pitchRateSlider[2];
+    ScopedPointer<Slider> pitchAmountSlider[2];
+    ScopedPointer<Slider> feedbackSlider[2];
     ScopedPointer<Slider> stereoWidthSlider;
-    ScopedPointer<Slider> amplitudeRateSlider;
-    ScopedPointer<Slider> amplitudeAmountSlider;
-    ScopedPointer<Slider> highPassFilterSlider;
-    ScopedPointer<Slider> loPassFilterSlider;
+    ScopedPointer<Slider> amplitudeRateSlider[2];
+    ScopedPointer<Slider> amplitudeAmountSlider[2];
+    ScopedPointer<Slider> highPassFilterSlider[2];
+    ScopedPointer<Slider> loPassFilterSlider[2];
     ScopedPointer<Slider> wetDrySlider;
-	ScopedPointer<Slider> masterGainSlider;
-	Image cachedImage_life_ui_cmbgv3_png_1;
+    ScopedPointer<Slider> masterGainSlider;
+    Image cachedImage_life_ui_cmbgv3_png_1;
 
 
     //==============================================================================
