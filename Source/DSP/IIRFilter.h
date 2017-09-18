@@ -123,17 +123,17 @@ namespace Jimmy {
 					playheads[currentPlayhead].startFadeIn();
 				}
 			}*/
-			void process(AudioBuffer<float> &buffer) {
+			void process(AudioBuffer<float> &buffer, int Chan) {
 				float **buffersCh = buffer.getArrayOfWritePointers();
 				int numSamples = buffer.getNumSamples();
 				for (int i = 0; i < numSamples; i++) {
 
 					float freq = mSmooth->getNextValue();
 					mCoefficients = juce::IIRCoefficients::makeLowPass(mSampleRate, freq);
-					for (int c = 0; c < mNumChans; c++) {
-						mIIRFilter.getReference(c).setCoefficients(mCoefficients);
-						buffersCh[c][i] = mIIRFilter.getReference(c).processSingleSampleRaw(buffersCh[c][i]);
-					}
+					
+						mIIRFilter.getReference(Chan).setCoefficients(mCoefficients);
+						buffersCh[Chan][i] = mIIRFilter.getReference(Chan).processSingleSampleRaw(buffersCh[Chan][i]);
+					
 				}
 			};
 			void reset() {
@@ -169,7 +169,7 @@ namespace Jimmy {
 				//	mIIRFilter.getReference(i).setCoefficients(mCoefficients);
 				//}
 			};
-			void process(AudioBuffer<float> &buffer) {
+			void process(AudioBuffer<float> &buffer, int Chan) {
 				/*float **buffersCh = buffer.getArrayOfWritePointers();
 				int numSamples = buffer.getNumSamples();
 				for (int i = 0; i < mNumChans; i++) {
@@ -182,10 +182,10 @@ namespace Jimmy {
 
 					float freq = mSmooth->getNextValue();
 					mCoefficients = juce::IIRCoefficients::makeHighPass(mSampleRate, freq);
-					for (int c = 0; c < mNumChans; c++) {
-						mIIRFilter.getReference(c).setCoefficients(mCoefficients);
-						buffersCh[c][i] = mIIRFilter.getReference(c).processSingleSampleRaw(buffersCh[c][i]);
-					}
+					
+						mIIRFilter.getReference(Chan).setCoefficients(mCoefficients);
+						buffersCh[Chan][i] = mIIRFilter.getReference(Chan).processSingleSampleRaw(buffersCh[Chan][i]);
+					
 				}
 
 			};
