@@ -73,6 +73,7 @@ public:
 		{
 		}
 	};
+
 	class CustomSlider : public LookAndFeel_V3
 	{
 	public:
@@ -97,6 +98,22 @@ public:
 		Label* createSliderTextBox(Slider& slider) override;
 		void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPos,
 			const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override;
+	};
+
+	class LifeToggleButton : public LookAndFeel_V3
+	{
+	public:
+		
+		~LifeToggleButton() {};
+
+		void drawButtonBackground(Graphics& g, Button& button, const Colour& backgroundColour,
+			bool isMouseOverButton, bool isButtonDown) override;
+
+		void drawToggleButton(Graphics& g, ToggleButton& button, bool isMouseOverButton,
+			bool isButtonDown) override;
+
+		Image CachedImage_LifeToggleButtonVertical_png;
+			
 	};
 
 	//Event Timer
@@ -129,7 +146,9 @@ public:
     static const int life_ui_cmbgv3_pngSize;
 	static const char* life_ui_bg_png;
 	static const int life_ui_bg_pngSize;
-	 
+	static const char* white_slideswitch_2pos_vertical_50x50_png;
+	static const int white_slideswitch_2pos_vertical_50x50_pngSize;
+
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     LifeAudioProcessor& mP;
@@ -160,6 +179,7 @@ private:
 	bool mAutomationWetDry;
 
 	bool mAutomationGainMaster;
+
 	// Background
 	Image bgrImgDelay;
 	ScopedPointer<KnobImageInfo> knobInfoDelay;
@@ -172,14 +192,17 @@ private:
 	Image bgrImgAmount;
 	ScopedPointer<KnobImageInfo> knobInfoAmount;
 	ScopedPointer<CustomSlider> knobLookAmount;
+	
+	ScopedPointer<LifeToggleButton> LifeToggleButtonLookandFeel;
 
 	Image CachedImage_Life_UI_Background_v1_png;
-
+	
     //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<ToggleButton> pitchOscilationsSyncToggleButton;
     ScopedPointer<ToggleButton> amplitudeOscilationsSyncToggleButton;
+	ScopedPointer<ToggleButton> LR_Or_MS_ToggleButton;
     ScopedPointer<Slider> delaySlider[2];
     ScopedPointer<Slider> pitchRateSlider[2];
     ScopedPointer<Slider> pitchAmountSlider[2];
