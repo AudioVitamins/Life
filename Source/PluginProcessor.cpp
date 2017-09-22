@@ -37,6 +37,10 @@ String LifeAudioProcessor::paramWidth = "Width";
 String LifeAudioProcessor::paramWetDry = "WetDry";
 
 String LifeAudioProcessor::paramGainMaster = "GainMaster";
+
+String LifeAudioProcessor::paramLR_Or_MSToggle = "LR or MS";
+
+
 //==============================================================================
 LifeAudioProcessor::LifeAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -82,6 +86,9 @@ LifeAudioProcessor::LifeAudioProcessor()
 	mState->createAndAddParameter(paramWetDry, "Wet Dry", TRANS("Wet Dry"), NormalisableRange<float>(0.0f, 100.0f, 0.1), 50.0, nullptr, nullptr);
 
 	mState->createAndAddParameter(paramGainMaster, "Gain Master", TRANS("Gain Master"), NormalisableRange<float>(-10.0f, 10.0f, 0.1), 0.0, nullptr, nullptr);
+
+	mState->createAndAddParameter(paramLR_Or_MSToggle, "LR or MS Toggle", TRANS("LR or MS Toggle"), NormalisableRange<float>(0, 1, 1), 0, nullptr, nullptr);
+
 	mState->state = ValueTree("LifeParameters");
 
 	mState->addParameterListener(paramDelayLeft, this);
@@ -114,6 +121,9 @@ LifeAudioProcessor::LifeAudioProcessor()
 	mState->addParameterListener(paramWetDry, this);
 
 	mState->addParameterListener(paramGainMaster, this);
+
+	mState->addParameterListener(paramLR_Or_MSToggle, this);
+
     float sampleRate = 44100.0;
     int numOutputChannel = 2;
     mDelayVibrato[L] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
@@ -243,11 +253,12 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 //	mVibrato->SetDepth(*amountPitch);
 //	mVibrato->SetFeedback(*feedback);
 	mDelayVibrato[L]->SetFrequency(freqPitchLeft);
-	mDelayVibrato[L]->SetDepth(*amountPitchLeft);
-	mDelayVibrato[L]->SetFeedback(*feedbackLeft);
-
 	mDelayVibrato[R]->SetFrequency(freqPitchRight);
+
+	mDelayVibrato[L]->SetDepth(*amountPitchLeft);
 	mDelayVibrato[R]->SetDepth(*amountPitchRight);
+
+	mDelayVibrato[L]->SetFeedback(*feedbackLeft);
 	mDelayVibrato[R]->SetFeedback(*feedbackRight);
 	
 	// Apply AM
@@ -528,6 +539,10 @@ void LifeAudioProcessor::parameterChanged(const String& parameterID, float newVa
 //		suspendProcessing(true);
 		mGainMaster->SetGainDB(newValue);
 //		suspendProcessing(false);
+	}
+	else if (parameterID == LifeAudioProcessor::paramLR_Or_MSToggle)
+	{
+		LRorMS_State = newValue;
 	}
 }
 
