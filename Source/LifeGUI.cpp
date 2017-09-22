@@ -60,6 +60,27 @@ void LifeGUI::CustomSlider::drawRotarySlider(Graphics& g, int x, int y, int widt
 	g.drawImage(knob.brgImg, x, y, width, height, xImg, yImg, knob.WidthKnob, knob.HightKnob);
 }
 
+void LifeGUI::LifeToggleButton::drawButtonBackground(Graphics& g, Button& button, const Colour& backgroundColour,
+	bool isMouseOverButton, bool isButtonDown)
+{
+
+}
+
+void LifeGUI::LifeToggleButton::drawToggleButton(Graphics& g, ToggleButton& button, bool isMouseOverButton,
+	bool isButtonDown)
+{
+	CachedImage_LifeToggleButtonVertical_png = ImageCache::getFromMemory(white_slideswitch_2pos_vertical_50x50_png, white_slideswitch_2pos_vertical_50x50_pngSize);
+	CachedImage_LifeToggleButtonVertical_png = CachedImage_LifeToggleButtonVertical_png.rescaled(40, 80);
+
+	int ButtonImageYPos;
+	if (button.getToggleState() == true) { ButtonImageYPos = -40; }
+	if (button.getToggleState() == false) { ButtonImageYPos = 0;}
+		
+	g.drawImage(CachedImage_LifeToggleButtonVertical_png, 
+		0, ButtonImageYPos, CachedImage_LifeToggleButtonVertical_png.getWidth(), CachedImage_LifeToggleButtonVertical_png.getHeight(),
+		0, 0, CachedImage_LifeToggleButtonVertical_png.getWidth(), CachedImage_LifeToggleButtonVertical_png.getHeight(), false);		
+}
+
 
 //[/MiscUserDefs]
 
@@ -81,13 +102,11 @@ LifeGUI::LifeGUI(LifeAudioProcessor& p)
 	normalizeFeedbackSlider[L] = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
 	normalizeFeedbackSlider[R] = new NormalisableRange<float>(0.0f, 100.0f, 0.01);
 
-
 	normalizeAmplitudeRateSlider[L] = new NormalisableRange<float>(1.0f, 4.0f, 1.0);
 	normalizeAmplitudeRateSlider[R] = new NormalisableRange<float>(1.0f, 4.0f, 1.0);
 
 	normalizeAmplitudeAmountSlider[L] = new NormalisableRange<float>(0.0f, 5.0f, 1.0);
 	normalizeAmplitudeAmountSlider[R] = new NormalisableRange<float>(0.0f, 5.0f, 1.0);
-
 
 	normalizeLowPassSlider[L] = new NormalisableRange<float>(20.0f, 20000.0f, 0.1);
 	normalizeLowPassSlider[R] = new NormalisableRange<float>(20.0f, 20000.0f, 0.1);
@@ -99,6 +118,7 @@ LifeGUI::LifeGUI(LifeAudioProcessor& p)
 	normalizeWetDrySlider = new NormalisableRange<float>(0.0f, 100.0f, 0.1);
 
 	normalizeGainMasterSlider = new NormalisableRange<float>(-10.0f, 10.0f, 0.0);
+
 	//Automation
 	for (int SliderNum = 0; SliderNum < 2; SliderNum++)
 	{
@@ -107,7 +127,7 @@ LifeGUI::LifeGUI(LifeAudioProcessor& p)
 		mAutomationPitchAmount[SliderNum] = true;
 		mAutomationFeedback[SliderNum] = true;
 	}
-
+	
 	mAutomationAmplitudeRate[L] = true;
 	mAutomationAmplitudeRate[R] = true;
 
@@ -136,6 +156,9 @@ LifeGUI::LifeGUI(LifeAudioProcessor& p)
 	bgrImgAmount = ImageCache::getFromMemory(whitered_rotaryswitch_6pos_vertical_60x60_png, whitered_rotaryswitch_6pos_vertical_60x60_pngSize);
 	knobInfoAmount = new KnobImageInfo(bgrImgAmount, 6);
 	knobLookAmount = new CustomSlider(*knobInfoAmount);
+
+	LifeToggleButtonLookandFeel = new LifeToggleButton();
+
     //[/Constructor_pre]
 
     addAndMakeVisible (pitchOscilationsSyncToggleButton = new ToggleButton ("pitchOscilationsSyncToggleButton"));
@@ -148,6 +171,11 @@ LifeGUI::LifeGUI(LifeAudioProcessor& p)
     amplitudeOscilationsSyncToggleButton->addListener (this);
     amplitudeOscilationsSyncToggleButton->setColour (ToggleButton::textColourId, Colour (0x00000000));
 
+	addAndMakeVisible (LR_Or_MS_ToggleButton = new ToggleButton("LR_Or_MS_ToggleButton"));
+	LR_Or_MS_ToggleButton->setButtonText(String());
+	LR_Or_MS_ToggleButton->addListener(this);
+	LR_Or_MS_ToggleButton->setColour(ToggleButton::textColourId, Colour(0x00000000));
+		
 	addAndMakeVisible(delaySlider[L] = new Slider("delaySliderLeft"));
 	addAndMakeVisible(delaySlider[R] = new Slider("delaySliderRight"));
 
@@ -235,7 +263,7 @@ LifeGUI::LifeGUI(LifeAudioProcessor& p)
 
 	    cachedImage_life_ui_cmbgv3_png_1 = ImageCache::getFromMemory (life_ui_cmbgv3_png, life_ui_cmbgv3_pngSize);
 		CachedImage_Life_UI_Background_v1_png = ImageCache::getFromMemory(life_ui_bg_png, life_ui_bg_pngSize);
-
+		
 
     //[UserPreSize]
 	delaySlider[L]->setLookAndFeel(knobLookDelay);
@@ -246,31 +274,26 @@ LifeGUI::LifeGUI(LifeAudioProcessor& p)
 	pitchAmountSlider[R]->setLookAndFeel(knobLookAmount);
 	feedbackSlider[L]->setLookAndFeel(knobLookDelay);
 	feedbackSlider[R]->setLookAndFeel(knobLookDelay);
-
-
 	amplitudeRateSlider[L]->setLookAndFeel(knobLookRate);
 	amplitudeRateSlider[R]->setLookAndFeel(knobLookRate);
-
 	amplitudeAmountSlider[L]->setLookAndFeel(knobLookAmount);
 	amplitudeAmountSlider[R]->setLookAndFeel(knobLookAmount);
-
-
 	loPassFilterSlider[L]->setLookAndFeel(knobLookDelay);
 	loPassFilterSlider[R]->setLookAndFeel(knobLookDelay);
-
 	highPassFilterSlider[L]->setLookAndFeel(knobLookDelay);
 	highPassFilterSlider[R]->setLookAndFeel(knobLookDelay);
-
 	loPassFilterSlider[L]->setSkewFactorFromMidPoint(1000.0f);
 	loPassFilterSlider[R]->setSkewFactorFromMidPoint(1000.0f);
-
 	highPassFilterSlider[L]->setSkewFactorFromMidPoint(1000.0f);
 	highPassFilterSlider[R]->setSkewFactorFromMidPoint(1000.0f);
-	
 	stereoWidthSlider->setLookAndFeel(knobLookDelay);
 	wetDrySlider->setLookAndFeel(knobLookDelay);
-
 	masterGainSlider->setLookAndFeel(knobLookDelay);
+
+	pitchOscilationsSyncToggleButton->setLookAndFeel(LifeToggleButtonLookandFeel);
+	amplitudeOscilationsSyncToggleButton->setLookAndFeel(LifeToggleButtonLookandFeel);
+	LR_Or_MS_ToggleButton->setLookAndFeel(LifeToggleButtonLookandFeel);
+
     //[/UserPreSize]
 
     setSize(750, 150);
@@ -287,6 +310,7 @@ LifeGUI::~LifeGUI()
 
 		pitchOscilationsSyncToggleButton = nullptr;
 		amplitudeOscilationsSyncToggleButton = nullptr;
+		LR_Or_MS_ToggleButton = nullptr;
 		delaySlider[L] = nullptr;
 		delaySlider[R] = nullptr;
 		pitchRateSlider[L] = nullptr;
@@ -324,6 +348,8 @@ void LifeGUI::paint (Graphics& g)
                  0, 0,CachedImage_Life_UI_Background_v1_png.getWidth(), CachedImage_Life_UI_Background_v1_png.getHeight(),
                  0, 0, CachedImage_Life_UI_Background_v1_png.getWidth(), CachedImage_Life_UI_Background_v1_png.getHeight());
 
+
+
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
 }
@@ -336,8 +362,9 @@ void LifeGUI::resized()
 	int EncoderBottomRowY = 82;
 	int EncoderTopRowY = 14;
 
-    pitchOscilationsSyncToggleButton->setBounds (-48, 40, 24, 40);
-    amplitudeOscilationsSyncToggleButton->setBounds (-40, 112, 23, 40);
+    pitchOscilationsSyncToggleButton->setBounds (5, 60, 24, 40);
+    amplitudeOscilationsSyncToggleButton->setBounds (5, 110, 23, 40);
+	LR_Or_MS_ToggleButton->setBounds(5, 10, 24, 40);
     delaySlider[L]->setBounds (85, EncoderTopRowY, 40, 40);
 	delaySlider[R]->setBounds(85, EncoderBottomRowY + 8, 40, 40);
 	pitchRateSlider[L]->setBounds (157, EncoderTopRowY + 1, 40, 40);
@@ -359,7 +386,9 @@ void LifeGUI::resized()
     masterGainSlider->setBounds (695, EncoderBottomRowY, 40, 40);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
+
 }
+
 
 void LifeGUI::buttonClicked (Button* buttonThatWasClicked)
 {
@@ -376,9 +405,14 @@ void LifeGUI::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_amplitudeOscilationsSyncToggleButton] -- add your button handler code here..
         //[/UserButtonCode_amplitudeOscilationsSyncToggleButton]
     }
-
+	else if (buttonThatWasClicked == LR_Or_MS_ToggleButton)
+	{
+		mP.setParameterNotifyingHost(PARAMETER_LR_OR_MS_PROCESSING, buttonThatWasClicked->getToggleState());
+	}
+	
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
+
 }
 
 void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
@@ -541,6 +575,8 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
 
     //[UsersliderValueChanged_Post]
     //[/UsersliderValueChanged_Post]
+
+	
 }
 
 
@@ -832,6 +868,7 @@ void LifeGUI::sliderDragEnded(Slider* sliderThatWasMoved)
 }
 
 void LifeGUI::timerCallback() {
+	
 	if (mAutomationDelay[L]) {
 		float delay0to1 = mP.getParameter(PARAMETER_DELAY_LEFT);
 		float delay = normalizeDelaySlider[L]->convertFrom0to1(delay0to1);
@@ -942,6 +979,9 @@ void LifeGUI::timerCallback() {
 		float gainDB = normalizeGainMasterSlider->convertFrom0to1(gainDB0to1);
 		masterGainSlider->setValue(gainDB);
 	}
+
+	LR_Or_MS_ToggleButton->setToggleState(mP.getParameter(PARAMETER_LR_OR_MS_PROCESSING), dontSendNotification);
+
 }
 //[/MiscUserCode]
 
@@ -8552,6 +8592,49 @@ static const unsigned char resource_LifeGUI_life_ui_bg_png[] = { 137,80,78,71,13
 const char* LifeGUI::life_ui_bg_png = (const char*)resource_LifeGUI_life_ui_bg_png;
 const int LifeGUI::life_ui_bg_pngSize = 21245;
 
+// JUCER_RESOURCE: white_slideswitch_2pos_vertical_50x50_png, 2203, "../UI_Components/white_slideswitch_2pos_vertical_50x50.png"
+static const unsigned char resource_LifeGUI_white_slideswitch_2pos_vertical_50x50_png[] = { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,50,0,0,0,100,8,6,0,0,0,196,232,99,91,0,0,8,98,73,68,65,84,
+120,218,237,156,89,76,84,103,20,199,135,69,182,178,41,136,178,9,136,136,128,128,8,8,22,217,196,0,35,162,44,202,34,96,52,198,165,33,166,53,105,44,145,68,82,250,96,219,164,38,141,164,226,19,41,15,70,104,
+120,176,73,221,104,141,245,193,190,146,198,133,7,83,77,212,164,164,137,104,162,49,38,58,167,255,255,205,189,100,58,157,129,25,76,115,191,73,231,75,78,238,44,204,229,252,230,108,223,157,239,59,215,98,241,
+13,223,80,99,12,12,12,248,217,139,87,41,30,28,28,28,237,231,231,215,131,167,223,67,126,129,140,226,249,193,192,192,192,196,176,176,176,240,168,168,168,144,248,248,248,37,149,149,149,254,74,66,80,185,128,
+128,128,143,142,28,57,50,115,249,242,101,121,249,242,165,112,240,200,231,135,14,29,250,11,239,247,1,40,25,176,203,62,192,224,103,148,178,20,149,42,47,47,159,152,154,154,210,148,127,250,244,169,220,186,
+117,75,110,222,188,41,124,237,249,243,231,242,250,245,107,185,126,253,186,228,231,231,95,243,247,247,95,15,160,132,144,144,144,168,101,203,150,5,43,1,147,146,146,18,88,81,81,49,246,236,217,51,121,241,
+226,133,156,57,115,70,246,239,223,47,167,78,157,146,225,225,97,25,29,29,149,137,137,9,13,232,254,253,251,114,237,218,53,89,183,110,29,97,114,117,235,68,47,95,190,60,200,84,24,254,115,40,211,5,37,109,132,
+128,91,201,201,147,39,229,225,195,135,242,238,221,187,57,225,123,15,30,60,144,199,143,31,107,86,57,125,250,180,32,110,6,116,152,164,208,208,208,72,126,33,166,129,100,103,103,7,28,63,126,252,119,186,19,
+45,65,8,198,132,61,132,33,111,223,190,149,55,111,222,104,144,67,67,67,82,86,86,246,7,64,42,17,55,89,75,150,44,89,193,36,96,154,85,160,196,218,43,87,174,216,24,19,116,39,71,75,184,2,34,200,158,61,123,108,
+176,202,17,192,148,226,60,105,180,138,105,153,12,138,88,105,1,6,54,99,98,33,8,67,46,94,188,40,7,14,28,16,156,226,43,156,163,22,48,57,65,65,65,177,166,184,23,221,0,163,153,110,197,236,196,192,246,4,4,22,
+33,200,16,206,209,4,144,98,102,49,166,99,179,64,90,105,17,102,36,102,39,119,65,206,158,61,43,53,53,53,4,25,198,57,218,0,242,33,64,86,49,123,153,6,194,98,199,58,193,20,203,236,228,78,140,116,118,118,74,
+78,78,142,0,128,32,237,56,150,1,36,197,76,144,150,158,158,30,173,216,209,42,76,177,84,116,62,16,189,40,10,148,38,200,119,56,199,110,6,60,107,138,41,32,122,176,55,65,52,229,88,236,88,39,152,98,93,65,60,
+121,242,132,105,87,210,211,211,5,193,45,80,254,91,124,126,7,64,10,152,130,77,171,37,80,98,39,14,154,98,172,216,4,98,10,118,180,10,159,243,61,66,100,100,100,8,102,52,130,233,9,97,190,196,57,170,152,198,
+81,225,151,178,46,153,5,178,131,32,148,85,171,86,105,21,155,53,130,194,204,68,97,96,51,38,232,78,4,54,32,194,195,195,5,202,247,211,26,172,238,156,175,153,86,16,1,178,221,0,161,208,205,10,11,11,165,173,
+173,77,171,19,76,177,204,78,12,108,198,4,221,201,128,136,142,142,230,241,99,88,35,157,179,97,211,226,195,25,136,163,16,12,138,10,252,159,223,190,160,122,207,65,196,198,198,242,120,16,239,197,225,181,48,
+83,175,79,88,217,93,65,192,101,24,204,115,86,160,75,69,68,68,200,210,165,75,53,235,160,248,241,216,65,151,50,117,194,56,31,8,33,28,173,128,73,161,224,218,67,226,226,226,36,33,33,65,139,41,72,147,233,16,
+174,64,12,8,2,208,10,145,145,145,154,21,232,74,43,86,172,144,196,196,68,129,242,90,224,67,26,148,184,50,116,4,97,60,208,149,236,99,33,38,38,70,179,2,93,41,57,57,89,82,83,83,101,205,154,53,146,153,153,
+201,11,44,171,114,32,246,16,140,5,35,160,105,5,186,18,33,210,210,210,230,32,152,201,32,106,129,24,16,97,97,97,110,67,228,229,229,177,182,168,3,226,12,130,238,100,64,48,168,157,65,108,220,184,145,162,6,
+8,130,218,186,144,37,236,99,194,128,40,40,40,144,226,226,98,217,180,105,147,26,32,168,15,86,119,220,9,65,253,47,136,210,210,82,217,188,121,179,58,32,11,185,147,43,8,78,32,203,203,203,213,0,65,145,179,
+58,90,194,85,76,56,66,84,84,84,72,85,85,149,58,32,174,32,236,45,193,192,118,132,168,174,174,150,109,219,182,169,1,2,119,178,190,7,132,212,213,213,169,1,130,138,109,245,36,38,236,33,234,235,235,213,1,1,
+132,213,147,152,176,135,104,104,104,144,157,59,119,170,1,130,20,107,245,212,157,236,32,212,1,1,132,117,177,16,45,45,45,20,53,64,0,177,117,177,16,188,12,198,37,241,86,37,64,178,179,179,211,32,182,197,64,
+180,183,183,219,58,58,58,210,44,170,140,220,220,220,41,55,3,123,14,2,0,210,213,213,53,101,81,105,20,22,22,182,23,21,21,217,60,132,176,117,119,119,183,43,5,194,95,63,0,113,193,73,177,115,10,1,0,217,183,
+111,223,5,37,87,117,113,129,20,178,101,203,150,241,133,44,65,136,158,158,158,241,93,187,118,133,88,84,29,252,185,19,16,135,107,107,107,103,12,136,230,230,102,123,119,154,1,196,225,129,129,129,0,139,55,
+12,192,68,52,54,54,118,53,53,53,141,180,182,182,78,34,59,141,116,118,118,238,5,76,132,197,55,124,195,55,124,195,55,124,227,255,50,66,67,67,35,252,252,252,246,226,225,8,100,146,71,62,231,235,94,1,192,41,
+10,20,62,140,135,51,22,231,171,88,51,124,223,180,149,91,55,127,223,226,36,112,220,50,207,122,162,157,140,235,127,175,214,208,167,227,23,220,132,48,68,189,105,60,247,146,224,96,243,16,196,166,127,78,169,
+49,229,33,132,33,234,92,234,114,231,219,34,172,49,103,21,253,243,74,184,85,205,34,33,140,13,5,53,170,128,88,223,19,196,234,245,32,250,214,14,239,6,49,22,80,185,226,229,181,32,246,171,192,225,225,225,222,
+9,226,184,148,205,21,47,175,3,113,182,51,130,43,94,94,5,226,106,103,4,87,188,188,6,100,129,237,29,222,1,226,198,30,21,245,65,22,130,208,215,30,213,6,241,96,183,144,186,32,110,90,66,91,64,85,22,196,19,
+8,125,237,81,221,29,116,30,64,120,223,14,58,87,59,35,148,223,65,231,206,110,33,223,14,186,255,98,56,238,160,179,223,26,155,148,148,164,237,239,93,189,122,245,63,92,106,195,134,13,82,84,84,36,37,37,37,
+92,206,222,174,4,8,167,225,142,59,232,142,29,59,38,55,110,220,144,87,175,94,105,93,162,60,94,189,122,85,122,123,123,53,16,118,45,16,132,203,217,176,72,163,18,93,161,198,14,58,66,112,121,250,206,157,59,
+78,91,92,31,61,122,36,211,211,211,50,54,54,166,117,47,48,62,104,17,184,215,110,37,90,92,9,98,64,204,206,206,206,219,226,122,251,246,109,153,156,156,148,145,145,17,110,1,212,98,36,55,55,183,71,137,22,87,
+124,155,219,233,78,180,132,59,45,174,124,157,32,125,125,125,90,159,201,218,181,107,143,42,209,226,138,192,110,96,76,120,210,226,122,247,238,93,57,113,226,132,182,51,2,137,224,83,37,90,92,87,174,92,217,
+200,192,246,180,197,181,191,191,95,219,80,128,204,54,168,68,139,107,98,98,226,46,102,37,79,91,92,207,157,59,167,89,4,95,196,55,74,180,184,162,232,45,170,197,245,252,249,243,90,250,69,144,171,209,226,10,
+215,104,164,69,60,109,113,29,28,28,148,172,172,44,166,237,33,37,90,92,225,26,249,40,118,54,214,9,79,90,92,153,126,57,117,193,172,224,11,37,90,92,89,3,144,129,238,177,216,177,78,184,211,226,122,233,210,
+37,173,85,9,243,176,63,1,241,137,18,45,174,188,61,8,230,81,189,172,216,44,118,204,90,243,181,184,210,114,156,127,233,157,111,63,0,226,168,18,45,174,204,253,44,104,245,245,245,63,177,208,81,88,39,156,181,
+184,210,18,132,96,3,25,92,242,30,0,250,32,93,74,180,184,50,203,176,171,19,179,224,245,213,213,213,63,179,98,179,216,177,78,48,197,50,59,49,176,25,19,180,2,5,159,153,134,5,62,231,77,95,120,61,163,68,139,
+43,11,24,21,96,234,132,66,121,25,25,25,95,215,214,214,206,178,216,177,78,48,197,50,59,49,176,97,141,151,152,206,252,168,91,226,160,238,82,37,74,180,184,26,86,225,141,90,24,172,188,61,8,175,81,160,244,
+55,184,254,248,21,16,119,17,67,191,225,111,70,17,3,159,233,49,209,173,91,130,16,25,74,180,184,26,217,139,83,113,102,48,186,8,148,203,102,22,130,178,117,188,39,4,235,4,83,44,179,19,164,145,49,65,119,162,
+37,8,161,68,139,171,35,12,45,3,229,226,161,228,26,40,187,129,133,14,138,87,67,182,226,113,5,100,19,167,35,172,25,156,146,40,5,97,15,67,55,163,114,80,50,134,119,111,226,183,206,217,45,149,199,49,19,146,
+202,52,75,96,102,60,165,183,115,16,136,10,50,120,35,35,35,67,233,255,134,168,114,75,170,191,1,192,169,107,179,201,227,156,75,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
+
+const char* LifeGUI::white_slideswitch_2pos_vertical_50x50_png = (const char*)resource_LifeGUI_white_slideswitch_2pos_vertical_50x50_png;
+const int LifeGUI::white_slideswitch_2pos_vertical_50x50_pngSize = 2203;
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]

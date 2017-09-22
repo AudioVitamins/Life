@@ -64,6 +64,8 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+	bool LRorMS_State = false;
+
 private:
     //==============================================================================
 
@@ -80,6 +82,8 @@ private:
 	ScopedPointer<Jimmy::DSP::WetDry> mWet;
 
 	ScopedPointer<Jimmy::DSP::GainMaster> mGainMaster;
+
+	
 
 
 	float RateToFrequency(float rate) const;
@@ -117,6 +121,8 @@ private:
 	static String paramWetDry;
 
 	static String paramGainMaster;
+
+	static String paramLR_Or_MSToggle;
 
 	double lastKnownBpm{ 0.0 };
 	AudioSampleBuffer dryAudioBuffer;
