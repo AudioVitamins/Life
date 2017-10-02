@@ -27,6 +27,10 @@
         <FILE id="azSn6b" name="IIRFilter.h" compile="0" resource="0" file="Source/DSP/IIRFilter.h"/>
         <FILE id="fY3TSz" name="Lfo.cpp" compile="1" resource="0" file="Source/DSP/Lfo.cpp"/>
         <FILE id="ggKdMy" name="Lfo.h" compile="0" resource="0" file="Source/DSP/Lfo.h"/>
+        <FILE id="Q6uZ6x" name="LRtoMSConverter.cpp" compile="1" resource="0"
+              file="Source/DSP/LRtoMSConverter.cpp"/>
+        <FILE id="wSZ7mM" name="LRtoMSConverter.h" compile="0" resource="0"
+              file="Source/DSP/LRtoMSConverter.h"/>
         <FILE id="hnjsys" name="Tremolo.cpp" compile="1" resource="0" file="Source/DSP/Tremolo.cpp"/>
         <FILE id="r3TVxb" name="Tremolo.h" compile="0" resource="0" file="Source/DSP/Tremolo.h"/>
         <FILE id="JAQ5Yr" name="Vibrato.cpp" compile="1" resource="0" file="Source/DSP/Vibrato.cpp"/>
