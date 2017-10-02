@@ -32,10 +32,14 @@ namespace Jimmy {
 				mFrequency = freq;
 			}
 
+			void SetPhase(float Phase) {
+				mCurrentPhase = Phase;
+			}
+
 			void preparePlay() {
 				mCurrentPhase = 0.0;
 			}
-
+			
 			float Value() {
 				const float dp = 2.0f * float_Pi * mFrequency / mSampleRate; // phase step
 

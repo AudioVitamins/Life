@@ -252,6 +252,12 @@ namespace Jimmy {
 				smoothedVibratoDepth.setValue(mDepth);
 			}
 
+			void SetPhase(float Phase) {
+				for (int c = 0; c < mNumChannels; c++) {
+					mLfo.getRawDataPointer()[c].SetPhase(Phase);
+				}
+			}
+
 			void SetFeedback(float feedBackPct) {
 				for (int c = 0; c < mNumChannels; c++) {
 					mSmoothFeedback.getReference(c).setNewValue(feedBackPct);

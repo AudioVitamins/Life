@@ -39,9 +39,9 @@ namespace Jimmy {
 			void SetFrequency(float frequency) {
 				mLfo.SetFrequency(frequency);
 			};
-		/*	void SetPhase(float phase) {
+			void SetPhase(float phase) {
 				mLfo.SetPhase(phase);
-			}*/
+			}
 			void SetDepth(float depth) {
 				mDepth = depth;
 			};
