@@ -63,7 +63,7 @@ void LifeGUI::CustomSlider::drawRotarySlider(Graphics& g, int x, int y, int widt
 void LifeGUI::LifeToggleButton::drawButtonBackground(Graphics& g, Button& button, const Colour& backgroundColour,
 	bool isMouseOverButton, bool isButtonDown)
 {
-
+	g.fillAll();
 }
 
 void LifeGUI::LifeToggleButton::drawToggleButton(Graphics& g, ToggleButton& button, bool isMouseOverButton,
