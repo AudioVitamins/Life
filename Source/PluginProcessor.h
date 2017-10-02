@@ -19,6 +19,7 @@
 #include "DSP/Width.h"
 #include "DSP/WetDry.h"
 #include "DSP/GainMaster.h"
+#include "DSP/LRtoMSConverter.h"
 #include "Config.h"
 
 //==============================================================================
@@ -64,9 +65,13 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-	bool LRorMS_State = false;
+	bool ProcessMS = false;
 	bool InvertVibrato = false;
 	bool InvertTremolo = false;
+
+	AudioSampleBuffer MidBuffer;
+	AudioSampleBuffer SideBuffer;
+	AudioSampleBuffer BufferToProcess;
 
 private:
     //==============================================================================
@@ -74,6 +79,8 @@ private:
 //	ScopedPointer<Jimmy::DSP::StaticDelay> mDelay;
 //	ScopedPointer<Jimmy::DSP::Vibrato> mVibrato;
 
+	ScopedPointer<LRtoMSConverter> mMSConverter;
+	
 	ScopedPointer<Jimmy::DSP::DelayVibrato> mDelayVibrato[2];
 	ScopedPointer<Jimmy::DSP::Tremolo> mTremolo[2];
 
@@ -84,10 +91,7 @@ private:
 	ScopedPointer<Jimmy::DSP::WetDry> mWet;
 
 	ScopedPointer<Jimmy::DSP::GainMaster> mGainMaster;
-
 	
-
-
 	float RateToFrequency(float rate) const;
 
     AudioPlayHead::CurrentPositionInfo currentPositionInfo;

@@ -212,6 +212,9 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 	int numOutputChannel = getTotalNumOutputChannels();
     
 	dryAudioBuffer.setSize(numOutputChannel, samplesPerBlock, false, true);
+	MidBuffer.setSize(numOutputChannel, samplesPerBlock, false, true);
+	SideBuffer.setSize(numOutputChannel, samplesPerBlock, false, true);
+	BufferToProcess.setSize(numOutputChannel, samplesPerBlock, false, true);
 
 	mDelayVibrato[L] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
 	mDelayVibrato[R] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
@@ -371,33 +374,41 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 	mDelayVibrato[R]->SetFrequency(freqRight);
 		
 	dryAudioBuffer.makeCopyOf(buffer, true);
+	
+	if (ProcessMS == true)
+	{
+		mMSConverter->ConvertLRToMid(buffer, MidBuffer);
+		mMSConverter->ConvertLRToSide(buffer, SideBuffer);
+		BufferToProcess.makeCopyOf(buffer, true);
+	}
+	else
+	{
+		MidBuffer.setDataToReferTo(buffer.getArrayOfWritePointers(), buffer.getNumChannels(), buffer.getNumSamples());
+		SideBuffer.setDataToReferTo(buffer.getArrayOfWritePointers(), buffer.getNumChannels(), buffer.getNumSamples());
+	}
 
-	mDelayVibrato[L]->process(buffer, L);
-	mDelayVibrato[R]->process(buffer, R);
+	mDelayVibrato[L]->process(MidBuffer, L);
+	mDelayVibrato[R]->process(SideBuffer, R);
 
+	mTremolo[L]->process(MidBuffer, L);
+	mTremolo[R]->process(SideBuffer, R);
+	
+	mFilterHP[L]->process(MidBuffer, L);
+	mFilterHP[R]->process(SideBuffer, R);
+
+	mFilterLP[L]->process(MidBuffer, L);
+	mFilterLP[R]->process(SideBuffer, R);
 		
-	//Delay
- 	//mDelay->process(buffer);
+	if (ProcessMS == true) { mMSConverter->ConvertMSToLR(MidBuffer, SideBuffer, BufferToProcess); }
+	else { BufferToProcess.makeCopyOf(buffer, true);}
 
-	// Aplly Pitch/Feedback
-	//mVibrato->process(buffer);
+	mWidth->process(BufferToProcess);
 
-	// Apply AM
-	mTremolo[L]->process(buffer, L);
-	mTremolo[R]->process(buffer, R);
+	mWet->process(dryAudioBuffer, BufferToProcess);
 
-	// Apply Filter
-	mFilterHP[L]->process(buffer, L);
-	mFilterHP[R]->process(buffer, R);
-	
-	mFilterLP[L]->process(buffer, L);
-	mFilterLP[R]->process(buffer, R);
-	
-	mWidth->process(buffer);
-	mWet->process(dryAudioBuffer, buffer);
+	mGainMaster->process(BufferToProcess);
 
-	// Apply gain
-	mGainMaster->process(buffer);
+	buffer.makeCopyOf(BufferToProcess, true);
 
 }
 
@@ -547,15 +558,35 @@ void LifeAudioProcessor::parameterChanged(const String& parameterID, float newVa
 	}
 	else if (parameterID == LifeAudioProcessor::paramLR_Or_MSToggle)
 	{
-		LRorMS_State = newValue;
+		ProcessMS = newValue;
 	}
 	else if (parameterID == LifeAudioProcessor::paramPitchOscSyncToggle)
 	{
 		InvertVibrato = newValue;
+		if (InvertVibrato == true)
+		{
+			mDelayVibrato[L]->SetPhase(0.0);
+			mDelayVibrato[R]->SetPhase(float_Pi);
+		}
+		else
+		{
+			mDelayVibrato[L]->SetPhase(0.0);
+			mDelayVibrato[R]->SetPhase(0.0);
+		}
 	}
 	else if (parameterID == LifeAudioProcessor::paramAmpOscSyncToggle)
 	{
 		InvertTremolo = newValue;
+		if (InvertTremolo == true)
+		{
+			mTremolo[L]->SetPhase(0.0);
+			mTremolo[R]->SetPhase(float_Pi);
+		}
+		else
+		{
+			mTremolo[L]->SetPhase(0.0);
+			mTremolo[R]->SetPhase(0.0);
+		}
 	}
 }
 
