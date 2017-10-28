@@ -69,11 +69,14 @@ void LifeGUI::LifeToggleButton::drawButtonBackground(Graphics& g, Button& button
 void LifeGUI::LifeToggleButton::drawToggleButton(Graphics& g, ToggleButton& button, bool isMouseOverButton,
 	bool isButtonDown)
 {
+	float ButtonWidth = button.getBounds().getWidth() * 2;
+	float ButtonHeight = button.getBounds().getHeight() * 2;
+
 	CachedImage_LifeToggleButtonVertical_png = ImageCache::getFromMemory(white_slideswitch_2pos_vertical_50x50_png, white_slideswitch_2pos_vertical_50x50_pngSize);
-	CachedImage_LifeToggleButtonVertical_png = CachedImage_LifeToggleButtonVertical_png.rescaled(40, 80);
+	CachedImage_LifeToggleButtonVertical_png = CachedImage_LifeToggleButtonVertical_png.rescaled(ButtonWidth, ButtonHeight);
 
 	int ButtonImageYPos;
-	if (button.getToggleState() == true) { ButtonImageYPos = -40; }
+	if (button.getToggleState() == true) { ButtonImageYPos = -(ButtonHeight * 0.5); }
 	if (button.getToggleState() == false) { ButtonImageYPos = 0;}
 		
 	g.drawImage(CachedImage_LifeToggleButtonVertical_png, 
@@ -175,6 +178,16 @@ LifeGUI::LifeGUI(LifeAudioProcessor& p)
     amplitudeOscilationsSyncToggleButton->setButtonText (String());
     amplitudeOscilationsSyncToggleButton->addListener (this);
     amplitudeOscilationsSyncToggleButton->setColour (ToggleButton::textColourId, Colour (0x00000000));
+
+	addAndMakeVisible(LinkDelayToggleButton = new ToggleButton("amplitudeOscilationsSyncToggleButton"));
+	LinkDelayToggleButton->setButtonText(String());
+	LinkDelayToggleButton->addListener(this);
+	LinkDelayToggleButton->setColour(ToggleButton::textColourId, Colour(0x00000000));
+
+	addAndMakeVisible(LinkFeedbackToggleButton = new ToggleButton("amplitudeOscilationsSyncToggleButton"));
+	LinkFeedbackToggleButton->setButtonText(String());
+	LinkFeedbackToggleButton->addListener(this);
+	LinkFeedbackToggleButton->setColour(ToggleButton::textColourId, Colour(0x00000000));
 			
 	addAndMakeVisible(delaySlider[L] = new Slider("delaySliderLeft"));
 	addAndMakeVisible(delaySlider[R] = new Slider("delaySliderRight"));
@@ -294,6 +307,10 @@ LifeGUI::LifeGUI(LifeAudioProcessor& p)
 	amplitudeOscilationsSyncToggleButton->setLookAndFeel(LifeToggleButtonLookandFeel);
 	LR_Or_MS_ToggleButton->setLookAndFeel(LifeToggleButtonLookandFeel);
 
+	LinkDelayToggleButton->setLookAndFeel(LifeToggleButtonLookandFeel);
+	LinkFeedbackToggleButton->setLookAndFeel(LifeToggleButtonLookandFeel);
+
+
     //[/UserPreSize]
 
     setSize(750, 150);
@@ -362,9 +379,12 @@ void LifeGUI::resized()
 	int EncoderBottomRowY = 82;
 	int EncoderTopRowY = 14;
 
-    pitchOscilationsSyncToggleButton->setBounds (5, 60, 24, 40);
-    amplitudeOscilationsSyncToggleButton->setBounds (5, 110, 23, 40);
-	LR_Or_MS_ToggleButton->setBounds(5, 10, 24, 40);
+    pitchOscilationsSyncToggleButton->setBounds (5, 60, 20, 40);
+    amplitudeOscilationsSyncToggleButton->setBounds (5, 110, 20, 40);
+	LR_Or_MS_ToggleButton->setBounds(5, 10, 20, 40);
+	LinkDelayToggleButton->setBounds(133, 60, 15, 30);
+	LinkFeedbackToggleButton->setBounds(323, 60, 15, 30);
+	
     delaySlider[L]->setBounds (85, EncoderTopRowY, 40, 40);
 	delaySlider[R]->setBounds(85, EncoderBottomRowY + 8, 40, 40);
 	pitchRateSlider[L]->setBounds (157, EncoderTopRowY + 1, 40, 40);
@@ -402,12 +422,23 @@ void LifeGUI::buttonClicked (Button* buttonThatWasClicked)
 	else if (buttonThatWasClicked == pitchOscilationsSyncToggleButton)
 	{
 		mP.setParameterNotifyingHost(PARAMETER_PITCH_OSCILLATOR_PHASE, buttonThatWasClicked->getToggleState());
+
 	}
 	else if (buttonThatWasClicked == amplitudeOscilationsSyncToggleButton)
 	{
 		mP.setParameterNotifyingHost(PARAMETER_AMP_OSCILLATOR_PHASE, buttonThatWasClicked->getToggleState());
 	}
-	
+	else if (buttonThatWasClicked == LinkDelayToggleButton)
+	{
+		buttonThatWasClicked->getToggleState() == true ? DelayLink = true : DelayLink = false;
+		mP.setParameterNotifyingHost(PARAMETER_DELAY_LINK, buttonThatWasClicked->getToggleState());
+	}
+	else if (buttonThatWasClicked == LinkFeedbackToggleButton)
+	{
+		buttonThatWasClicked->getToggleState() == true ? FeedbackLink = true : FeedbackLink = false;
+		mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_LINK, buttonThatWasClicked->getToggleState());
+	}
+
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
 
@@ -424,6 +455,7 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
 		float val = sliderThatWasMoved->getValue();
 		float val0to1 = normalizeDelaySlider[L]->convertTo0to1(val);
 		mP.setParameterNotifyingHost(PARAMETER_DELAY_LEFT, val0to1);
+		DelayLink == true ? mP.setParameterNotifyingHost(PARAMETER_DELAY_RIGHT, val0to1) : NULL;
         //[/UserSliderCode_delaySlider]
     }
 	else if (sliderThatWasMoved == delaySlider[R])
@@ -432,6 +464,7 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
 		float val = sliderThatWasMoved->getValue();
 		float val0to1 = normalizeDelaySlider[R]->convertTo0to1(val);
 		mP.setParameterNotifyingHost(PARAMETER_DELAY_RIGHT, val0to1);
+		DelayLink == true ? mP.setParameterNotifyingHost(PARAMETER_DELAY_LEFT, val0to1): NULL;
 		//[/UserSliderCode_delaySlider]
 	}
     else if (sliderThatWasMoved == pitchRateSlider[L])
@@ -440,7 +473,7 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
 		float val = sliderThatWasMoved->getValue();
 		float val0to1 = normalizePitchRateSlider[L]->convertTo0to1(val);
 		mP.setParameterNotifyingHost(PARAMETER_PITCH_RATE_LEFT, val0to1);
-        //[/UserSliderCode_pitchRateSlider]
+		//[/UserSliderCode_pitchRateSlider]
     }
 	else if (sliderThatWasMoved == pitchRateSlider[R])
 	{
@@ -472,6 +505,7 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
 		float val = sliderThatWasMoved->getValue();
 		float val0to1 = normalizeFeedbackSlider[L]->convertTo0to1(val);
 		mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_LEFT, val0to1);
+		FeedbackLink == true ? mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_RIGHT, val0to1) : NULL;
         //[/UserSliderCode_feedbackSlider]
     }
 	else if (sliderThatWasMoved == feedbackSlider[R])
@@ -480,6 +514,7 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
 		float val = sliderThatWasMoved->getValue();
 		float val0to1 = normalizeFeedbackSlider[R]->convertTo0to1(val);
 		mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_RIGHT, val0to1);
+		FeedbackLink == true ? mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_LEFT, val0to1) : NULL;
 		//[/UserSliderCode_feedbackSlider]
 	}
     else if (sliderThatWasMoved == stereoWidthSlider)
@@ -576,8 +611,6 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
 
 	
 }
-
-
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void LifeGUI::sliderDragStarted(Slider* sliderThatWasMoved)
@@ -981,6 +1014,9 @@ void LifeGUI::timerCallback() {
 	LR_Or_MS_ToggleButton->setToggleState(mP.getParameter(PARAMETER_LR_OR_MS_PROCESSING), dontSendNotification);
 	pitchOscilationsSyncToggleButton->setToggleState(mP.getParameter(PARAMETER_PITCH_OSCILLATOR_PHASE), dontSendNotification);
 	amplitudeOscilationsSyncToggleButton->setToggleState(mP.getParameter(PARAMETER_AMP_OSCILLATOR_PHASE), dontSendNotification);
+
+	LinkDelayToggleButton->setToggleState(mP.getParameter(PARAMETER_DELAY_LINK), dontSendNotification);
+	LinkFeedbackToggleButton->setToggleState(mP.getParameter(PARAMETER_FEEDBACK_LINK), dontSendNotification);
 }
 //[/MiscUserCode]
 
@@ -8637,3 +8673,4 @@ const int LifeGUI::white_slideswitch_2pos_vertical_50x50_pngSize = 2203;
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

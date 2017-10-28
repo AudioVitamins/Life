@@ -68,10 +68,8 @@ public:
 	bool ProcessMS = false;
 	bool InvertVibrato = false;
 	bool InvertTremolo = false;
-
-	AudioSampleBuffer MidBuffer;
-	AudioSampleBuffer SideBuffer;
-	AudioSampleBuffer BufferToProcess;
+//	bool DelayLink = false;
+//	bool FeedbackLink = false;
 
 private:
     //==============================================================================
@@ -132,8 +130,12 @@ private:
 	static String paramPitchOscSyncToggle;
 	static String paramAmpOscSyncToggle;
 
+	static String paramDelayLinkToggle;
+	static String paramFeedbackLinkToggle;
+
 	double lastKnownBpm{ 0.0 };
 	AudioSampleBuffer dryAudioBuffer;
+	AudioSampleBuffer SideBuffer;
 
 	void parameterChanged(const String& parameterID, float newValue) override;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LifeAudioProcessor)

@@ -11,60 +11,46 @@
 #include "LRtoMSConverter.h"
 
 
-void LRtoMSConverter::ConvertLRToMid(AudioSampleBuffer &bufferToCopy, AudioSampleBuffer &buffer)
+void LRtoMSConverter::ConvertLRToMid(AudioSampleBuffer &buffer)
 {
-	buffer.makeCopyOf(bufferToCopy, true);
-
+	// Converts LR to mid, Output on left channel only
 	for (int Sample = 0; Sample < buffer.getNumSamples(); Sample++)
 	{
 		float* OutputL = buffer.getWritePointer(0);
-		float* OutputR = buffer.getWritePointer(1);
 
 		const float* InputL = buffer.getReadPointer(0);
 		const float* InputR = buffer.getReadPointer(1);
 
 		OutputL[Sample] = InputL[Sample] + InputR[Sample];
-		OutputR[Sample] = OutputL[Sample];
-
 	}
 }
-void LRtoMSConverter::ConvertLRToSide(AudioSampleBuffer &bufferToCopy, AudioSampleBuffer &buffer)
+void LRtoMSConverter::ConvertLRToSide(AudioSampleBuffer &buffer, AudioSampleBuffer &SideBuffer)
 {
-	buffer.makeCopyOf(bufferToCopy, true);
-
+	// Converts LR to side, Output on right channel only.
+	// Uses &SideBuffer as an original copy of the buffer because 
+	// &buffer may already be converted to Mid.
 	for (int Sample = 0; Sample < buffer.getNumSamples(); Sample++)
 	{
+		float* OutputR = buffer.getWritePointer(1);
+
+		float* SideOutL = SideBuffer.getWritePointer(0);
+		float* SideOutR = SideBuffer.getWritePointer(1);
+
+		OutputR[Sample] = SideOutL[Sample] - SideOutR[Sample];
+	}
+}
+void LRtoMSConverter::ConvertMSToLR(AudioSampleBuffer &buffer)
+{
+	// Decodes Mid (Left) and Side (Right) back to LR
+	for (int Sample = 0; Sample < buffer.getNumSamples(); Sample++)
+	{		
 		float* OutputL = buffer.getWritePointer(0);
 		float* OutputR = buffer.getWritePointer(1);
 
-		const float* InputL = buffer.getReadPointer(0);
-		const float* InputR = buffer.getReadPointer(1);
-
-		OutputL[Sample] = InputL[Sample] - InputR[Sample];
-		OutputR[Sample] = OutputL[Sample] - 1.0;
-	}
-	
-}
-void LRtoMSConverter::ConvertMSToLR(AudioSampleBuffer &Midbuffer, AudioSampleBuffer &Sidebuffer, AudioSampleBuffer &BufferOutput)
-{
-	for (int Sample = 0; Sample < BufferOutput.getNumSamples(); Sample++)
-	{		
-
-		float* OutputL = BufferOutput.getWritePointer(0);
-		float* OutputR = BufferOutput.getWritePointer(1);
-
-		const float* Mid = Midbuffer.getReadPointer(0);
-		const float* Side = Sidebuffer.getReadPointer(1);
-
-		float InverseSideSample;
-		InverseSideSample = Side[Sample];
-
-		if (InverseSideSample <= 0.0) { InverseSideSample = -InverseSideSample; }
-		else { InverseSideSample *= -1.0; }
+		const float* Mid = buffer.getReadPointer(0);
+		const float* Side = buffer.getReadPointer(1);
 
 		OutputL[Sample] = (Mid[Sample] + Side[Sample]) * 0.5;
-		OutputR[Sample] = (Mid[Sample] + InverseSideSample) * 0.5;
-			
-	}
-	
+		OutputR[Sample] = (Mid[Sample] - Side[Sample]);
+	}	
 }
