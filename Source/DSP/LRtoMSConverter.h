@@ -17,10 +17,9 @@ class LRtoMSConverter
 {
 private:
 public:
-	void ConvertLRToMid(AudioSampleBuffer &bufferToCopy, AudioSampleBuffer &buffer);
-	void ConvertLRToSide(AudioSampleBuffer &buffertoCopy, AudioSampleBuffer &buffer);
-	void ConvertMSToLR(AudioSampleBuffer &Midbuffer, AudioSampleBuffer &Sidebuffer, AudioSampleBuffer &BufferOutput);
-	
+	void ConvertLRToMid( AudioSampleBuffer &buffer);
+	void ConvertLRToSide(AudioSampleBuffer &buffer, AudioSampleBuffer &SideBuffer);
+	void ConvertMSToLR(AudioSampleBuffer &buffer);
 };
 
 #endif  // LRTOMSCONVERTER_H_INCLUDED

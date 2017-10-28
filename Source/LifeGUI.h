@@ -98,6 +98,7 @@ public:
 		Label* createSliderTextBox(Slider& slider) override;
 		void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPos,
 			const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override;
+
 	};
 
 	class LifeToggleButton : public LookAndFeel_V3
@@ -149,9 +150,12 @@ public:
 	static const char* white_slideswitch_2pos_vertical_50x50_png;
 	static const int white_slideswitch_2pos_vertical_50x50_pngSize;
 
+
+
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     LifeAudioProcessor& mP;
+
 	//Normalize
 	ScopedPointer<NormalisableRange<float>> normalizeDelaySlider[2];
 	ScopedPointer<NormalisableRange<float>> normalizePitchRateSlider[2];
@@ -164,6 +168,10 @@ private:
 	ScopedPointer<NormalisableRange<float>> normalizeWidthSlider;
 	ScopedPointer<NormalisableRange<float>> normalizeWetDrySlider;
 	ScopedPointer<NormalisableRange<float>> normalizeGainMasterSlider;
+
+	bool DelayLink = false;
+	bool FeedbackLink = false;
+
 	//Automation
 	bool mAutomationDelay[2];
 	bool mAutomationPitchRate[2];
@@ -203,6 +211,8 @@ private:
     ScopedPointer<ToggleButton> pitchOscilationsSyncToggleButton;
     ScopedPointer<ToggleButton> amplitudeOscilationsSyncToggleButton;
 	ScopedPointer<ToggleButton> LR_Or_MS_ToggleButton;
+	ScopedPointer<ToggleButton> LinkDelayToggleButton;
+	ScopedPointer<ToggleButton> LinkFeedbackToggleButton;
     ScopedPointer<Slider> delaySlider[2];
     ScopedPointer<Slider> pitchRateSlider[2];
     ScopedPointer<Slider> pitchAmountSlider[2];
@@ -215,7 +225,6 @@ private:
     ScopedPointer<Slider> wetDrySlider;
     ScopedPointer<Slider> masterGainSlider;
     Image cachedImage_life_ui_cmbgv3_png_1;
-
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LifeGUI)
