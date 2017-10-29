@@ -140,7 +140,7 @@ LifeAudioProcessor::LifeAudioProcessor()
 
     float sampleRate = 44100.0;
 
-    int numOutputChannel = 2;
+    int numOutputChannel = getTotalNumOutputChannels(); 
     mDelayVibrato[L] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
 	mDelayVibrato[R] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
 
