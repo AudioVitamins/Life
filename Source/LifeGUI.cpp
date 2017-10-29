@@ -455,7 +455,7 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
 		float val = sliderThatWasMoved->getValue();
 		float val0to1 = normalizeDelaySlider[L]->convertTo0to1(val);
 		mP.setParameterNotifyingHost(PARAMETER_DELAY_LEFT, val0to1);
-		DelayLink == true ? mP.setParameterNotifyingHost(PARAMETER_DELAY_RIGHT, val0to1) : NULL;
+		if (DelayLink == true) {mP.setParameterNotifyingHost(PARAMETER_DELAY_RIGHT, val0to1);}
         //[/UserSliderCode_delaySlider]
     }
 	else if (sliderThatWasMoved == delaySlider[R])
@@ -464,7 +464,7 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
 		float val = sliderThatWasMoved->getValue();
 		float val0to1 = normalizeDelaySlider[R]->convertTo0to1(val);
 		mP.setParameterNotifyingHost(PARAMETER_DELAY_RIGHT, val0to1);
-		DelayLink == true ? mP.setParameterNotifyingHost(PARAMETER_DELAY_LEFT, val0to1): NULL;
+		if (DelayLink == true) { mP.setParameterNotifyingHost(PARAMETER_DELAY_LEFT, val0to1); }
 		//[/UserSliderCode_delaySlider]
 	}
     else if (sliderThatWasMoved == pitchRateSlider[L])
@@ -505,7 +505,7 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
 		float val = sliderThatWasMoved->getValue();
 		float val0to1 = normalizeFeedbackSlider[L]->convertTo0to1(val);
 		mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_LEFT, val0to1);
-		FeedbackLink == true ? mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_RIGHT, val0to1) : NULL;
+		if (FeedbackLink == true) { mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_RIGHT, val0to1); }
         //[/UserSliderCode_feedbackSlider]
     }
 	else if (sliderThatWasMoved == feedbackSlider[R])
@@ -514,7 +514,7 @@ void LifeGUI::sliderValueChanged (Slider* sliderThatWasMoved)
 		float val = sliderThatWasMoved->getValue();
 		float val0to1 = normalizeFeedbackSlider[R]->convertTo0to1(val);
 		mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_RIGHT, val0to1);
-		FeedbackLink == true ? mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_LEFT, val0to1) : NULL;
+		if (FeedbackLink == true) { mP.setParameterNotifyingHost(PARAMETER_FEEDBACK_LEFT, val0to1); }
 		//[/UserSliderCode_feedbackSlider]
 	}
     else if (sliderThatWasMoved == stereoWidthSlider)
