@@ -155,7 +155,6 @@ LifeAudioProcessor::LifeAudioProcessor()
 
     mWidth = new Jimmy::DSP::Width();
     mWet = new Jimmy::DSP::WetDry();
-    
     mGainMaster = new Jimmy::DSP::GainMaster(-10.0f, 10.0f, 1);
 }
 
@@ -224,21 +223,20 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 	dryAudioBuffer.setSize(numOutputChannel, samplesPerBlock, false, true);
 	SideBuffer.setSize(numOutputChannel, samplesPerBlock, false, true);
 
-	mDelayVibrato[L] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
-	mDelayVibrato[R] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
+	mDelayVibrato[L] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, 1);
+	mDelayVibrato[R] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, 1);
 
-	mTremolo[L] = new Jimmy::DSP::Tremolo(float(sampleRate), numOutputChannel);
-	mTremolo[R] = new Jimmy::DSP::Tremolo(float(sampleRate), numOutputChannel);
+	mTremolo[L] = new Jimmy::DSP::Tremolo(float(sampleRate), 1);
+	mTremolo[R] = new Jimmy::DSP::Tremolo(float(sampleRate), 1);
 	
-	mFilterHP[L] = new Jimmy::DSP::IIRFilterHP(float(sampleRate), numOutputChannel);
-	mFilterHP[R] = new Jimmy::DSP::IIRFilterHP(float(sampleRate), numOutputChannel);
+	mFilterHP[L] = new Jimmy::DSP::IIRFilterHP(float(sampleRate), 1);
+	mFilterHP[R] = new Jimmy::DSP::IIRFilterHP(float(sampleRate), 1);
 
-	mFilterLP[L] = new Jimmy::DSP::IIRFilterLP(float(sampleRate), numOutputChannel);
-	mFilterLP[R] = new Jimmy::DSP::IIRFilterLP(float(sampleRate), numOutputChannel);
+	mFilterLP[L] = new Jimmy::DSP::IIRFilterLP(float(sampleRate), 1);
+	mFilterLP[R] = new Jimmy::DSP::IIRFilterLP(float(sampleRate), 1);
 
 	mWidth = new Jimmy::DSP::Width();
 	mWet = new Jimmy::DSP::WetDry();
-    
     mGainMaster = new Jimmy::DSP::GainMaster(-10.0f, 10.0f, numOutputChannel);
     
 	//mDelay = new Jimmy::DSP::StaticDelay(float(sampleRate), 0.1f, numOutputChannel);
