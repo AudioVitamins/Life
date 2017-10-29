@@ -138,9 +138,9 @@ LifeAudioProcessor::LifeAudioProcessor()
 	mState->addParameterListener(paramDelayLinkToggle, this);
 	mState->addParameterListener(paramFeedbackLinkToggle, this);
 
-    float sampleRate = 44100.0;
-
+    float sampleRate = getSampleRate();
     int numOutputChannel = getTotalNumOutputChannels(); 
+
     mDelayVibrato[L] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
 	mDelayVibrato[R] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
 
