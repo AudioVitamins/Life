@@ -138,24 +138,6 @@ LifeAudioProcessor::LifeAudioProcessor()
 	mState->addParameterListener(paramDelayLinkToggle, this);
 	mState->addParameterListener(paramFeedbackLinkToggle, this);
 
-    float sampleRate = getSampleRate();
-    int numOutputChannel = 1;	// Changed to 1 since LR are processing individually
-
-    mDelayVibrato[L] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, 1);
-	mDelayVibrato[R] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, 1);
-
-    mTremolo[L] = new Jimmy::DSP::Tremolo(float(sampleRate), 1);
-	mTremolo[R] = new Jimmy::DSP::Tremolo(float(sampleRate), 1);
-	
-    mFilterHP[L] = new Jimmy::DSP::IIRFilterHP(float(sampleRate), 1);
-	mFilterHP[R] = new Jimmy::DSP::IIRFilterHP(float(sampleRate), 1);
-
-    mFilterLP[L] = new Jimmy::DSP::IIRFilterLP(float(sampleRate), 1);
-	mFilterLP[R] = new Jimmy::DSP::IIRFilterLP(float(sampleRate), 1);
-
-    mWidth = new Jimmy::DSP::Width();
-    mWet = new Jimmy::DSP::WetDry();
-    mGainMaster = new Jimmy::DSP::GainMaster(-10.0f, 10.0f, 1);
 }
 
 LifeAudioProcessor::~LifeAudioProcessor()
@@ -223,17 +205,17 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 	dryAudioBuffer.setSize(numOutputChannel, samplesPerBlock, false, true);
 	SideBuffer.setSize(numOutputChannel, samplesPerBlock, false, true);
 
-	mDelayVibrato[L] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, 1);
-	mDelayVibrato[R] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, 1);
+	mDelayVibrato[L] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
+	mDelayVibrato[R] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
 
-	mTremolo[L] = new Jimmy::DSP::Tremolo(float(sampleRate), 1);
-	mTremolo[R] = new Jimmy::DSP::Tremolo(float(sampleRate), 1);
+	mTremolo[L] = new Jimmy::DSP::Tremolo(float(sampleRate), numOutputChannel);
+	mTremolo[R] = new Jimmy::DSP::Tremolo(float(sampleRate), numOutputChannel);
 	
-	mFilterHP[L] = new Jimmy::DSP::IIRFilterHP(float(sampleRate), 1);
-	mFilterHP[R] = new Jimmy::DSP::IIRFilterHP(float(sampleRate), 1);
+	mFilterHP[L] = new Jimmy::DSP::IIRFilterHP(float(sampleRate), numOutputChannel);
+	mFilterHP[R] = new Jimmy::DSP::IIRFilterHP(float(sampleRate), numOutputChannel);
 
-	mFilterLP[L] = new Jimmy::DSP::IIRFilterLP(float(sampleRate), 1);
-	mFilterLP[R] = new Jimmy::DSP::IIRFilterLP(float(sampleRate), 1);
+	mFilterLP[L] = new Jimmy::DSP::IIRFilterLP(float(sampleRate), numOutputChannel);
+	mFilterLP[R] = new Jimmy::DSP::IIRFilterLP(float(sampleRate), numOutputChannel);
 
 	mWidth = new Jimmy::DSP::Width();
 	mWet = new Jimmy::DSP::WetDry();
@@ -387,25 +369,27 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 	dryAudioBuffer.makeCopyOf(buffer, true);
 	SideBuffer.makeCopyOf(buffer, true);
 	
-	if (ProcessMS == true)
-	{
-		mMSConverter->ConvertLRToMid(buffer);
-		mMSConverter->ConvertLRToSide(buffer, SideBuffer);
-	}
-
-	mDelayVibrato[L]->process(buffer, L);
-	mDelayVibrato[R]->process(buffer, R);
-
-	mTremolo[L]->process(buffer, L);
-	mTremolo[R]->process(buffer, R);
-	
-	mFilterHP[L]->process(buffer, L);
-	mFilterHP[R]->process(buffer, R);
-
-	mFilterLP[L]->process(buffer, L);
-	mFilterLP[R]->process(buffer, R);
-		
-	if (ProcessMS == true) { mMSConverter->ConvertMSToLR(buffer); }
+    if (ProcessMS == true)
+    {
+        mMSConverter->ConvertLRToMid(buffer);
+        mMSConverter->ConvertLRToSide(buffer, SideBuffer);
+    }
+    
+    mDelayVibrato[L]->process(buffer, L);
+    mTremolo[L]->process(buffer, L);
+    mFilterHP[L]->process(buffer, L);
+    mFilterLP[L]->process(buffer, L);
+    
+    // Guard to Fix Logic Validation Crash, not an ideal fix.
+    if(totalNumOutputChannels >= 2)
+    {
+        mDelayVibrato[R]->process(buffer, R);
+        mTremolo[R]->process(buffer, R);
+        mFilterHP[R]->process(buffer, R);
+        mFilterLP[R]->process(buffer, R);
+    }
+    
+    if (ProcessMS == true) { mMSConverter->ConvertMSToLR(buffer); }
 
 	mWidth->process(buffer);
 
