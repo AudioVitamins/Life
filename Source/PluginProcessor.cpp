@@ -387,26 +387,13 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 	if (totalNumInputChannels < 1 || totalNumInputChannels > 2 || buffer.getNumSamples() == 0)
 		return;
 
-	float *ratePitchLeft = mState->getRawParameterValue(paramPitchRateLeft);
-	float *ratePitchRight = mState->getRawParameterValue(paramPitchRateRight);
+	float *delayMs = mState->getRawParameterValue(paramDelay);
 
-	float *delayMsLeft = mState->getRawParameterValue(paramDelayLeft);
-	float *delayMsRight = mState->getRawParameterValue(paramDelayRight);
+    float *ratePitch = mState->getRawParameterValue(paramPitchRate);
+    float freq = RateToFrequency(*ratePitch);
 
-	float freqLeft = RateToFrequency(*ratePitchLeft);
-	float freqRight = RateToFrequency(*ratePitchRight);
-
-	m3SampleDelay[L]->SetFrequency(1.0);
-	m3SampleDelay[R]->SetFrequency(1.0);
-
-	mDelayVibrato[L]->SetFrequency(freqLeft);
-	mDelayVibrato[R]->SetFrequency(freqRight);
-
-	m3SampleDelay[L]->setDelayInMiliSec(3.0 / getSampleRate()); //Time in Miliseconds = samples / sampleRate 
-	m3SampleDelay[R]->setDelayInMiliSec(3.0 / getSampleRate()); //Time in Miliseconds = samples / sampleRate 
-
-	mDelayVibrato[L]->setDelayInMiliSec(*delayMsLeft);
-	mDelayVibrato[R]->setDelayInMiliSec(*delayMsRight);
+	mDelayVibrato->setDelayInMiliSec(*delayMs);
+    mDelayVibrato->SetFrequency(freq);
 	
 	dryAudioBuffer.makeCopyOf(buffer, true);
 	SideBuffer.makeCopyOf(buffer, true);
