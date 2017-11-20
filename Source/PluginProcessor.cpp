@@ -261,9 +261,12 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 	if (totalNumInputChannels < 1 || totalNumInputChannels > 2 || buffer.getNumSamples() == 0)
 		return;
 
+	float *delayMs = mState->getRawParameterValue(paramDelay);
+
     float *ratePitch = mState->getRawParameterValue(paramPitchRate);
     float freq = RateToFrequency(*ratePitch);
 
+	mDelayVibrato->setDelayInMiliSec(*delayMs);
     mDelayVibrato->SetFrequency(freq);
 	
 	dryAudioBuffer.makeCopyOf(buffer, true);
