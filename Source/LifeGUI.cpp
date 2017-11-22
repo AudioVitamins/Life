@@ -906,7 +906,7 @@ void LifeGUI::timerCallback() {
 		delaySlider[L]->setValue(delay);
 	}
 
-	else if (mAutomationDelay[R]) {
+	if (mAutomationDelay[R]) {
 		float delay0to1 = mP.getParameter(PARAMETER_DELAY_RIGHT);
 		float delay = normalizeDelaySlider[R]->convertFrom0to1(delay0to1);
 		delaySlider[R]->setValue(delay);
