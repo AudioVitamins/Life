@@ -369,6 +369,66 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 	dryAudioBuffer.makeCopyOf(buffer, true);
 	SideBuffer.makeCopyOf(buffer, true);
 	
+	if (totalNumInputChannels == 1 && totalNumOutputChannels == 1)
+	{
+		if (ProcessMS == true)
+		{
+			mMSConverter->ConvertLRToMid(buffer);
+		}
+
+		mDelayVibrato[L]->process(buffer, L);
+		mTremolo[L]->process(buffer, L);
+		mFilterHP[L]->process(buffer, L);
+		mFilterLP[L]->process(buffer, L);
+	}
+	else if (totalNumInputChannels == 2 && totalNumOutputChannels == 2)
+	{
+		if (ProcessMS == true)
+		{
+			mMSConverter->ConvertLRToMid(buffer);
+			mMSConverter->ConvertLRToSide(buffer, SideBuffer);
+		}
+
+		mDelayVibrato[L]->process(buffer, L);
+		mTremolo[L]->process(buffer, L);
+		mFilterHP[L]->process(buffer, L);
+		mFilterLP[L]->process(buffer, L);
+
+		if (totalNumOutputChannels >= 2)
+		{
+			mDelayVibrato[R]->process(buffer, R);
+			mTremolo[R]->process(buffer, R);
+			mFilterHP[R]->process(buffer, R);
+			mFilterLP[R]->process(buffer, R);
+		}
+	}
+	else if (totalNumInputChannels == 1 && totalNumOutputChannels == 2)
+	{
+		if (ProcessMS == true)
+		{
+			mMSConverter->ConvertLRToMid(buffer);
+			mMSConverter->ConvertLRToSide(buffer, SideBuffer);
+		}
+
+		mDelayVibrato[L]->process(buffer, L);
+		mTremolo[L]->process(buffer, L);
+		mFilterHP[L]->process(buffer, L);
+		mFilterLP[L]->process(buffer, L);
+
+		if (totalNumOutputChannels >= 2)
+		{
+			mDelayVibrato[R]->process(SideBuffer, L);
+			mTremolo[R]->process(SideBuffer, L);
+			mFilterHP[R]->process(SideBuffer, L);
+			mFilterLP[R]->process(SideBuffer, L);
+		}
+
+		buffer.copyFrom(R, 0, SideBuffer.getWritePointer(L), SideBuffer.getNumSamples());
+	}
+
+	if (ProcessMS == true) { mMSConverter->ConvertMSToLR(buffer); }
+
+	/*
     if (ProcessMS == true)
     {
         mMSConverter->ConvertLRToMid(buffer);
@@ -380,7 +440,6 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
     mFilterHP[L]->process(buffer, L);
     mFilterLP[L]->process(buffer, L);
     
-    // Guard to Fix Logic Validation Crash, not an ideal fix.
     if(totalNumOutputChannels >= 2)
     {
         mDelayVibrato[R]->process(buffer, R);
@@ -388,14 +447,13 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
         mFilterHP[R]->process(buffer, R);
         mFilterLP[R]->process(buffer, R);
     }
-    
-    if (ProcessMS == true) { mMSConverter->ConvertMSToLR(buffer); }
+    */
 
 	mWidth->process(buffer);
 
 	mWet->process(dryAudioBuffer, buffer);
 
-	mGainMaster->process(buffer);
+	//mGainMaster->process(buffer);
 }
 
 //==============================================================================
