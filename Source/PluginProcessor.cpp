@@ -453,7 +453,7 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 
 	mWet->process(dryAudioBuffer, buffer);
 
-	//mGainMaster->process(buffer);
+	mGainMaster->process(buffer);
 }
 
 //==============================================================================
