@@ -272,11 +272,6 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 	dryAudioBuffer.makeCopyOf(buffer, true);
 
 	mDelayVibrato->process(buffer);
-	//Delay
- 	//mDelay->process(buffer);
-
-	// Aplly Pitch/Feedback
-	//mVibrato->process(buffer);
 
 	// Apply AM
 	mTremolo->process(buffer);

@@ -81,8 +81,13 @@ namespace Jimmy {
 				/** Returns the current gain of the playhead.  */
 				float gain()
 				{
-					auto g = fade.getNextValue();
-					return std::sqrt(g);
+					// floating point in accuracies mean getNextValue() can
+					// sometimes overshoot the target value, giving a negative
+					// number. So we ensure that the value passed to std::sqrt 
+					// is always greater than or equal to 0.0f.
+					auto g = fade.getNextValue(); 
+					auto r = std::sqrt(jmax(0.0f, g));
+					return r;
 				}
 
 				bool stopped() const {
@@ -316,6 +321,8 @@ namespace Jimmy {
 						{
 							if (!playheads[headIndex].stopped())
 								summedDelayOutputs += delays[chan]->geti(playheads[headIndex].delayTime) * headGains[headIndex];
+
+							jassert(!isnan(summedDelayOutputs));
 						}
 
 						LFO &lfo = mLfo.getRawDataPointer()[chan];
@@ -323,7 +330,8 @@ namespace Jimmy {
 
 						float vibratoDelayLength = smoothedVibratoDepth.getNextValue() * mDelaySamplesForVibrato;
 
-						float vibratoLfoAppliedDelayLength = 1.0f + vibratoDelayLength + lfo.Value() * vibratoDelayLength;
+						//float vibratoLfoAppliedDelayLength = 1.0f + vibratoDelayLength + lfo.Value() * vibratoDelayLength;
+						float vibratoLfoAppliedDelayLength = 1.0f;
 
 						auto vibratoOut = vibratoDelays[chan]->geti(vibratoLfoAppliedDelayLength);
 
