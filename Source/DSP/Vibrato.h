@@ -81,6 +81,7 @@ namespace Jimmy {
 				/** Returns the current gain of the playhead.  */
 				float gain()
 				{
+<<<<<<< HEAD
                     // floating point in accuracies mean getNextValue() can
                     // sometimes overshoot the target value, giving a negative
                     // number. So we ensure that the value passed to std::sqrt
@@ -89,6 +90,15 @@ namespace Jimmy {
                     auto r = std::sqrt(jmax(0.0f, g));
                     return r;
 
+=======
+					// floating point in accuracies mean getNextValue() can
+					// sometimes overshoot the target value, giving a negative
+					// number. So we ensure that the value passed to std::sqrt 
+					// is always greater than or equal to 0.0f.
+					auto g = fade.getNextValue(); 
+					auto r = std::sqrt(jmax(0.0f, g));
+					return r;
+>>>>>>> d20b8b6 (fixed fatal bug where some sample rates wouldn't play back@)
 				}
 
 				bool stopped() const {
@@ -328,9 +338,14 @@ namespace Jimmy {
 						{
 							if (!playheads[headIndex].stopped())
 								summedDelayOutputs += delays[chan]->geti(playheads[headIndex].delayTime) * headGains[headIndex];
+<<<<<<< HEAD
                             
                             jassert(!isnan(summedDelayOutputs));
 
+=======
+
+							jassert(!isnan(summedDelayOutputs));
+>>>>>>> d20b8b6 (fixed fatal bug where some sample rates wouldn't play back@)
 						}
 
 						LFO &lfo = mLfo.getRawDataPointer()[chan];
@@ -338,9 +353,14 @@ namespace Jimmy {
 
 						float vibratoDelayLength = smoothedVibratoDepth.getNextValue() * mDelaySamplesForVibrato;
 
+<<<<<<< HEAD
                         float vibratoLfoAppliedDelayLength = 1.0f + vibratoDelayLength + lfo.Value() * vibratoDelayLength;
                         //float vibratoLfoAppliedDelayLength = 1.0f;
 
+=======
+						//float vibratoLfoAppliedDelayLength = 1.0f + vibratoDelayLength + lfo.Value() * vibratoDelayLength;
+						float vibratoLfoAppliedDelayLength = 1.0f;
+>>>>>>> d20b8b6 (fixed fatal bug where some sample rates wouldn't play back@)
 
 						auto vibratoOut = vibratoDelays[chan]->geti(vibratoLfoAppliedDelayLength);
 

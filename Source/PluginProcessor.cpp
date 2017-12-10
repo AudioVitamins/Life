@@ -470,6 +470,7 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
             mMSConverter->ConvertMSToLR(buffer);
         }
     }
+	mDelayVibrato->process(buffer);
 
 
 	mWidth->process(buffer);
