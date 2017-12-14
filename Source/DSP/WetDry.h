@@ -32,16 +32,17 @@ namespace Jimmy {
 				mSmooth->setNewValue(wet0to1);
 			}
 
-			void process(AudioSampleBuffer& rawBuffer, AudioSampleBuffer& outBuffer) {
+			void process(AudioSampleBuffer& rawBuffer, AudioSampleBuffer& outBuffer, int inChan, int outChan) {
 				int numSamples = outBuffer.getNumSamples();
 				int numChans = outBuffer.getNumChannels();
 				const float **raw = rawBuffer.getArrayOfReadPointers();
 				float **out = outBuffer.getArrayOfWritePointers();
 				for (int i = 0; i < numSamples; i++) {
 					mWet = mSmooth->getValue();
-					for (int c = 0; c < numChans; c++) {
-						out[c][i] = processSamples(raw[c][i], out[c][i]);
-					}
+					
+						out[outChan][i] = processSamples(raw[inChan][i], out[inChan][i]);
+					
+					
 				}
 			}
 

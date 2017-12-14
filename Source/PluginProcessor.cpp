@@ -428,30 +428,18 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 
 	if (ProcessMS == true) { mMSConverter->ConvertMSToLR(buffer); }
 
-	/*
-    if (ProcessMS == true)
-    {
-        mMSConverter->ConvertLRToMid(buffer);
-        mMSConverter->ConvertLRToSide(buffer, SideBuffer);
-    }
-    
-    mDelayVibrato[L]->process(buffer, L);
-    mTremolo[L]->process(buffer, L);
-    mFilterHP[L]->process(buffer, L);
-    mFilterLP[L]->process(buffer, L);
-    
-    if(totalNumOutputChannels >= 2)
-    {
-        mDelayVibrato[R]->process(buffer, R);
-        mTremolo[R]->process(buffer, R);
-        mFilterHP[R]->process(buffer, R);
-        mFilterLP[R]->process(buffer, R);
-    }
-    */
-
 	mWidth->process(buffer);
 
-	mWet->process(dryAudioBuffer, buffer);
+	if (totalNumInputChannels == 1 && totalNumOutputChannels == 2)
+	{
+		mWet->process(dryAudioBuffer, buffer, 0, 0);
+		mWet->process(dryAudioBuffer, buffer, 0, 1);
+	}
+	else
+	{
+		mWet->process(dryAudioBuffer, buffer, 0, 0);
+		mWet->process(dryAudioBuffer, buffer, 1, 1);
+	}
 
 	mGainMaster->process(buffer);
 }
