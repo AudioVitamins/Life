@@ -117,6 +117,22 @@ public:
 			
 	};
 
+	class LifeLinkButton : public LookAndFeel_V3
+	{
+	public:
+
+		~LifeLinkButton() {};
+
+		void drawButtonBackground(Graphics& g, Button& button, const Colour& backgroundColour,
+			bool isMouseOverButton, bool isButtonDown) override;
+
+		void drawToggleButton(Graphics& g, ToggleButton& button, bool isMouseOverButton,
+			bool isButtonDown) override;
+
+		Image CachedImage_LifeLinkButtonVertical_png;
+
+	};
+
 	//Event Timer
 	void timerCallback() override;
 
@@ -149,6 +165,8 @@ public:
 	static const int life_ui_bg_pngSize;
 	static const char* white_slideswitch_2pos_vertical_50x50_png;
 	static const int white_slideswitch_2pos_vertical_50x50_pngSize;
+	static const char* white_pushbutton_redlink_25x25_vertical_png;
+	static const int white_pushbutton_redlink_25x25_vertical_pngSize;
 
 
 
@@ -202,6 +220,7 @@ private:
 	ScopedPointer<CustomSlider> knobLookAmount;
 	
 	ScopedPointer<LifeToggleButton> LifeToggleButtonLookandFeel;
+	ScopedPointer<LifeLinkButton> LifeLinkButtonLookandFeel;
 
 	Image CachedImage_Life_UI_Background_v1_png;
 	
