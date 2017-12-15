@@ -350,25 +350,25 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 
 	if (totalNumInputChannels < 1 || totalNumInputChannels > 2 || buffer.getNumSamples() == 0)
 		return;
-	
-    float *ratePitchLeft = mState->getRawParameterValue(paramPitchRateLeft);
+
+	float *ratePitchLeft = mState->getRawParameterValue(paramPitchRateLeft);
 	float *ratePitchRight = mState->getRawParameterValue(paramPitchRateRight);
 
 	float *delayMsLeft = mState->getRawParameterValue(paramDelayLeft);
 	float *delayMsRight = mState->getRawParameterValue(paramDelayRight);
 
-    float freqLeft = RateToFrequency(*ratePitchLeft);
+	float freqLeft = RateToFrequency(*ratePitchLeft);
 	float freqRight = RateToFrequency(*ratePitchRight);
-				
-    mDelayVibrato[L]->SetFrequency(freqLeft);
+
+	mDelayVibrato[L]->SetFrequency(freqLeft);
 	mDelayVibrato[R]->SetFrequency(freqRight);
 
 	mDelayVibrato[L]->setDelayInMiliSec(*delayMsLeft);
 	mDelayVibrato[R]->setDelayInMiliSec(*delayMsRight);
-		
+
 	dryAudioBuffer.makeCopyOf(buffer, true);
 	SideBuffer.makeCopyOf(buffer, true);
-	
+
 	if (totalNumInputChannels == 1 && totalNumOutputChannels == 1)
 	{
 		if (ProcessMS == true)
@@ -430,16 +430,6 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 
 	mWidth->process(buffer);
 
-	if (totalNumInputChannels == 1 && totalNumOutputChannels == 1)
-	{
-		mWet->process(dryAudioBuffer, buffer, 0, 0);
-	}
-	else if (totalNumInputChannels == 1 && totalNumOutputChannels == 2)
-	{
-		mWet->process(dryAudioBuffer, buffer, 0, 0);
-		mWet->process(dryAudioBuffer, buffer, 0, 1);
-	}
-	else
 	{
 		mWet->process(dryAudioBuffer, buffer, 0, 0);
 		mWet->process(dryAudioBuffer, buffer, 1, 1);

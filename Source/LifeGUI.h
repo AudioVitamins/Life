@@ -161,12 +161,12 @@ public:
     static const int life_ui_cmversionbgv2_pngSize;
     static const char* life_ui_cmbgv3_png;
     static const int life_ui_cmbgv3_pngSize;
-	static const char* life_ui_bg_png;
-	static const int life_ui_bg_pngSize;
 	static const char* white_slideswitch_2pos_vertical_50x50_png;
 	static const int white_slideswitch_2pos_vertical_50x50_pngSize;
 	static const char* white_pushbutton_redlink_25x25_vertical_png;
 	static const int white_pushbutton_redlink_25x25_vertical_pngSize;
+	static const char* life_uibg_png;
+	static const int life_uibg_pngSize;
 
 
 
