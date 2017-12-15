@@ -429,7 +429,17 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 	if (ProcessMS == true) { mMSConverter->ConvertMSToLR(buffer); }
 
 	mWidth->process(buffer);
-
+	
+	if (totalNumInputChannels == 1 && totalNumOutputChannels == 1)
+ -	{
+ -		mWet->process(dryAudioBuffer, buffer, 0, 0);
+ -	}
+ -	else if (totalNumInputChannels == 1 && totalNumOutputChannels == 2)
+ -	{
+ -		mWet->process(dryAudioBuffer, buffer, 0, 0);
+ -		mWet->process(dryAudioBuffer, buffer, 0, 1);
+ -	}
+	else
 	{
 		mWet->process(dryAudioBuffer, buffer, 0, 0);
 		mWet->process(dryAudioBuffer, buffer, 1, 1);
