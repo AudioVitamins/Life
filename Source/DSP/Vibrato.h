@@ -338,8 +338,8 @@ namespace Jimmy {
 
 						float vibratoDelayLength = smoothedVibratoDepth.getNextValue() * mDelaySamplesForVibrato;
 
-                        //float vibratoLfoAppliedDelayLength = 1.0f + vibratoDelayLength + lfo.Value() * vibratoDelayLength;
-                        float vibratoLfoAppliedDelayLength = 1.0f;
+                        float vibratoLfoAppliedDelayLength = 1.0f + vibratoDelayLength + lfo.Value() * vibratoDelayLength;
+                        //float vibratoLfoAppliedDelayLength = 1.0f;
 
 
 						auto vibratoOut = vibratoDelays[chan]->geti(vibratoLfoAppliedDelayLength);
