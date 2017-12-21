@@ -27,17 +27,18 @@ String LifeAudioProcessor::paramWetDry = "WetDry";
 
 String LifeAudioProcessor::paramGainMaster = "GainMaster";
 //==============================================================================
-LifeAudioProcessor::LifeAudioProcessor()
+LifeAudioProcessor::LifeAudioProcessor() :
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
+     AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  AudioChannelSet::stereo(), true)
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
 #endif
+   mUnlocked(true) // initially unlocked
 {
 	
 	mUndoManager = new UndoManager();
@@ -245,6 +246,10 @@ bool LifeAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) con
 
 void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
+   //@AS
+   if (!mUnlocked)
+      return;
+
 	if (getPlayHead()->getCurrentPosition(currentPositionInfo))
 		lastKnownBpm = currentPositionInfo.bpm;
 

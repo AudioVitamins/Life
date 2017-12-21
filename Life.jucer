@@ -8,12 +8,35 @@
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix=""
               pluginRTASCategory="" aaxIdentifier="com.AudioVitamins.Life"
-              pluginAAXCategory="" jucerVersion="4.3.1" companyName="Audio Vitamins"
+              pluginAAXCategory="" jucerVersion="5.2.0" companyName="Audio Vitamins"
               companyWebsite="https://www.audiovitamins.com" companyEmail="info@audiovitamins.com"
               pluginAUMainType="" pluginVSTCategory="" buildStandalone="0"
-              enableIAA="0">
+              enableIAA="0" displaySplashScreen="0" reportAppUsage="0" splashScreenColour="Dark"
+              cppLanguageStandard="11" companyCopyright="Audio Vitamins" headerPath="../../Source/authorization;../../codegen/src">
   <MAINGROUP id="iF88XL" name="Life">
     <GROUP id="{8A69A9FD-4FF6-82F9-BF93-7A72225A8DC0}" name="Source">
+      <GROUP id="{688206E2-1421-56E6-B439-5B6A0F700086}" name="authorization">
+        <FILE id="uGCewx" name="auth.cpp" compile="1" resource="0" file="Source/authorization/auth.cpp"/>
+        <FILE id="PTYtDP" name="auth.h" compile="0" resource="0" file="Source/authorization/auth.h"/>
+        <FILE id="LJS2QW" name="AuthDialog.cpp" compile="1" resource="0" file="Source/authorization/AuthDialog.cpp"/>
+        <FILE id="tu6wpg" name="AuthDialog.h" compile="0" resource="0" file="Source/authorization/AuthDialog.h"/>
+        <FILE id="cdflwk" name="Colors.h" compile="0" resource="0" file="Source/authorization/Colors.h"/>
+        <FILE id="BxIv0c" name="CommonComponents.cpp" compile="1" resource="0"
+              file="Source/authorization/CommonComponents.cpp"/>
+        <FILE id="LYUePv" name="CommonComponents.h" compile="0" resource="0"
+              file="Source/authorization/CommonComponents.h"/>
+        <FILE id="ly4KTI" name="Constants.h" compile="0" resource="0" file="Source/authorization/Constants.h"/>
+        <FILE id="wSxNBW" name="EditorState.cpp" compile="1" resource="0" file="Source/authorization/EditorState.cpp"/>
+        <FILE id="A0v7Y6" name="EditorState.h" compile="0" resource="0" file="Source/authorization/EditorState.h"/>
+        <FILE id="kHaQZB" name="SeqImageX.cpp" compile="1" resource="0" file="Source/authorization/SeqImageX.cpp"/>
+        <FILE id="YajVe2" name="SeqImageX.h" compile="0" resource="0" file="Source/authorization/SeqImageX.h"/>
+        <FILE id="xcAjq0" name="TrialDialog.cpp" compile="1" resource="0" file="Source/authorization/TrialDialog.cpp"/>
+        <FILE id="qIEZX2" name="TrialDialog.h" compile="0" resource="0" file="Source/authorization/TrialDialog.h"/>
+        <FILE id="WpEM9z" name="ucshared.cpp" compile="1" resource="0" file="codegen/src/ucshared.cpp"/>
+        <FILE id="jgFIbB" name="ucshared.h" compile="0" resource="0" file="codegen/src/ucshared.h"/>
+        <FILE id="EbARWQ" name="ucvalidate.cpp" compile="1" resource="0" file="codegen/src/ucvalidate.cpp"/>
+        <FILE id="a0mo2D" name="unlockcode.h" compile="0" resource="0" file="codegen/src/unlockcode.h"/>
+      </GROUP>
       <GROUP id="{EEF018BF-472A-3ADD-49EF-9881994EA5F2}" name="Component">
         <FILE id="mRRIn1" name="Slider.cpp" compile="1" resource="0" file="Source/Slider.cpp"/>
         <FILE id="wvcEYx" name="Slider.h" compile="0" resource="0" file="Source/Slider.h"/>
@@ -51,10 +74,11 @@
     <XCODE_MAC targetFolder="Builds/MacOSX" vst3Folder="/Frameworks/VST3SDK"
                aaxFolder="/Frameworks/AAX">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Life" osxCompatibility="10.9 SDK"/>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Life" osxCompatibility="10.9 SDK"
+                       enablePluginBinaryCopyStep="1"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="Life"
                        cppLanguageStandard="c++11" cppLibType="libc++" osxCompatibility="10.8 SDK"
-                       osxArchitecture="64BitUniversal"/>
+                       osxArchitecture="64BitUniversal" enablePluginBinaryCopyStep="1"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="./JUCE/Modules"/>
@@ -77,25 +101,27 @@
             vst3Folder="G:\Working\FrameWork\VST3 SDK" aaxFolder="G:\Working\FrameWork\AAX_SDK">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" optimisation="1" targetName="Life" postbuildCommand="&#10;xcopy /Y /S &quot;$(OutDir)$(TargetFileName)&quot; &quot;C:\Vst&quot;"/>
+                       isDebug="1" optimisation="1" targetName="Life" postbuildCommand="&#10;xcopy /Y /S &quot;$(OutDir)$(TargetFileName)&quot; &quot;C:\Vst&quot;"
+                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="0" optimisation="3" targetName="Life"/>
+                       isDebug="0" optimisation="3" targetName="Life" debugInformationFormat="ProgramDatabase"
+                       enablePluginBinaryCopyStep="0" linkTimeOptimisation="1"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_video" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_opengl" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_gui_extra" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_gui_basics" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_graphics" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_events" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_data_structures" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_cryptography" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_core" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_audio_processors" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_audio_plugin_client" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_audio_formats" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_audio_devices" path="./JUCE/Modules"/>
-        <MODULEPATH id="juce_audio_basics" path="./JUCE/Modules"/>
+        <MODULEPATH id="juce_video" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_opengl" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_graphics" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_events" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_core" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../JUCE/Modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../JUCE/Modules"/>
       </MODULEPATHS>
     </VS2015>
   </EXPORTFORMATS>

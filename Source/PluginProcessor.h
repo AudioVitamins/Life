@@ -21,6 +21,9 @@
 #include "DSP/GainMaster.h"
 #include "Config.h"
 
+//@AS
+#include "EditorState.h"
+
 //==============================================================================
 /**
 */
@@ -64,6 +67,9 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    //@AS
+    bool mUnlocked;
+    EditorState mEditorState;
 private:
     //==============================================================================
 

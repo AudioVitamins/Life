@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.3
+  Created with Projucer version: 5.2.0
 
   ------------------------------------------------------------------------------
 
@@ -17,11 +17,14 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_1A035C6AA1EC25D6__
-#define __JUCE_HEADER_1A035C6AA1EC25D6__
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
+
+//@AS
+#include "TrialDialog.h"
+#include "AuthDialog.h"
 class LifeAudioProcessor;
 class SliderComponent;
 //[/Headers]
@@ -37,9 +40,10 @@ class SliderComponent;
                                                                     //[/Comments]
 */
 class LifeGUI  : public Component,
-                 public Timer,
-                 public ButtonListener,
-                 public SliderListener
+                 public MultiTimer,
+                 public CptNotify,
+                 public Button::Listener,
+                 public Slider::Listener
 {
 public:
     //==============================================================================
@@ -100,7 +104,7 @@ public:
 	};
 
 	//Event Timer
-	void timerCallback() override;
+	void timerCallback(int timerID) override;
 
 	//Slider Handler
 	void sliderDragStarted(Slider* sliderThatWasMoved) override;
@@ -127,6 +131,10 @@ public:
     static const int life_ui_cmversionbgv2_pngSize;
     static const char* life_ui_cmbgv3_png;
     static const int life_ui_cmbgv3_pngSize;
+    static const char* authorization_png;
+    static const int authorization_pngSize;
+    static const char* lock2small_png;
+    static const int lock2small_pngSize;
 
 
 private:
@@ -171,6 +179,20 @@ private:
 	Image bgrImgAmount;
 	ScopedPointer<KnobImageInfo> knobInfoAmount;
 	ScopedPointer<CustomSlider> knobLookAmount;
+
+   //@AS
+   SeqGlob mGlob;
+   bool mUnlocked;// will be set true when we are unlocked
+   // if set to true then the authorize function will try to reauthorize if
+   // expired or within reauth period
+   bool mTryReauth;
+   // For trial dialog
+   SeqTrialDialog mTrialDialog;
+   SeqAuthDialog mAuthDlg;
+   // Inherited via CptNotify
+   virtual void cptValueChange(int cptId, int value) override;
+   void authorize();
+   void prepareAuthorization(bool allowRenew);
     //[/UserVariables]
 
     //==============================================================================
@@ -187,6 +209,7 @@ private:
     ScopedPointer<Slider> loPassFilterSlider;
     ScopedPointer<Slider> wetDrySlider;
     ScopedPointer<Slider> masterGainSlider;
+    ScopedPointer<ImageButton> mBtnUnlock;
     Image cachedImage_life_ui_cmbgv3_png_1;
 
 
@@ -196,5 +219,3 @@ private:
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
-
-#endif   // __JUCE_HEADER_1A035C6AA1EC25D6__
