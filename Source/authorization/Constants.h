@@ -1,5 +1,14 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
+
+//
+// Uncomment this to disable all authorization/locking
+//
+//#define SEQ_ALWAYS_UNLOCKED 1
+
+
+
+
 #define SEQ_APP_NAME "life"
 // name of file that stores license key
 #define SEQ_LICENSE_NAME "lifekey"  
@@ -16,6 +25,7 @@
 // when they enter an email, it auto posts to this
 //#define SEQ_TRIAL_URL "http://installers.audiovitamins.com/validation/request_trial.php"
 #define SEQ_TRIAL_URL "http://v64-d10b733-01/life/request_trial.php"
+
 
 // for licensing, these are passed to the license server (and validated against key)
 // distinct product id for the purpose of licensing

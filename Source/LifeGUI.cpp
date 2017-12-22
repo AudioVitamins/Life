@@ -30,6 +30,8 @@
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 
+#define AUTH_CHECK_DELAY 250
+
 // Custom Slider
 Label* LifeGUI::CustomSlider::createSliderTextBox(Slider& slider) {
 	Label* const l = new CustomSlider::SliderLabelComp();
@@ -226,15 +228,23 @@ LifeGUI::LifeGUI (LifeAudioProcessor& p)
 
 
     //[Constructor] You can add your own custom stuff here..
-	startTimer(1,100);
-   startTimer(2, 3000); // licensing timer
+	startTimer(1,100); //@AS switch to multi-timer. timer 1 is the original timer
+
 
    //@AS
    addChildComponent(mTrialDialog);
    addChildComponent(mAuthDlg);
    fixColors(mGlob.mEditorState, this);
-   mUnlocked = false;
+
    mTryReauth = false;
+#ifdef SEQ_ALWAYS_UNLOCKED
+   mUnlocked = true;
+   mBtnUnlock->setVisible(false);
+#else
+   // start the timer to prepare for (re)authorization
+   mUnlocked = false;
+   prepareAuthorization(true);
+#endif
     //[/Constructor]
 }
 
@@ -612,7 +622,7 @@ void LifeGUI::sliderDragEnded(Slider* sliderThatWasMoved)
 
 void LifeGUI::timerCallback(int timerID) {
 
-   if (timerID == 1) {
+   if (timerID == 1) { //@AS
 
       if (mAutomationDelay) {
          float delay0to1 = mP.getParameter(PARAMETER_DELAY);
@@ -701,6 +711,7 @@ void LifeGUI::cptValueChange(int cptId, int value)
    }
 }
 
+//@AS
 void LifeGUI::authorize()
 {
 
@@ -794,10 +805,11 @@ trial_mode:
 
 }
 
+//@AS
 void LifeGUI::prepareAuthorization(bool allowRenew)
 {
    mTryReauth = allowRenew;
-   startTimer(2, 3000);
+   startTimer(2, AUTH_CHECK_DELAY);
    // authorize will be called in 3 seconds
 }
 

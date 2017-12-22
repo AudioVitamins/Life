@@ -11,6 +11,9 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "LogUtil.h"
+//@AS
+#include "auth.h"
+#include "constants.h"
 String LifeAudioProcessor::paramDelay = "Delay";
 String LifeAudioProcessor::paramPitchRate = "PitchRate";
 String LifeAudioProcessor::paramPitchAmount = "PitchAmount";
@@ -38,7 +41,7 @@ LifeAudioProcessor::LifeAudioProcessor() :
                      #endif
                        ),
 #endif
-   mUnlocked(true) // initially unlocked
+   mUnlocked(false) // initially locked
 {
 	
 	mUndoManager = new UndoManager();
@@ -88,6 +91,13 @@ LifeAudioProcessor::LifeAudioProcessor() :
     mWet = new Jimmy::DSP::WetDry();
     
     mGainMaster = new Jimmy::DSP::GainMaster(-10.0f, 10.0f, numOutputChannel);
+
+    // @AS try to unlock the audio thread (in case the UI is never surfaced)
+#ifdef SEQ_ALWAYS_UNLOCKED
+    mUnlocked = true;
+#else
+    audioThreadAuthorize();
+#endif
 }
 
 LifeAudioProcessor::~LifeAudioProcessor()
@@ -246,7 +256,7 @@ bool LifeAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) con
 
 void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-   //@AS
+   //@AS bypass processing when product is not unlocked
    if (!mUnlocked)
       return;
 
@@ -426,6 +436,55 @@ void LifeAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 	if (tree.isValid()) {
 		mState->state = tree;
 	}
+}
+
+/*@AS This is a duplication of some code in the UI. The reason for it is that it's possible
+for someone to still use the product without bringing up the UI. This prevents processing
+if not unlocked
+*/
+void LifeAudioProcessor::audioThreadAuthorize()
+{
+   
+   String authkey;
+   String uid, pwd;
+   String err;
+   int days = 0;
+   bool unlockEngine = false;
+   mEditorState.getUIDPWD(uid, pwd);
+
+   // read main unlock code
+   seqReadKeyFromFile(authkey);
+
+   // authorize
+   if (authkey.length() && uid.length() && pwd.length()) {
+      days = seqAuthorize(authkey, uid, err);
+      if (days > 0) {
+         // still valid, unlock the engine
+         mUnlocked = true;
+         if (days < 8) {
+            // approaching expiration. try to get a new key from server
+            // writing it to the file. if this fails, we still have some days
+            // left, so ignore failures
+            seqDoReauthorize(uid, pwd, err);
+         }         
+      }
+      else {
+         // license expired try to reauthorize
+         if (seqDoReauthorize(uid, pwd, err)) {
+            // successfully reauthorized
+            mUnlocked = true;
+         }            
+      }
+   }
+   else { // no unlock code/uid/pwd is present, see if we have trial unlock
+      if (seqReadKeyFromFile(authkey, true)) { 
+         days = seqAuthorize(authkey, uid, err, true);
+         if (days > 0) {
+            // still valid, unlock the engine
+            mUnlocked = true;
+         }
+      }      
+   }
 }
 
 //==============================================================================
