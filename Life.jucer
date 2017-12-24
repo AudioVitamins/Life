@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="P5E3Kx" name="Life" projectType="audioplug" version="1.0.0"
               bundleIdentifier="com.AudioVitamins.Life" includeBinaryInAppConfig="0"
-              buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"
+              buildVST="1" buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0"
               buildAAX="1" pluginName="Life" pluginDesc="Life" pluginManufacturer="Audio Vitamins"
               pluginManufacturerCode="AuVi" pluginCode="Life" pluginChannelConfigs="{1,1},{1,2},{2,2}"
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
@@ -11,10 +11,32 @@
               pluginAAXCategory="" jucerVersion="5.2.0" companyName="Audio Vitamins"
               companyWebsite="https://www.audiovitamins.com" companyEmail="info@audiovitamins.com"
               pluginAUMainType="" pluginVSTCategory="" buildStandalone="0"
-              enableIAA="0" displaySplashScreen="0" reportAppUsage="1" splashScreenColour="Dark"
+              enableIAA="0" displaySplashScreen="0" reportAppUsage="0" splashScreenColour="Dark"
               cppLanguageStandard="11" companyCopyright="Audio Vitamins">
   <MAINGROUP id="iF88XL" name="Life">
     <GROUP id="{8A69A9FD-4FF6-82F9-BF93-7A72225A8DC0}" name="Source">
+      <GROUP id="{2DE7EF3F-874C-436B-9489-F5276E52F129}" name="authorisation">
+        <FILE id="hHDamA" name="auth.cpp" compile="1" resource="0" file="Source/authorization/auth.cpp"/>
+        <FILE id="KzBBaj" name="auth.h" compile="0" resource="0" file="Source/authorization/auth.h"/>
+        <FILE id="xUjpZi" name="AuthDialog.cpp" compile="1" resource="0" file="Source/authorization/AuthDialog.cpp"/>
+        <FILE id="O1fPNL" name="AuthDialog.h" compile="0" resource="0" file="Source/authorization/AuthDialog.h"/>
+        <FILE id="Jet7Ou" name="Colors.h" compile="0" resource="0" file="Source/authorization/Colors.h"/>
+        <FILE id="OlB0Nt" name="CommonComponents.cpp" compile="1" resource="0"
+              file="Source/authorization/CommonComponents.cpp"/>
+        <FILE id="BnpMvO" name="CommonComponents.h" compile="0" resource="0"
+              file="Source/authorization/CommonComponents.h"/>
+        <FILE id="jV5AFs" name="Constants.h" compile="0" resource="0" file="Source/authorization/Constants.h"/>
+        <FILE id="rRcvCK" name="EditorState.cpp" compile="1" resource="0" file="Source/authorization/EditorState.cpp"/>
+        <FILE id="jpzJvB" name="EditorState.h" compile="0" resource="0" file="Source/authorization/EditorState.h"/>
+        <FILE id="YLg1RB" name="SeqImageX.cpp" compile="1" resource="0" file="Source/authorization/SeqImageX.cpp"/>
+        <FILE id="CTapT8" name="SeqImageX.h" compile="0" resource="0" file="Source/authorization/SeqImageX.h"/>
+        <FILE id="N7fKYS" name="TrialDialog.cpp" compile="1" resource="0" file="Source/authorization/TrialDialog.cpp"/>
+        <FILE id="kmRban" name="TrialDialog.h" compile="0" resource="0" file="Source/authorization/TrialDialog.h"/>
+        <FILE id="uis7ig" name="ucshared.cpp" compile="1" resource="0" file="Source/authorization/ucshared.cpp"/>
+        <FILE id="hzwcYP" name="ucshared.h" compile="0" resource="0" file="Source/authorization/ucshared.h"/>
+        <FILE id="M6I4Ak" name="ucvalidate.cpp" compile="1" resource="0" file="Source/authorization/ucvalidate.cpp"/>
+        <FILE id="r6urjL" name="unlockcode.h" compile="1" resource="0" file="Source/authorization/unlockcode.h"/>
+      </GROUP>
       <GROUP id="{EEF018BF-472A-3ADD-49EF-9881994EA5F2}" name="Component">
         <FILE id="mRRIn1" name="Slider.cpp" compile="1" resource="0" file="Source/Slider.cpp"/>
         <FILE id="wvcEYx" name="Slider.h" compile="0" resource="0" file="Source/Slider.h"/>
@@ -108,20 +130,24 @@
     </VS2015>
   </EXPORTFORMATS>
   <MODULES>
-    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0"/>
-    <MODULE id="juce_video" showAllCode="1" useLocalCopy="0"/>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_video" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
   <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
+  <LIVE_SETTINGS>
+    <OSX/>
+  </LIVE_SETTINGS>
 </JUCERPROJECT>

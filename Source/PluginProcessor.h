@@ -21,6 +21,7 @@
 #include "DSP/GainMaster.h"
 #include "DSP/LRtoMSConverter.h"
 #include "Config.h"
+#include "./authorization/EditorState.h"
 
 //==============================================================================
 /**
@@ -70,6 +71,10 @@ public:
 	bool InvertTremolo = false;
 //	bool DelayLink = false;
 //	bool FeedbackLink = false;
+    
+    //@AS
+    bool mUnlocked;
+    EditorState mEditorState;
 
 private:
     //==============================================================================
