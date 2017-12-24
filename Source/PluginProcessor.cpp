@@ -337,8 +337,10 @@ bool LifeAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) con
 void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
     //@AS
-    if (!mUnlocked)
+    if (!mUnlocked){
+        buffer.clear();
         return;
+    }
     
 	if (getPlayHead()->getCurrentPosition(currentPositionInfo))
 		lastKnownBpm = currentPositionInfo.bpm;
