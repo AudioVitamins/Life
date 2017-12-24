@@ -61,7 +61,7 @@ String seqGetNewAuthKey(const String & uid, const String & pwd, String & errMsg)
 
    String resultKey = url.readEntireTextStream();
    if (!resultKey.length()) {
-      errMsg = "Failed to communicate with server " SEQ_LICENSE_URL;
+      errMsg = "Failed to communicate with server";
       return String();
    }
    resultKey=resultKey.trim();
@@ -195,7 +195,7 @@ bool seqPostEmailForTrial(const String & email, String & errMsg)
    url = url.withParameter("VER", tmp);
    String result = url.readEntireTextStream();
    if (!result.length()) {
-      errMsg = "Failed to communicate with server " SEQ_TRIAL_URL;
+      errMsg = "Failed to communicate with server";
       return false;
    }
    else if (result.compare("SUCCESS") == 0) {

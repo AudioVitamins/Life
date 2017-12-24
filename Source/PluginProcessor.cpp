@@ -256,9 +256,12 @@ bool LifeAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) con
 
 void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-   //@AS bypass processing when product is not unlocked
-   if (!mUnlocked)
+   //@AS bypass processing when product is not unlocked.
+   // clear the buffer so user knows it's locked
+   if (!mUnlocked) {
+      buffer.clear();
       return;
+   }
 
 	if (getPlayHead()->getCurrentPosition(currentPositionInfo))
 		lastKnownBpm = currentPositionInfo.bpm;
