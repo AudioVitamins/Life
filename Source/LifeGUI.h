@@ -22,6 +22,9 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
+//@AS
+#include "./authorization/TrialDialog.h"
+#include "./authorization/AuthDialog.h"
 class LifeAudioProcessor;
 class SliderComponent;
 //[/Headers]
@@ -37,7 +40,8 @@ class SliderComponent;
                                                                     //[/Comments]
 */
 class LifeGUI  : public Component,
-                 public Timer,
+                 public MultiTimer,
+                 public CptNotify,
                  public ButtonListener,
                  public SliderListener
 {
@@ -134,7 +138,7 @@ public:
 	};
 
 	//Event Timer
-	void timerCallback() override;
+	void timerCallback(int timerID) override;
 
 	//Slider Handler
 	void sliderDragStarted(Slider* sliderThatWasMoved) override;
@@ -167,6 +171,10 @@ public:
 	static const int white_pushbutton_redlink_25x25_vertical_pngSize;
 	static const char* life_uibg_png;
 	static const int life_uibg_pngSize;
+    static const char* authorization_png;
+    static const int authorization_pngSize;
+    static const char* lock2small_png;
+    static const int lock2small_pngSize;
 
 
 
@@ -218,11 +226,27 @@ private:
 	Image bgrImgAmount;
 	ScopedPointer<KnobImageInfo> knobInfoAmount;
 	ScopedPointer<CustomSlider> knobLookAmount;
+    
+    //@AS
+    SeqGlob mGlob;
+    bool mUnlocked;// will be set true when we are unlocked
+    // if set to true then the authorize function will try to reauthorize if
+    // expired or within reauth period
+    bool mTryReauth;
+    // For trial dialog
+    SeqTrialDialog mTrialDialog;
+    SeqAuthDialog mAuthDlg;
+    // Inherited via CptNotify
+    virtual void cptValueChange(int cptId, int value) override;
+    void authorize();
+    void prepareAuthorization(bool allowRenew);
 	
 	ScopedPointer<LifeToggleButton> LifeToggleButtonLookandFeel;
 	ScopedPointer<LifeLinkButton> LifeLinkButtonLookandFeel;
 
 	Image CachedImage_Life_UI_Background_v1_png;
+    
+    
 	
     //[/UserVariables]
 
@@ -243,6 +267,7 @@ private:
     ScopedPointer<Slider> loPassFilterSlider[2];
     ScopedPointer<Slider> wetDrySlider;
     ScopedPointer<Slider> masterGainSlider;
+    ScopedPointer<ImageButton> mBtnUnlock;
     Image cachedImage_life_ui_cmbgv3_png_1;
 
     //==============================================================================
