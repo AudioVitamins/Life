@@ -380,7 +380,7 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 	{
 		if (ProcessMS == true)
 		{
-			mMSConverter->ConvertLRToMid(buffer);
+			//mMSConverter->ConvertLRToMid(buffer); // Temporarily disabled due to Logic Crash  
 		}
 
 		mDelayVibrato[L]->process(buffer, L);
@@ -433,7 +433,13 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 		buffer.copyFrom(R, 0, SideBuffer.getWritePointer(L), SideBuffer.getNumSamples());
 	}
 
-	if (ProcessMS == true) { mMSConverter->ConvertMSToLR(buffer); }
+	if (totalNumOutputChannels != 1) // Temporarily disabled if output is mono due to Logic Crash  
+	{
+		if (ProcessMS == true)
+		{
+			mMSConverter->ConvertMSToLR(buffer);
+		}
+	}
 
 	mWidth->process(buffer);
 	
