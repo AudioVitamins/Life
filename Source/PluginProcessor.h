@@ -71,12 +71,18 @@ public:
 	bool InvertTremolo = false;
 //	bool DelayLink = false;
 //	bool FeedbackLink = false;
+    int numOutputChannel = getTotalNumOutputChannels();
     
     //@AS
     bool mUnlocked;
     EditorState mEditorState;
 
 private:
+    // this is a bit redundant, but covers the case when the user has not brought up the
+    // UI, or they are using it in non-UI mode
+
+    void audioThreadAuthorize();
+
     //==============================================================================
 
 //	ScopedPointer<Jimmy::DSP::StaticDelay> mDelay;
