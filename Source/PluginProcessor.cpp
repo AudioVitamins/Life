@@ -138,7 +138,6 @@ LifeAudioProcessor::LifeAudioProcessor():
 
 	mState->addParameterListener(paramDelayLinkToggle, this);
 	mState->addParameterListener(paramFeedbackLinkToggle, this);
-
 }
 
 LifeAudioProcessor::~LifeAudioProcessor()
@@ -209,6 +208,9 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 	mDelayVibrato[L] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
 	mDelayVibrato[R] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
 
+	m3SampleDelay[L] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
+	m3SampleDelay[R] = new Jimmy::DSP::DelayVibrato(float(sampleRate), 0.1f, numOutputChannel);
+
 	mTremolo[L] = new Jimmy::DSP::Tremolo(float(sampleRate), numOutputChannel);
 	mTremolo[R] = new Jimmy::DSP::Tremolo(float(sampleRate), numOutputChannel);
 	
@@ -229,10 +231,15 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 	float *delayMsLeft = mState->getRawParameterValue(paramDelayLeft);
 	float *delayMsRight = mState->getRawParameterValue(paramDelayRight);
 
+	m3SampleDelay[L]->setDelayInMiliSec(3.0 / sampleRate); //Time in Miliseconds = samples / sampleRate 
+	m3SampleDelay[R]->setDelayInMiliSec(3.0 / sampleRate); //Time in Miliseconds = samples / sampleRate 
+
 	mDelayVibrato[L]->setDelayInMiliSec(*delayMsLeft);
 	mDelayVibrato[R]->setDelayInMiliSec(*delayMsRight);
 	//mDelay->preparePlay(samplesPerBlock);
 	//mDelay->setDelayInMiliSec(*delayMs);
+
+	DBG((String)sampleRate);
 
 	float *ratePitchLeft = mState->getRawParameterValue(paramPitchRateLeft);
 	float *amountPitchLeft = mState->getRawParameterValue(paramPitchAmountLeft);
@@ -257,6 +264,13 @@ void LifeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
 	mDelayVibrato[L]->SetFeedback(*feedbackLeft);
 	mDelayVibrato[R]->SetFeedback(*feedbackRight);
+
+	m3SampleDelay[L]->SetFrequency(1.0);
+	m3SampleDelay[L]->SetDepth(0.0);
+	m3SampleDelay[L]->SetFeedback(0.0);
+	m3SampleDelay[R]->SetFrequency(1.0);
+	m3SampleDelay[R]->SetDepth(0.0);
+	m3SampleDelay[R]->SetFeedback(0.0);
 	
 	// Apply AM
 	float *rateAmLeft = mState->getRawParameterValue(paramAmplitudeRateLeft);
@@ -342,6 +356,8 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
         return;
     }
     
+	setLatencySamples(3);
+
 	if (getPlayHead()->getCurrentPosition(currentPositionInfo))
 		lastKnownBpm = currentPositionInfo.bpm;
 
@@ -367,12 +383,18 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 	float freqLeft = RateToFrequency(*ratePitchLeft);
 	float freqRight = RateToFrequency(*ratePitchRight);
 
+	m3SampleDelay[L]->SetFrequency(1.0);
+	m3SampleDelay[R]->SetFrequency(1.0);
+
 	mDelayVibrato[L]->SetFrequency(freqLeft);
 	mDelayVibrato[R]->SetFrequency(freqRight);
 
+	m3SampleDelay[L]->setDelayInMiliSec(3.0 / getSampleRate()); //Time in Miliseconds = samples / sampleRate 
+	m3SampleDelay[R]->setDelayInMiliSec(3.0 / getSampleRate()); //Time in Miliseconds = samples / sampleRate 
+
 	mDelayVibrato[L]->setDelayInMiliSec(*delayMsLeft);
 	mDelayVibrato[R]->setDelayInMiliSec(*delayMsRight);
-
+	
 	dryAudioBuffer.makeCopyOf(buffer, true);
 	SideBuffer.makeCopyOf(buffer, true);
 
@@ -382,7 +404,7 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 		{
 			//mMSConverter->ConvertLRToMid(buffer); // Temporarily disabled due to Logic Crash  
 		}
-
+		m3SampleDelay[L]->process(dryAudioBuffer, L); // Delay dry buffer by 3 samples (Fixing Issue).
 		mDelayVibrato[L]->process(buffer, L);
 		mTremolo[L]->process(buffer, L);
 		mFilterHP[L]->process(buffer, L);
@@ -396,6 +418,7 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 			mMSConverter->ConvertLRToSide(buffer, SideBuffer);
 		}
 
+		m3SampleDelay[L]->process(dryAudioBuffer, L); // Delay dry buffer by 3 samples (Fixing Issue).
 		mDelayVibrato[L]->process(buffer, L);
 		mTremolo[L]->process(buffer, L);
 		mFilterHP[L]->process(buffer, L);
@@ -403,11 +426,14 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 
 		if (totalNumOutputChannels >= 2)
 		{
+			m3SampleDelay[R]->process(dryAudioBuffer, R); // Delay dry buffer by 3 samples (Fixing Issue).
 			mDelayVibrato[R]->process(buffer, R);
 			mTremolo[R]->process(buffer, R);
 			mFilterHP[R]->process(buffer, R);
 			mFilterLP[R]->process(buffer, R);
 		}
+		
+
 	}
 	else if (totalNumInputChannels == 1 && totalNumOutputChannels == 2)
 	{
@@ -417,6 +443,7 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 			mMSConverter->ConvertLRToSide(buffer, SideBuffer);
 		}
 
+		m3SampleDelay[L]->process(dryAudioBuffer, L); // Delay dry buffer by 3 samples (Fixing Issue).
 		mDelayVibrato[L]->process(buffer, L);
 		mTremolo[L]->process(buffer, L);
 		mFilterHP[L]->process(buffer, L);
@@ -424,6 +451,7 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 
 		if (totalNumOutputChannels >= 2)
 		{
+		//	m3SampleDelay->process(dryAudioBuffer, L); // Delay dry buffer by 3 samples (Fixing Issue).
 			mDelayVibrato[R]->process(SideBuffer, L);
 			mTremolo[R]->process(SideBuffer, L);
 			mFilterHP[R]->process(SideBuffer, L);
@@ -431,6 +459,8 @@ void LifeAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& mid
 		}
 
 		buffer.copyFrom(R, 0, SideBuffer.getWritePointer(L), SideBuffer.getNumSamples());
+		DBG("OUT IS 1 2");
+
 	}
 
 	if (totalNumOutputChannels != 1) // Temporarily disabled if output is mono due to Logic Crash  
