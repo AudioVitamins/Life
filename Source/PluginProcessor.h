@@ -91,6 +91,8 @@ private:
 	ScopedPointer<LRtoMSConverter> mMSConverter;
 	
 	ScopedPointer<Jimmy::DSP::DelayVibrato> mDelayVibrato[2];
+	ScopedPointer<Jimmy::DSP::DelayVibrato> m3SampleDelay[2];
+
 	ScopedPointer<Jimmy::DSP::Tremolo> mTremolo[2];
 
 	ScopedPointer<Jimmy::DSP::IIRFilterHP> mFilterHP[2];
