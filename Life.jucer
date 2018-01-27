@@ -76,7 +76,7 @@
   </MAINGROUP>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vst3Folder="/Frameworks/VST3SDK"
-               aaxFolder="/Frameworks/AAX">
+               aaxFolder="/Frameworks/AAX" rtasFolder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Life" osxCompatibility="10.9 SDK"
                        enablePluginBinaryCopyStep="1"/>
@@ -102,7 +102,8 @@
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2015 targetFolder="Builds/VisualStudio2015" vstFolder="G:\Working\FrameWork\VST3 SDK"
-            vst3Folder="G:\Working\FrameWork\VST3 SDK" aaxFolder="G:\Working\FrameWork\AAX_SDK">
+            vst3Folder="Z:\Frameworks\VST3SDK" aaxFolder="Z:\Frameworks\AAX"
+            rtasFolder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="1" optimisation="1" targetName="Life" postbuildCommand="&#10;xcopy /Y /S &quot;$(OutDir)$(TargetFileName)&quot; &quot;C:\Vst&quot;"
@@ -128,6 +129,32 @@
         <MODULEPATH id="juce_audio_basics" path="..\..\JUCE 4.3.0\modules"/>
       </MODULEPATHS>
     </VS2015>
+    <VS2017 targetFolder="Builds/VisualStudio2017" vst3Folder="" aaxFolder="">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
+                       linkTimeOptimisation="0" isDebug="1" optimisation="1" targetName="Life"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
+                       linkTimeOptimisation="1" isDebug="0" optimisation="3" targetName="Life"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_video" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_opengl" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_graphics" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_events" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_data_structures" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_cryptography" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_core" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="..\..\JUCE 4.3.0\modules"/>
+        <MODULEPATH id="juce_audio_basics" path="..\..\JUCE 4.3.0\modules"/>
+      </MODULEPATHS>
+    </VS2017>
   </EXPORTFORMATS>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

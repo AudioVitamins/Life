@@ -40,7 +40,7 @@ namespace Jimmy {
 				for (int i = 0; i < numSamples; i++) {
 					mWet = mSmooth->getValue();
 					
-						out[outChan][i] = processSamples(raw[inChan][i], out[outChan][i]);
+						out[outChan][i] = processSamples((raw[inChan][i], out[outChan][i]);
 					
 					
 				}

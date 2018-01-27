@@ -118,7 +118,7 @@ namespace Jimmy {
 
                 void resetSmoother()
                 {
-                    const float crossfadeTimeInSeconds = 0.25f;
+                    const float crossfadeTimeInSeconds = 0.1f;
 
                     fade.reset(sampleRate, crossfadeTimeInSeconds);
                 }

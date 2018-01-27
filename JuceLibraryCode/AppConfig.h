@@ -380,7 +380,7 @@
  #define JucePlugin_AAXProductId           JucePlugin_PluginCode
 #endif
 #ifndef  JucePlugin_AAXCategory
- #define JucePlugin_AAXCategory            AAX_ePlugInCategory_Delay | AAX_ePlugInCategory_Modulation | AAX_ePlugInCategory_PitchShift | AAX_ePlugInCategory_SoundField
+ #define JucePlugin_AAXCategory            
 #endif
 #ifndef  JucePlugin_AAXDisableBypass
  #define JucePlugin_AAXDisableBypass       0
