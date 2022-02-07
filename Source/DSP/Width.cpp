@@ -3,7 +3,7 @@
 
     Width.cpp
     Created: 4 May 2017 4:09:41pm
-    Author:  Jimmy
+    Author:  Dave Clissold
 
   ==============================================================================
 */

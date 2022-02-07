@@ -3,7 +3,7 @@
 
     Delay.h
     Created: 26 Mar 2017 12:10:10pm
-    Author:  Jimmy
+    Author:  Dave Clissold
 
   ==============================================================================
 */
@@ -14,7 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "../LogUtil.h"
 #include "Smooth.h"
-namespace Jimmy {
+namespace Life {
 	namespace DSP {
 		class StaticDelay {
 

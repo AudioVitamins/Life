@@ -141,14 +141,14 @@ public:
 	void timerCallback(int timerID) override;
 
 	//Slider Handler
-	void sliderDragStarted(Slider* sliderThatWasMoved) override;
-	void sliderDragEnded(Slider* sliderThatWasMoved) override;
+	void sliderDragStarted(Slider* sliderThatWasMoved);
+	void sliderDragEnded(Slider* sliderThatWasMoved);
     //[/UserMethods]
 
     void paint (Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
-    void sliderValueChanged (Slider* sliderThatWasMoved) override;
+    void buttonClicked (Button* buttonThatWasClicked);
+    void sliderValueChanged (Slider* sliderThatWasMoved);
 
     // Binary resources:
     static const char* life_ui_cmversion_png;

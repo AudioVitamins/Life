@@ -3,7 +3,7 @@
 
     Lfo.h
     Created: 19 Apr 2017 12:36:33am
-    Author:  Jimmy
+    Author:  Dave Clissold
 
   ==============================================================================
 */
@@ -13,7 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-namespace Jimmy {
+namespace Life {
 	namespace DSP {
 		class LFO {
 			int mSampleRate;

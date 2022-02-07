@@ -3,7 +3,7 @@
 
     Tremolo.h
     Created: 26 Apr 2017 11:25:13pm
-    Author:  Jimmy
+    Author:  Dave Clissold
 
   ==============================================================================
 */
@@ -14,7 +14,7 @@
 #include "Lfo.h"
 #include "Delay.h"
 
-namespace Jimmy {
+namespace Life {
 	namespace DSP {
 		class Tremolo {
 			float mSampleRate;

@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.2.0
+  Created with Projucer version: 5.3.2
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -49,13 +49,15 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
 
+
+
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     LifeAudioProcessor& mP;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<LifeGUI> mLifeGui;
+    std::unique_ptr<LifeGUI> mLifeGui;
 
 
     //==============================================================================

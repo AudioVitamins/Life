@@ -3,7 +3,7 @@
 
 	Vibrato.h
 	Created: 22 Apr 2017 1:19:05pm
-	Author:  Jimmy
+	Author:  Dave Clissold
 
   ==============================================================================
 */
@@ -15,7 +15,7 @@
 #include "Delay.h"
 #include "../LogUtil.h"
 #include "Smooth.h"
-namespace Jimmy {
+namespace Life {
 	namespace DSP {
 		class DelayVibrato {
 

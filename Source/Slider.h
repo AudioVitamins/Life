@@ -7,18 +7,17 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.3
+  Created with Projucer version: 5.3.2
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_EEE63DCCFEE5A61__
-#define __JUCE_HEADER_EEE63DCCFEE5A61__
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -48,8 +47,8 @@ public:
 	void mouseDoubleClick(const MouseEvent&) override;
     //[/UserMethods]
 
-   // void paint (Graphics& g) override;
-    //void resized() override;
+    void paint (Graphics& g) override;
+    void resized() override;
 
 
 
@@ -67,5 +66,3 @@ private:
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
-
-#endif   // __JUCE_HEADER_EEE63DCCFEE5A61__

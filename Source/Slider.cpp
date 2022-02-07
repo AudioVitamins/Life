@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 4.2.3
+  Created with Projucer version: 5.3.2
 
   ------------------------------------------------------------------------------
 
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2017 - ROLI Ltd.
 
   ==============================================================================
 */
@@ -38,7 +38,7 @@ SliderComponent::SliderComponent ()
     //[UserPreSize]
     //[/UserPreSize]
 
-   // setSize (600, 400);
+    setSize (600, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -56,26 +56,26 @@ SliderComponent::~SliderComponent()
     //[/Destructor]
 }
 
-////==============================================================================
-//void SliderComponent::paint (Graphics& g)
-//{
-//    //[UserPrePaint] Add your own custom painting code here..
-//    //[/UserPrePaint]
-//
-//    g.fillAll (Colours::white);
-//
-//    //[UserPaint] Add your own custom painting code here..
-//    //[/UserPaint]
-//}
-//
-//void SliderComponent::resized()
-//{
-//    //[UserPreResize] Add your own custom resize code here..
-//    //[/UserPreResize]
-//
-//    //[UserResized] Add your own custom resize handling here..
-//    //[/UserResized]
-//}
+//==============================================================================
+void SliderComponent::paint (Graphics& g)
+{
+    //[UserPrePaint] Add your own custom painting code here..
+    //[/UserPrePaint]
+
+    g.fillAll (Colours::white);
+
+    //[UserPaint] Add your own custom painting code here..
+    //[/UserPaint]
+}
+
+void SliderComponent::resized()
+{
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
+    //[UserResized] Add your own custom resize handling here..
+    //[/UserResized]
+}
 
 
 
@@ -84,6 +84,7 @@ void SliderComponent::mouseDoubleClick(const MouseEvent&) {
 	this->showTextBox();
 }
 //[/MiscUserCode]
+
 
 //==============================================================================
 #if 0
@@ -96,7 +97,7 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SliderComponent" componentName=""
                  parentClasses="public Slider" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.33"
                  fixedSize="1" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ffffffff"/>
 </JUCER_COMPONENT>

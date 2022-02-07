@@ -3,7 +3,7 @@
 
     IIRFilter.h
     Created: 4 May 2017 1:48:38am
-    Author:  Jimmy
+    Author:  Dave Clissold
 
   ==============================================================================
 */
@@ -11,7 +11,7 @@
 #ifndef IIRFILTER_H_INCLUDED
 #define IIRFILTER_H_INCLUDED
 #include "../JuceLibraryCode/JuceHeader.h"
-namespace Jimmy {
+namespace Life {
 	namespace DSP {
 		class IIRFilterLP {
 			Array<juce::IIRFilter> mIIRFilter;

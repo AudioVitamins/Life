@@ -3,7 +3,7 @@
 
     Vibrato.cpp
     Created: 22 Apr 2017 1:19:05pm
-    Author:  Jimmy
+    Author:  Dave Clissold
 
   ==============================================================================
 */

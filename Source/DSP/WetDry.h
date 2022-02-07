@@ -3,7 +3,7 @@
 
     WetDry.h
     Created: 5 May 2017 2:57:40am
-    Author:  Jimmy
+    Author:  Dave Clissold
 
   ==============================================================================
 */
@@ -12,7 +12,7 @@
 #define WETDRY_H_INCLUDED
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Smooth.h"
-namespace Jimmy {
+namespace Life {
 	namespace DSP {
 		class WetDry {
 			float mWet;
@@ -40,7 +40,7 @@ namespace Jimmy {
 				for (int i = 0; i < numSamples; i++) {
 					mWet = mSmooth->getValue();
 					
-						out[outChan][i] = processSamples((raw[inChan][i], out[outChan][i]);
+						out[outChan][i] = processSamples(raw[inChan][i], out[outChan][i]);
 					
 					
 				}

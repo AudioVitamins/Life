@@ -1235,7 +1235,7 @@ trial_mode:
 void LifeGUI::prepareAuthorization(bool allowRenew)
 {
     mTryReauth = allowRenew;
-    startTimer(2, AUTH_CHECK_DELAY);
+    startTimer(2,AUTH_CHECK_DELAY);
     // authorize will be called in 3 seconds
 }
 

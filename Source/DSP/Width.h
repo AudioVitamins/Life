@@ -3,7 +3,7 @@
 
     Width.h
     Created: 4 May 2017 4:09:41pm
-    Author:  Jimmy
+    Author:  Dave Clissold
 
   ==============================================================================
 */
@@ -12,7 +12,7 @@
 #define WIDTH_H_INCLUDED
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Smooth.h"
-namespace Jimmy {
+namespace Life {
 	namespace DSP {
 #if 0
 		class Width {

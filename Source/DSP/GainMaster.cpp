@@ -3,7 +3,7 @@
 
     GainMaster.cpp
     Created: 3 May 2017 11:51:41pm
-    Author:  Jimmy
+    Author:  Dave Clissold
 
   ==============================================================================
 */

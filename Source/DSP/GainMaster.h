@@ -3,7 +3,7 @@
 
     GainMaster.h
     Created: 3 May 2017 11:51:41pm
-    Author:  Jimmy
+    Author:  Dave Clissold
 
   ==============================================================================
 */
@@ -12,7 +12,7 @@
 #define GAINMASTER_H_INCLUDED
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Smooth.h"
-namespace Jimmy {
+namespace Life {
 	namespace DSP {
 		class GainMaster {
 			enum {

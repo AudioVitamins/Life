@@ -85,23 +85,23 @@ private:
 
     //==============================================================================
 
-//	ScopedPointer<Jimmy::DSP::StaticDelay> mDelay;
-//	ScopedPointer<Jimmy::DSP::Vibrato> mVibrato;
+//	ScopedPointer<Life::DSP::StaticDelay> mDelay;
+//	ScopedPointer<Life::DSP::Vibrato> mVibrato;
 
 	ScopedPointer<LRtoMSConverter> mMSConverter;
 	
-	ScopedPointer<Jimmy::DSP::DelayVibrato> mDelayVibrato[2];
-	ScopedPointer<Jimmy::DSP::DelayVibrato> m3SampleDelay[2];
+	ScopedPointer<Life::DSP::DelayVibrato> mDelayVibrato[2];
+	ScopedPointer<Life::DSP::DelayVibrato> m3SampleDelay[2];
 
-	ScopedPointer<Jimmy::DSP::Tremolo> mTremolo[2];
+	ScopedPointer<Life::DSP::Tremolo> mTremolo[2];
 
-	ScopedPointer<Jimmy::DSP::IIRFilterHP> mFilterHP[2];
-	ScopedPointer<Jimmy::DSP::IIRFilterLP> mFilterLP[2];
+	ScopedPointer<Life::DSP::IIRFilterHP> mFilterHP[2];
+	ScopedPointer<Life::DSP::IIRFilterLP> mFilterLP[2];
 
-	ScopedPointer<Jimmy::DSP::Width> mWidth;
-	ScopedPointer<Jimmy::DSP::WetDry> mWet;
+	ScopedPointer<Life::DSP::Width> mWidth;
+	ScopedPointer<Life::DSP::WetDry> mWet;
 
-	ScopedPointer<Jimmy::DSP::GainMaster> mGainMaster;
+	ScopedPointer<Life::DSP::GainMaster> mGainMaster;
 	
 	float RateToFrequency(float rate) const;
 

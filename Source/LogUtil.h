@@ -7,14 +7,6 @@
 #include <time.h>
 
  
-#define JIMMY_LOGGER_ACTIVATE Jimmy::Logger::SetEnabled
-#define JIMMY_LOGGER_PRINT Jimmy::Logger::Print
-#define JIMMY_LOGGER_DETAIL Jimmy::DETAIL
-#define JIMMY_LOGGER_INFO Jimmy::INFORMATION
-#define JIMMY_LOGGER_DATA Jimmy::DATA
-#define JIMMY_LOGGER_STEP Jimmy::STEP
-#define JIMMY_LOGGER_NONE Jimmy::NONE
-#define JIMMY_LOGGER_NONE_TIME Jimmy::NONE_TIME
 #if WIN32
 #define WINDOWS
 #endif
@@ -22,7 +14,7 @@
 #ifdef JYMMY_LOGGER_MUTEXT
 #include <mutex>
 #endif
-namespace Jimmy {
+namespace Life {
 #ifdef JYMMY_LOGGER_MUTEXT
 	class Locker
 	{

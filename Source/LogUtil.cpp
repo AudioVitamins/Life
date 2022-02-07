@@ -1,5 +1,5 @@
 #include "LogUtil.h"
-namespace Jimmy {
+namespace Life {
 #ifdef JYMMY_LOGGER_MUTEXT
 	std::mutex Logger::m_mutex;
 #endif

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="P5E3Kx" name="Life" projectType="audioplug" version="1.0.0"
+<JUCERPROJECT id="P5E3Kx" name="Life" projectType="audioplug" version="1.0.1"
               bundleIdentifier="com.AudioVitamins.Life" includeBinaryInAppConfig="0"
               buildVST="1" buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0"
               buildAAX="1" pluginName="Life" pluginDesc="Life" pluginManufacturer="Audio Vitamins"
@@ -82,7 +82,9 @@
                        enablePluginBinaryCopyStep="1"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="Life"
                        cppLanguageStandard="c++11" cppLibType="libc++" osxCompatibility="10.8 SDK"
-                       osxArchitecture="64BitUniversal" enablePluginBinaryCopyStep="1"/>
+                       osxArchitecture="64BitUniversal" enablePluginBinaryCopyStep="1"
+                       aaxBinaryLocation="/_AudioVitamins/Life/Builds/Release" auBinaryLocation="/_AudioVitamins/Life/Builds/Release"
+                       vst3BinaryLocation="/_AudioVitamins/Life/Builds/Release" vstBinaryLocation="/_AudioVitamins/Life/Builds/Release"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../../../Frameworks/JUCE/modules"/>
@@ -108,7 +110,7 @@
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="1" optimisation="1" targetName="Life" postbuildCommand="&#10;xcopy /Y /S &quot;$(OutDir)$(TargetFileName)&quot; &quot;C:\Vst&quot;"
                        debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"/>
-        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="Win32"
                        isDebug="0" optimisation="3" targetName="Life" debugInformationFormat="ProgramDatabase"
                        enablePluginBinaryCopyStep="0" linkTimeOptimisation="1"/>
       </CONFIGURATIONS>

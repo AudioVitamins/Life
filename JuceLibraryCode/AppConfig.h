@@ -100,10 +100,6 @@
  //#define JUCE_USE_WINRT_MIDI 1
 #endif
 
-#ifndef    JUCE_DISABLE_AUDIO_MIXING_WITH_OTHER_APPS
- //#define JUCE_DISABLE_AUDIO_MIXING_WITH_OTHER_APPS 1
-#endif
-
 //==============================================================================
 // juce_audio_formats flags:
 
@@ -140,10 +136,6 @@
 
 #ifndef    JUCE_USE_STUDIO_ONE_COMPATIBLE_PARAMETERS
  //#define JUCE_USE_STUDIO_ONE_COMPATIBLE_PARAMETERS 1
-#endif
-
-#ifndef    JUCE_STANDALONE_FILTER_WINDOW_USE_KIOSK_MODE
- //#define JUCE_STANDALONE_FILTER_WINDOW_USE_KIOSK_MODE 1
 #endif
 
 //==============================================================================
@@ -323,13 +315,13 @@
  #define JucePlugin_EditorRequiresKeyboardFocus  0
 #endif
 #ifndef  JucePlugin_Version
- #define JucePlugin_Version                1.0.0
+ #define JucePlugin_Version                1.0.1
 #endif
 #ifndef  JucePlugin_VersionCode
- #define JucePlugin_VersionCode            0x10000
+ #define JucePlugin_VersionCode            0x10001
 #endif
 #ifndef  JucePlugin_VersionString
- #define JucePlugin_VersionString          "1.0.0"
+ #define JucePlugin_VersionString          "1.0.1"
 #endif
 #ifndef  JucePlugin_VSTUniqueID
  #define JucePlugin_VSTUniqueID            JucePlugin_PluginCode
@@ -380,7 +372,7 @@
  #define JucePlugin_AAXProductId           JucePlugin_PluginCode
 #endif
 #ifndef  JucePlugin_AAXCategory
- #define JucePlugin_AAXCategory            
+ #define JucePlugin_AAXCategory            AAX_ePlugInCategory_Delay | AAX_ePlugInCategory_Modulation | AAX_ePlugInCategory_PitchShift | AAX_ePlugInCategory_SoundField
 #endif
 #ifndef  JucePlugin_AAXDisableBypass
  #define JucePlugin_AAXDisableBypass       0
